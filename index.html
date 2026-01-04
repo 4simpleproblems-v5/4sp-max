@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4SP - HOME</title>
-    <meta name="description" content="A multi-tool toolkit for students, featuring soundboards, utility apps, and QOL features like Tab Disguising and Panic keys.">
+    <meta name="description" content="(4SP MAX) - The experimental, cutting-edge beta of the student toolkit. Featuring Velium, dynamic themes, and advanced QOL tools.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,46 +26,64 @@
         }
         .dark { color-scheme: dark; }
         body { font-family: 'Geist', sans-serif; }
+        
+        /* Smooth, flowing gradient for the new title */
         .gradient-text {
-            background-image: linear-gradient(90deg, #0070f3, #f81ce5);
+            background-image: linear-gradient(90deg, #ff0055, #8b5cf6, #ff0055);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            background-size: 300% auto;
+            animation: shine 8s linear infinite; /* Slower, smoother animation */
         }
+
+        @keyframes shine {
+            to {
+                background-position: 300% center;
+            }
+        }
+
         .carousel-button {
-            width: 40px; /* Adjust as needed */
-            height: 40px; /* Adjust as needed */
+            width: 40px; 
+            height: 40px; 
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%; /* Make it a perfect circle */
+            border-radius: 50%; 
             border: none;
             cursor: pointer;
-            backdrop-filter: blur(8px) saturate(180%); /* Blur and saturate */
-            -webkit-backdrop-filter: blur(8px) saturate(180%); /* For Safari */
+            backdrop-filter: blur(8px) saturate(180%);
+            -webkit-backdrop-filter: blur(8px) saturate(180%);
             transition: background-color 0.3s ease;
         }
 
         /* Section-specific hues */
         .carousel-button-purple-hue {
-            background-color: rgba(139, 92, 246, 0.3); /* purple-500 with transparency */
+            background-color: rgba(139, 92, 246, 0.3);
         }
         .carousel-button-purple-hue:hover {
             background-color: rgba(139, 92, 246, 0.5);
         }
 
         .carousel-button-blue-hue {
-            background-color: rgba(96, 165, 250, 0.3); /* blue-400 with transparency */
+            background-color: rgba(96, 165, 250, 0.3); 
         }
         .carousel-button-blue-hue:hover {
             background-color: rgba(96, 165, 250, 0.5);
         }
 
-        .carousel-button-green-hue {
-            background-color: rgba(52, 211, 153, 0.3); /* green-400 with transparency */
-        }
-        .carousel-button-green-hue:hover {
-            background-color: rgba(52, 211, 153, 0.5);
+        /* Background Transition Layer */
+        #dynamic-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #000000 100%);
+            opacity: 0;
+            z-index: -10;
+            pointer-events: none;
+            transition: opacity 0.1s linear;
         }
     </style>
 
@@ -78,57 +96,61 @@
   gtag('config', 'G-1D4F692C1Q');
 </script>    
 </head>
-<body class="bg-black text-white min-h-screen">
+<body class="bg-black text-white min-h-screen relative">
+    
+    <div id="dynamic-background"></div>
+
     <main>
-        <section class="text-center border-b border-gray-900" style="padding-top: 2rem">
-            <div class="mx-auto max-w-4xl px-4">
+        <section class="text-center border-b border-gray-900 relative overflow-hidden" style="padding-top: 4rem">
+            
+            <div class="mx-auto max-w-5xl px-4 pb-16">
+                
                 <h1 class="text-3xl sm:text-4xl font-light text-gray-300 tracking-tighter mb-4 leading-tight">
-                    Welcome to 2026!
+                    Welcome to 2026.
                 </h1>
-                <h2 class="text-5xl sm:text-6xl font-light tracking-tighter mb-4 leading-tight">
-                    <span class="gradient-text font-bold">The Essential Student Toolkit.</span>
+                <h2 class="text-5xl sm:text-7xl font-light tracking-tighter mb-6 leading-tight">
+                    <span class="gradient-text font-bold">The Student Toolkit, Reimagined.</span>
                 </h2>
-                <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-6 font-light">
-                    4simpleproblems (4SP) is a multi-tool platform offering soundboards, study apps, and essential Quality-of-Life (QOL) features like Tab Disguising and Panic Keys—all designed to make student life easier and more fun.
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-8 font-light leading-relaxed">
+                    You are viewing the <strong>experimental</strong> version of the toolkit. Experience the new <span class="text-white">Velium</span> music engine, the redesigned "The New Year" Navigation Bar with live fireworks, and bleeding-edge features.
                 </p>
-                <div id="auth-button-container">
-                    <a id="auth-button" href="../authentication.html" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-normal rounded-xl shadow-sm text-white bg-white/10 ring-1 ring-white/20 hover:bg-white/20 transition">
+                <div id="auth-button-container" class="space-y-4">
+                    <a id="auth-button" href="../authentication.html" class="inline-flex items-center justify-center px-8 py-4 border border-white/10 text-lg font-normal rounded-2xl shadow-sm text-white bg-white/5 hover:bg-white/10 hover:scale-105 transition duration-300">
                         Get Started Instantly <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                 </div>
-                <p id="pronunciation-text" class="text-base text-gray-600 mt-2 mb-2 italic font-light">
-                    4simpleproblems is pronounced: fɔr sɪmpəl pɹɑbləmz
-                </p>
-                <p class="text-base text-gray-600 mt-2 mb-4 italic font-light">
-                    <a href="https://discord.gg/A798ZZUgca" target="_blank" class="text-white hover:underline transition">
-                        Go to Discord Server
-                    </a>
-                    <span class="mx-2">|</span>
-                    <a href="https://4sp-organization.github.io/index.html" target="_blank" class="text-white hover:underline transition">
-                        Go to 4SP Organization
-                    </a>
+                
+                <p id="pronunciation-text" class="text-sm text-gray-600 mt-8 mb-2 italic font-light">
+                    Currently testing: <span class="text-gray-400">Velium Audio Engine</span> & <span class="text-gray-400">Fireworks Nav UI</span>
                 </p>
             </div>
         </section>
 
-        <section id="features" class="py-16 mx-auto max-w-7xl px-4 space-y-16">
-             <h2 class="text-4xl font-light text-center mb-8">Core Features of 4SP</h2>
+        <section id="features" class="py-16 mx-auto max-w-7xl px-4 space-y-24">
+             <h2 class="text-4xl font-light text-center mb-12"><span class="text-gray-500">MAX Exclusive:</span> New Arrivals</h2>
 
             <div class="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
 
                 <div class="lg:pr-4 order-2 lg:order-1 mb-6 lg:mb-0">
-                    <span class="text-sm font-light text-green-400 uppercase tracking-widest mb-2 block">Toolkit Core</span>
-                    <h3 class="text-4xl font-light mb-3 mt-2">Soundboard</h3>
-                    <p class="text-xl text-gray-400 mb-5 font-light">
-                        Access our dynamic, low-latency soundboard to play your favorite sounds. Use the autoclicker and the sound overlay features for the best experience.
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-sm font-light text-yellow-400 uppercase tracking-widest block">New Platform</span>
+                        <span class="text-xs bg-yellow-400/10 text-yellow-400 px-2 py-0.5 rounded border border-yellow-400/20">BETA</span>
+                    </div>
+                    <h3 class="text-5xl font-light mb-4 mt-2 text-white">Velium.</h3>
+                    <p class="text-xl text-gray-400 mb-6 font-light">
+                        The future of study audio. <strong>Velium</strong> is our new dedicated music platform embedded directly into (4SP MAX). High fidelity, distraction-free, and seamlessly integrated with your workflow.
                     </p>
-                    <a href="/logged-in/soundboard.html" class="inline-flex items-center text-green-400 font-normal hover:text-green-300 transition">
-                        Explore Soundboard &rarr;
+                    <a href="/logged-in/velium.html" class="inline-flex items-center text-yellow-400 font-normal hover:text-yellow-300 transition group">
+                        Launch Velium Player <i class="fas fa-play ml-2 text-xs group-hover:translate-x-1 transition-transform"></i>
                     </a>
                 </div>
 
-                <div class="relative w-full h-64 overflow-hidden rounded-3xl border border-green-800/50 shadow-2xl bg-gray-900 flex items-center justify-center order-1 lg:order-2 mb-6 lg:mb-0">
-                    <img src="doc-images/soundboard.png" alt="Soundboard Feature" class="w-full h-full object-cover">
+                <div class="relative w-full h-72 overflow-hidden rounded-3xl border border-yellow-600/30 shadow-[0_0_40px_-10px_rgba(234,179,8,0.2)] bg-gray-900 flex items-center justify-center order-1 lg:order-2 mb-6 lg:mb-0">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-black via-gray-900 to-yellow-900/20"></div>
+                    <div class="relative text-center z-10">
+                        <i class="fas fa-record-vinyl text-6xl text-yellow-500/80 mb-4"></i>
+                        <p class="text-gray-500 font-mono text-sm">Velium Audio Engine</p>
+                    </div>
                 </div>
             </div>
 
@@ -136,52 +158,44 @@
 
                 <div class="relative w-full h-64 overflow-hidden rounded-3xl border border-blue-800/50 shadow-2xl bg-gray-900 flex items-center justify-center order-1 lg:order-1 mb-6 lg:mb-0">
                     <div class="image-carousel-container relative w-full h-full">
-                        <img src="doc-images/notes.png" alt="Notes feature (aspect ratio: 16:9)" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100">
-                        <img src="doc-images/countdowns.png" alt="Countdowns feature (aspect ratio: 16:9)" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0">
-                        <img src="doc-images/dictionary.png" alt="Dictionary feature (aspect ratio: 16:9)" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0">
-
-                        <button class="carousel-button carousel-button-blue-hue prev-button absolute top-1/2 left-4 -translate-y-1/2 p-2 text-white z-20">
-                            <i class="fas fa-arrow-left"></i>
-                        </button>
-                        <button class="carousel-button carousel-button-blue-hue next-button absolute top-1/2 right-4 -translate-y-1/2 p-2 text-white z-20">
-                            <i class="fas fa-arrow-right"></i>
-                        </button>
+                        <img src="doc-images/notes.png" alt="UI Update" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100">
+                        
+                        <div class="absolute top-0 w-full h-12 bg-black/50 border-b border-white/10 flex items-center justify-center">
+                            <span class="text-xs text-purple-300"><i class="fas fa-sparkles"></i> Fireworks Nav Active</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="lg:pl-4 order-2 lg:order-2 mb-6 lg:mb-0">
-                    <span class="text-sm font-light text-blue-400 uppercase tracking-widest mb-2 block">Productivity Suite</span>
-                    <h3 class="text-4xl font-light mb-3 mt-2">Essential Apps for Success</h3>
+                    <span class="text-sm font-light text-blue-400 uppercase tracking-widest mb-2 block">Visual Overhaul</span>
+                    <h3 class="text-4xl font-light mb-3 mt-2">The New Year Aesthetic</h3>
                     <p class="text-xl text-gray-400 mb-5 font-light">
-                        A suite of utilities built for academic success, keeping your notes, deadlines, and schedule organized in one place.
+                        (4SP MAX) introduces a completely redesigned navigation experience. Enjoy the <strong>dynamic fireworks display</strong> embedded in the top bar to celebrate the New Year, along with smoother animations and a cleaner layout.
                     </p>
                     <ul class="space-y-2 text-lg text-gray-300">
-                        <li class="flex items-center"><i class="fas fa-sticky-note fa-fw w-5 mr-3 text-blue-500"></i><span class="font-light mr-2">Notes:</span>Simple, persistent storage for quick thoughts.</li>
-                        <li class="flex items-center"><i class="fas fa-hourglass-half fa-fw w-5 mr-3 text-blue-500"></i><span class="font-light mr-2">Countdowns:</span>Track due dates and exam times seamlessly.</li>
-                        <li class="flex items-center"><i class="fas fa-book fa-fw w-5 mr-3 text-blue-500"></i><span class="font-light mr-2">Dictionary:</span>Quickly look up definitions.</li>
+                        <li class="flex items-center"><i class="fas fa-wand-magic-sparkles fa-fw w-5 mr-3 text-blue-500"></i><span class="font-light mr-2">Fireworks Nav:</span>Reactive particle effects in the menu.</li>
+                        <li class="flex items-center"><i class="fas fa-layer-group fa-fw w-5 mr-3 text-blue-500"></i><span class="font-light mr-2">Streamlined UI:</span>Less clutter, more focus.</li>
                     </ul>
                 </div>
             </div>
 
             <div class="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
                 <div class="lg:pr-4 order-2 lg:order-1 mb-6 lg:mb-0">
-                    <span class="text-sm font-light text-purple-400 uppercase tracking-widest mb-2 block">Customization & Utility</span>
-                    <h3 class="text-4xl font-light mb-3 mt-2">QOL & Personalization Features</h3>
+                    <span class="text-sm font-light text-purple-400 uppercase tracking-widest mb-2 block">Legacy Features</span>
+                    <h3 class="text-4xl font-light mb-3 mt-2">All Classic QOL Tools</h3>
                     <p class="text-xl text-gray-400 mb-5 font-light">
-                        Quality-of-Life tools designed to help you manage distractions instantly and personalize your experience.
+                        Don't worry—all the essential 4SP tools (Tab Disguiser, Panic Keys, and Themers) are still here, optimized for the MAX architecture.
                     </p>
                     <ul class="space-y-2 text-lg text-gray-300">
-                        <li class="flex items-center"><i class="fas fa-thumbtack fa-fw w-5 mr-3 text-purple-500"></i><span class="font-light mr-2">Pin Button:</span>Pin any app to the navigation for quick access.</li>
-                        <li class="flex items-center"><i class="fas fa-palette fa-fw w-5 mr-3 text-purple-500"></i><span class="font-light mr-2">Theme Changing:</span>Personalize your experience with theming.</li>
-                        <li class="flex items-center"><i class="fas fa-eye-slash fa-fw w-5 mr-3 text-purple-500"></i><span class="font-light mr-2">Tab Disguising:</span>Instantly change the tab title/favicon to blend in.</li>
+                        <li class="flex items-center"><i class="fas fa-eye-slash fa-fw w-5 mr-3 text-purple-500"></i><span class="font-light mr-2">Tab Disguising:</span>Instant stealth mode.</li>
+                        <li class="flex items-center"><i class="fas fa-ghost fa-fw w-5 mr-3 text-purple-500"></i><span class="font-light mr-2">Panic Button:</span>Emergency redirect.</li>
                     </ul>
                 </div>
 
                 <div class="relative w-full h-64 overflow-hidden rounded-3xl border border-purple-800/50 shadow-2xl bg-gray-900 flex items-center justify-center order-1 lg:order-2 mb-6 lg:mb-0">
                     <div class="image-carousel-container relative w-full h-full">
-                        <img src="doc-images/pin-button.png" alt="Pin Button feature" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100">
-                        <img src="doc-images/theme-changer.png" alt="Theme Changing features" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0">
-                        <img src="doc-images/tab-disguiser.png" alt="Tab Disguise Preset feature" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0">
+                        <img src="doc-images/tab-disguiser.png" alt="Tab Disguise Preset feature" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100">
+                        <img src="doc-images/pin-button.png" alt="Pin Button feature" class="carousel-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0">
 
                         <button class="carousel-button carousel-button-purple-hue prev-button absolute top-1/2 left-4 -translate-y-1/2 p-2 text-white z-20">
                             <i class="fas fa-arrow-left"></i>
@@ -195,12 +209,10 @@
         </section>
 
         <section class="py-12 mx-auto max-w-7xl px-4 text-center border-t border-gray-900">
-            <h2 class="text-xl font-light text-gray-400 mb-2">Powered by Modern Cloud Tools</h2>
+            <h2 class="text-xl font-light text-gray-400 mb-2">Powered by Firebase & Velium Core</h2>
             <p class="text-gray-500 text-lg font-light">
-                <strong class="text-white font-normal">Authentication and Backend Infrastructure</strong>
-                are handled robustly using
-                <strong class="text-white font-normal">Firebase</strong>,
-                ensuring secure, reliable, and scalable user management for all your student tools.
+                (4SP MAX) utilizes experimental backend structures. 
+                <strong class="text-white font-normal">Data stability is prioritized</strong>, but UI elements may shift as we iterate on the New Year design.
             </p>
         </section>
 
@@ -208,11 +220,11 @@
 
     <footer class="border-t border-gray-900 py-6">
         <div class="mx-auto max-w-7xl px-4 text-center text-gray-500 text-sm">
-            &copy; 2025 4simpleproblems (4SP). Built for students.
+            &copy; 2026 (4SP MAX). The Experimental Branch.
             <span class="mx-2">|</span>
-            <a href="legal.html#terms-of-service" class="hover:underline">Terms of Service</a>
+            <a href="legal.html#terms-of-service" class="hover:underline">Terms</a>
             <span class="mx-2">|</span>
-            <a href="legal.html#privacy-policy" class="hover:underline">Privacy Policy</a>
+            <a href="legal.html#privacy-policy" class="hover:underline">Privacy</a>
         </div>
     </footer>
 
@@ -220,13 +232,13 @@
         <div id="cookie-banner" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4">
             <div class="bg-black/95 text-white p-4 sm:p-6 rounded-3xl border border-gray-700 shadow-2xl backdrop-blur-md flex flex-col md:flex-row items-start md:items-center justify-between space-y-4 md:space-y-0 md:space-x-6">
                 <div class="flex-1 min-w-0">
-                    <h3 class="text-xl font-normal mb-1">4SP Uses Cookies</h3>
+                    <h3 class="text-xl font-normal mb-1">(4SP MAX) Uses Cookies</h3>
                     <p class="text-sm text-gray-300 mb-2 font-light">
-                        We use cookies to ensure the core functionality of authentication (via Firebase) and to analyze site traffic for improvements. This data is non-personal and essential for our services.
+                        We use cookies for Firebase authentication and to save your Velium player preferences.
                     </p>
                     <div class="space-x-3 text-xs">
                         <a href="https://policies.google.com/technologies/cookies" target="_blank" class="text-blue-400 hover:text-blue-300 underline transition">
-                            Extra (What are cookies?)
+                            Details
                         </a>
                         <a class="text-gray-500 pointer-events-none">|</a>
                         <a href="../legal.html#privacy-policy" class="text-blue-400 hover:text-blue-300 underline transition">
@@ -247,47 +259,58 @@
     <div id="mobile-warning-overlay" class="fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center p-6" style="display: none;">
         <div class="max-w-md w-full text-center space-y-6">
             <div class="text-5xl mb-4">📱</div>
-            <h2 class="text-3xl font-light text-white tracking-tight">Device Not Recommended</h2>
+            <h2 class="text-3xl font-light text-white tracking-tight">Device Not Supported</h2>
             <p class="text-gray-400 text-lg font-light leading-relaxed">
-                4SP (4simpleproblems) is not meant for phones or other devices with a tall aspect ratio.
+                (4SP MAX) features complex UI elements like the Velium Player and Fireworks Nav that do not scale to mobile.
                 <br><br>
-                It is highly recommended to switch to a wide-screen device like a laptop or desktop for the intended experience.
+                Please use a desktop for the intended experimental experience.
             </p>
             <button id="dismiss-mobile-warning" class="inline-flex items-center justify-center px-8 py-3 border border-gray-600 text-base font-normal rounded-xl text-white bg-transparent hover:bg-white/10 transition duration-200">
-                Dismiss, I don't care
+                Dismiss (Experimental)
             </button>
         </div>
     </div>
 
     <script>
+        // BACKGROUND SCROLL EFFECT LOGIC
+        // This script fades the background from black to purple based on scroll position
+        window.addEventListener('scroll', () => {
+            const bgLayer = document.getElementById('dynamic-background');
+            const scrollPos = window.scrollY;
+            const triggerHeight = 600; // Pixel height where fade completes
+            
+            // Calculate opacity (0 to 1)
+            let opacity = scrollPos / triggerHeight;
+            if (opacity > 1) opacity = 1;
+
+            // Apply opacity
+            if (bgLayer) {
+                bgLayer.style.opacity = opacity;
+            }
+        });
+
+        // Mobile Warning Logic
         (function() {
             const mobileOverlay = document.getElementById('mobile-warning-overlay');
             const dismissBtn = document.getElementById('dismiss-mobile-warning');
-            const STORAGE_KEY = '4sp-mobile-warning-dismissed';
+            const STORAGE_KEY = '4sp-max-mobile-warning-dismissed';
 
             function checkAspectRatio() {
-                // Check if user has already dismissed it
                 if (localStorage.getItem(STORAGE_KEY) === 'true') {
                     return;
                 }
-
-                // Check if height is greater than width (Portrait/Tall)
                 if (window.innerHeight > window.innerWidth) {
                     mobileOverlay.style.display = 'flex';
-                    document.body.style.overflow = 'hidden'; // Lock scroll
+                    document.body.style.overflow = 'hidden'; 
                 } else {
                     mobileOverlay.style.display = 'none';
-                    document.body.style.overflow = ''; // Unlock scroll
+                    document.body.style.overflow = ''; 
                 }
             }
 
-            // Check on load
             checkAspectRatio();
-
-            // Check on resize (optional, but good if they rotate device)
             window.addEventListener('resize', checkAspectRatio);
 
-            // Handle dismissal
             if (dismissBtn) {
                 dismissBtn.addEventListener('click', () => {
                     mobileOverlay.style.display = 'none';
@@ -305,115 +328,67 @@
 
     <script type="module">
         // --- START COOKIE LOGIC ---
-
-        const COOKIE_KEY = '4sp-cookie-consent';
+        const COOKIE_KEY = '4sp-max-cookie-consent';
         const cookieOverlay = document.getElementById('cookie-overlay');
         const acceptCookiesButton = document.getElementById('accept-cookies-button');
-        // Define transition duration in MS to match Tailwind's 'duration-300'
         const TRANSITION_DURATION_MS = 300; 
 
-        // Function to hide the banner with fade-out
         const hideCookieBanner = () => {
-            // 1. Start the fade-out (opacity 1 -> 0)
             cookieOverlay.classList.remove('opacity-100');
             cookieOverlay.classList.add('opacity-0');
-
-            // 2. Wait for the transition to finish before setting display: none
             setTimeout(() => {
                 cookieOverlay.style.display = 'none';
-                // Set consent in localStorage so the banner doesn't show on future visits
                 localStorage.setItem(COOKIE_KEY, 'accepted');
-                // Allow scrolling on the body
                 document.body.style.overflow = '';
             }, TRANSITION_DURATION_MS);
         };
 
-        // Function to show the banner with fade-in
         const showCookieBanner = () => {
-            // 1. Set display: block instantly
             cookieOverlay.style.display = 'block';
-            // Prevent scrolling on the body
             document.body.style.overflow = 'hidden';
-
-            // 2. Schedule the opacity change to trigger the transition
-            // Use a small timeout (10ms) to ensure display:block is rendered first
             setTimeout(() => {
                 cookieOverlay.classList.remove('opacity-0');
                 cookieOverlay.classList.add('opacity-100');
             }, 10); 
         };
 
-        // Check for existing consent when the script loads
         if (localStorage.getItem(COOKIE_KEY) !== 'accepted') {
-            // If consent is not found, wait for the window to load, then show the banner
             window.addEventListener('load', showCookieBanner);
         } else {
-             // If consent is found, ensure the overlay remains hidden and opacity is zero
              cookieOverlay.style.display = 'none';
              cookieOverlay.classList.remove('opacity-100');
              cookieOverlay.classList.add('opacity-0');
              document.body.style.overflow = '';
         }
 
-        // Add event listener to the "I Understand" button
         if (acceptCookiesButton) {
             acceptCookiesButton.addEventListener('click', hideCookieBanner);
         }
-
         // --- END COOKIE LOGIC ---
-
 
         // Constants for button content
         const DASHBOARD_HTML = 'Go to Dashboard <i class="fas fa-arrow-right ml-2"></i>';
         const GET_STARTED_HTML = 'Get Started Instantly <i class="fas fa-arrow-right ml-2"></i>';
 
-        // NOTE: The BETA_FORM_URL is no longer needed but kept for completeness in the JS structure.
-        const BETA_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdWdL4RTE8p7t7gMGYpIHYiYcV__sNa8vOlwOCQyoolKuQimQ/viewform?usp=publish-editor";
-
-
-        // Import the required functions and the config object
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-
-        // This line imports the configuration object exported from your file.
         import { firebaseConfig } from '../firebase-config.js';
 
-        // 1. Initialize the Firebase App using the imported configuration.
         const app = initializeApp(firebaseConfig);
-
-        // 2. Get the Firebase Auth instance
         const auth = getAuth(app);
-
-        // 3. Reference to the button and new elements
         const authButton = document.getElementById('auth-button');
-        // NOTE: Renamed betaCtaContainer to releaseCtaContainer in HTML, updating variable name here.
-        const releaseCtaContainer = document.getElementById('release-cta-container');
-        // NOTE: betaApplyLink is no longer needed but kept for completeness in the JS structure.
-        const betaApplyLink = document.getElementById('beta-apply-link');
 
-
-        /**
-         * Listens for changes in the user's sign-in state.
-         * If a user is logged in, it updates the button to "Go to dashboard".
-         * The release CTA is always shown now, regardless of auth state, so no need to hide/show it.
-         */
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in. Change the button to "Go to dashboard".
                 if (authButton) {
                     authButton.href = '/logged-in/dashboard.html';
-                    authButton.innerHTML = DASHBOARD_HTML; // Use Font Awesome content
+                    authButton.innerHTML = DASHBOARD_HTML; 
                 }
             } else {
-                // User is signed out. Ensure the button is set to "Get Started Instantly".
                 if (authButton) {
                     authButton.href = '../authentication.html';
-                    authButton.innerHTML = GET_STARTED_HTML; // Use Font Awesome content
+                    authButton.innerHTML = GET_STARTED_HTML; 
                 }
-            }
-            // Release CTA remains visible in both states as per the new requirement.
-            if (releaseCtaContainer) {
-                releaseCtaContainer.style.display = 'block';
             }
         });
     </script>
@@ -449,7 +424,7 @@
                 });
             }
 
-            showImage(currentIndex); // Initialize first image
+            showImage(currentIndex); 
         });
     </script>
 </body>

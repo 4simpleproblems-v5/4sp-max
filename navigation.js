@@ -251,7 +251,7 @@ let db;
         injectStyles();
 
         const container = document.getElementById('navbar-container');
-        const logoPath = DEFAULT_THEME['logo-src']; 
+        const logoPath = '/images/logo.png'; 
         
         // --- Updated Structure to Match 4simpleproblems-v5.html ---
         container.innerHTML = `
@@ -308,25 +308,28 @@ let db;
         const style = document.createElement('style');
         style.textContent = `
             /* Base Styles */
-            body { padding-top: 64px; }
+            body { padding-top: 64px !important; }
             
             /* --- Navbar Styles (Matches 4simpleproblems-v5.html) --- */
             #navbar-container {
-                position: fixed; top: 0; left: 0; 
-                transform-origin: top left;
-                z-index: 9999;
-                background: var(--navbar-bg, #000000);
-                border-bottom: 1px solid var(--navbar-border, #1f2937);
-                height: 64px;
-                width: 100%;
-                display: flex; 
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 1rem;
-                box-sizing: border-box;
-                flex-shrink: 0;
-                transition: background-color 0.3s ease, border-color 0.3s ease;
-                overflow: hidden; 
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                z-index: 9999 !important;
+                background: var(--navbar-bg, rgba(0, 0, 0, 0.6)) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border-bottom: 1px solid var(--navbar-border, rgba(255, 255, 255, 0.08)) !important;
+                height: 64px !important;
+                width: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                padding: 0 1rem !important;
+                box-sizing: border-box !important;
+                transition: background-color 0.3s ease, border-color 0.3s ease !important;
+                overflow: visible !important;
             }
 
             /* Fireworks Container Style */
@@ -340,6 +343,13 @@ let db;
                 z-index: 1; 
                 opacity: 0;
                 transition: opacity 0.5s ease;
+                overflow: hidden;
+            }
+            
+            /* Ensure navbar content sits ABOVE the fireworks */
+            #navbar-container > *:not(#fireworks-container) {
+                position: relative;
+                z-index: 10;
             }
 
             .navbar-logo { height: 40px; width: auto; transition: filter 0.3s ease; }
@@ -414,7 +424,7 @@ let db;
                 padding: 0.5rem 1rem; 
                 color: var(--tab-text, #9ca3af); 
                 font-size: 0.875rem; font-weight: 400; 
-                border-radius: 16px; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;
+                border-radius: 12px; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;
                 border: 1px solid transparent; transition: all 0.2s; cursor: pointer;
                 flex-shrink: 0; 
                 position: relative;
@@ -455,56 +465,65 @@ let db;
 
             /* Auth Dropdown Menu Styles */
             .auth-menu-container {
-                position: absolute; right: 0; top: 50px; width: 16rem;
-                background: var(--menu-bg);
-                border: 1px solid var(--menu-border);
-                border-radius: 0.9rem; padding: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
+                position: absolute; right: 0; top: 55px; width: 16rem;
+                background: var(--menu-bg, #000);
+                border: 1px solid var(--menu-border, #333);
+                border-radius: 1.5rem; padding: 0.75rem; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
                 transition: transform 0.2s ease-out, opacity 0.2s ease-out, background-color 0.3s ease, border-color 0.3s ease;
                 transform-origin: top right; z-index: 10000;
             }
-            .auth-menu-container .border-b { border-color: var(--menu-divider) !important; transition: border-color 0.3s ease; }
+            .auth-menu-container .border-b { border-color: var(--menu-divider, #333) !important; transition: border-color 0.3s ease; }
             .auth-menu-username {
-                color: var(--menu-username-text);
+                color: var(--menu-username-text, white);
                 transition: color 0.3s ease;
                 text-align: left !important; margin: 0 !important; font-weight: 400 !important;
             }
-            .auth-menu-email { color: var(--menu-email-text); text-align: left !important; margin: 0 !important; font-weight: 400 !important; }
-            .auth-menu-container.open { opacity: 1; transform: translateY(0) scale(1); }
-            .auth-menu-container.closed { opacity: 0; pointer-events: none; transform: translateY(-10px) scale(0.95); }
+            .auth-menu-email { color: var(--menu-email-text, #9ca3af); text-align: left !important; margin: 0 !important; font-weight: 400 !important; }
+            .auth-menu-container.open { opacity: 1; transform: translateY(0) scale(1); display: block !important; }
+            .auth-menu-container.closed { opacity: 0; pointer-events: none; transform: translateY(-10px) scale(0.95); display: none !important; }
 
-            .auth-menu-more-section { display: none; padding-top: 0.5rem; margin-top: 0.5rem; border-top: 1px solid var(--menu-divider); }
+            .auth-menu-more-section { display: none; padding-top: 0.5rem; margin-top: 0.5rem; border-top: 1px solid var(--menu-divider, #333); }
 
             .auth-menu-link, .auth-menu-button { 
-                display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; 
-                padding: 0.5rem 0.75rem; font-size: 0.875rem; color: var(--menu-text); border-radius: 0.9rem; 
-                transition: background-color 0.15s, color 0.15s; border: none; cursor: pointer;
+                display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; 
+                padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--menu-text, #d1d5db); 
+                background: var(--menu-item-bg, #0a0a0a);
+                border: 1px solid var(--menu-item-border, #333);
+                border-radius: 1rem; 
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: none; cursor: pointer;
             }
-            .auth-menu-link:hover, .auth-menu-button:hover { background-color: var(--menu-item-hover-bg); color: var(--menu-item-hover-text); }
+            .auth-menu-link:hover, .auth-menu-button:hover { 
+                background-color: var(--menu-item-hover-bg, #000); 
+                border-color: var(--menu-item-hover-border, #fff);
+                color: var(--menu-item-hover-text, #fff);
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 5px 15px rgba(255,255,255,0.05);
+            }
 
             .logged-out-auth-toggle { 
-                background: var(--logged-out-icon-bg); border: 1px solid var(--logged-out-icon-border); 
+                background: var(--logged-out-icon-bg, #010101); border: 1px solid var(--logged-out-icon-border, #374151); 
                 transition: background-color 0.3s ease, border-color 0.3s ease;
                 border-radius: 16px; 
             }
-            .logged-out-auth-toggle i { color: var(--logged-out-icon-color); transition: color 0.3s ease; }
+            .logged-out-auth-toggle i { color: var(--logged-out-icon-color, #DADADA); transition: color 0.3s ease; }
 
             .glass-menu { 
-                background: var(--glass-menu-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
-                border: 1px solid var(--glass-menu-border); transition: background-color 0.3s ease, border-color 0.3s ease;
+                background: var(--glass-menu-bg, rgba(10, 10, 10, 0.8)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
+                border: 1px solid var(--glass-menu-border, rgba(55, 65, 81, 0.8)); transition: background-color 0.3s ease, border-color 0.3s ease;
             }
             .auth-menu-link i.w-4, .auth-menu-button i.w-4 { width: 1rem; text-align: center; } 
 
             #pin-button { 
-                border-color: var(--pin-btn-border); transition: background-color 0.2s, border-color 0.3s ease; 
+                border-color: var(--pin-btn-border, #4b5563); transition: background-color 0.2s, border-color 0.3s ease; 
                 display: flex; align-items: center; justify-content: center; 
                 border-radius: 16px; width: 40px; height: 40px;
             }
-            #pin-button:hover { background-color: var(--pin-btn-hover-bg); z-index: 50; }
-            #pin-button-icon { color: var(--pin-btn-icon-color); transition: color 0.3s ease; }
+            #pin-button:hover { background-color: var(--pin-btn-hover-bg, #374151); z-index: 50; }
+            #pin-button-icon { color: var(--pin-btn-icon-color, #d1d5db); transition: color 0.3s ease; }
 
             .pin-hint-container {
                 position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%) scale(0.8);
-                background: var(--hint-bg); border: 1px solid var(--hint-border); color: var(--hint-text);
+                background: var(--hint-bg, #010101); border: 1px solid var(--hint-border, #374151); color: var(--hint-text, #ffffff);
                 padding: 0.5rem 1rem; border-radius: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
                 opacity: 0; pointer-events: none; z-index: 10001;
                 transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;

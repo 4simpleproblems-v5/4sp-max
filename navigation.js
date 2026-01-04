@@ -311,7 +311,7 @@ let db;
             .auth-navbar {
                 position: fixed; top: 0; left: 0; 
                 transform-origin: top left;
-                z-index: 1000;
+                z-index: 9999;
                 background: var(--navbar-bg);
                 border-bottom: 1px solid var(--navbar-border);
                 height: 64px;
@@ -340,7 +340,7 @@ let db;
             #auth-toggle {
                 border-color: var(--avatar-border);
                 transition: border-color 0.3s ease;
-                border-radius: 12px; /* Matches tabs */
+                border-radius: 16px; /* Matches tabs */
             }
 
             /* Auth Dropdown Menu Styles */
@@ -350,7 +350,7 @@ let db;
                 border: 1px solid var(--menu-border);
                 border-radius: 0.9rem; padding: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
                 transition: transform 0.2s ease-out, opacity 0.2s ease-out, background-color 0.3s ease, border-color 0.3s ease;
-                transform-origin: top right; z-index: 1010;
+                transform-origin: top right; z-index: 10000;
             }
             .auth-menu-container .border-b { border-color: var(--menu-divider) !important; transition: border-color 0.3s ease; }
             .auth-menu-username {
@@ -366,7 +366,7 @@ let db;
 
             .auth-menu-link, .auth-menu-button { 
                 display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; 
-                padding: 0.5rem 0.75rem; font-size: 0.875rem; color: var(--menu-text); border-radius: 0.7rem; 
+                padding: 0.5rem 0.75rem; font-size: 0.875rem; color: var(--menu-text); border-radius: 0.9rem; 
                 transition: background-color 0.15s, color 0.15s; border: none; cursor: pointer;
             }
             .auth-menu-link:hover, .auth-menu-button:hover { background-color: var(--menu-item-hover-bg); color: var(--menu-item-hover-text); }
@@ -374,7 +374,7 @@ let db;
             .logged-out-auth-toggle { 
                 background: var(--logged-out-icon-bg); border: 1px solid var(--logged-out-icon-border); 
                 transition: background-color 0.3s ease, border-color 0.3s ease;
-                border-radius: 12px; /* Matches tabs */
+                border-radius: 16px; /* Matches tabs */
             }
             .logged-out-auth-toggle i { color: var(--logged-out-icon-color); transition: color 0.3s ease; }
 
@@ -412,7 +412,7 @@ let db;
             
             .nav-tab { 
                 flex-shrink: 0; padding: 8px 12px; color: var(--tab-text); 
-                font-size: 0.875rem; font-weight: 400; border-radius: 12px; 
+                font-size: 0.875rem; font-weight: 400; border-radius: 16px; 
                 transition: all 0.2s, color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease; 
                 text-decoration: none; line-height: 1.5; display: flex; align-items: center; margin-right: 8px; 
                 border: 1px solid transparent; 
@@ -429,7 +429,7 @@ let db;
                 position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%) scale(0.8);
                 background: var(--hint-bg); border: 1px solid var(--hint-border); color: var(--hint-text);
                 padding: 0.5rem 1rem; border-radius: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-                opacity: 0; pointer-events: none; z-index: 1020;
+                opacity: 0; pointer-events: none; z-index: 10001;
                 transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
                 white-space: nowrap; font-size: 0.875rem;
             }
@@ -606,7 +606,7 @@ let db;
 
             return `
                 <div id="pin-area-wrapper" class="relative flex-shrink-0 flex items-center">
-                    <a href="${pinButtonUrl}" id="pin-button" class="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-700 transition" title="${pinButtonTitle}" style="border-radius: 12px;">
+                    <a href="${pinButtonUrl}" id="pin-button" class="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-700 transition" title="${pinButtonTitle}" style="border-radius: 16px;">
                         <i id="pin-button-icon" class="${pinButtonIcon}"></i>
                     </a>
                     <div id="pin-context-menu" class="auth-menu-container closed" style="width: 12rem;">
@@ -768,7 +768,7 @@ let db;
                 
                 return `
                     <div id="auth-button-container" class="relative flex-shrink-0 flex items-center">
-                        <button id="auth-toggle" class="w-10 h-10 border border-gray-600 overflow-hidden" style="border-radius: 12px;">
+                        <button id="auth-toggle" class="w-10 h-10 border border-gray-600 overflow-hidden" style="border-radius: 16px;">
                             ${avatarHtml}
                         </button>
                         <div id="auth-menu-container" class="auth-menu-container closed">

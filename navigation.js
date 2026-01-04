@@ -268,8 +268,6 @@ let db;
             </div>
         `;
 
-        // --- REMOVED: applyCounterZoom call ---
-
         let pages = {};
         await loadCSS("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css");
         // Load Fireworks JS
@@ -447,7 +445,7 @@ let db;
             #auth-toggle {
                 border-color: var(--avatar-border);
                 transition: border-color 0.3s ease;
-                border-radius: 24px; 
+                border-radius: 50%; /* Changed to circle */
                 width: 40px; height: 40px;
                 display: flex; align-items: center; justify-content: center;
                 cursor: pointer; position: relative;
@@ -459,7 +457,10 @@ let db;
                 position: absolute; right: 0; top: 55px; width: 16rem;
                 background: var(--menu-bg, #000);
                 border: 1px solid var(--menu-border, #333);
-                border-radius: 1.25rem; padding: 0.75rem; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+                border-radius: 1.25rem; 
+                padding: 0.75rem; /* Equal spacing on edges */
+                display: flex; flex-direction: column; gap: 0.5rem; /* Flex gap for equal internal spacing */
+                box-shadow: 0 10px 30px rgba(0,0,0,0.6);
                 transition: transform 0.2s ease-out, opacity 0.2s ease-out, background-color 0.3s ease, border-color 0.3s ease;
                 transform-origin: top right; z-index: 10000;
             }
@@ -470,7 +471,7 @@ let db;
                 text-align: left !important; margin: 0 !important; font-weight: 400 !important;
             }
             .auth-menu-email { color: var(--menu-email-text, #9ca3af); text-align: left !important; margin: 0 !important; font-weight: 400 !important; }
-            .auth-menu-container.open { opacity: 1; transform: translateY(0) scale(1); display: block !important; }
+            .auth-menu-container.open { opacity: 1; transform: translateY(0) scale(1); display: flex !important; }
             .auth-menu-container.closed { opacity: 0; pointer-events: none; transform: translateY(-10px) scale(0.95); display: none !important; }
 
             .auth-menu-more-section { display: none; padding-top: 0.5rem; margin-top: 0.5rem; border-top: 1px solid var(--menu-divider, #333); }
@@ -480,11 +481,10 @@ let db;
                 display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; 
                 padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--menu-text, #d1d5db); 
                 background: transparent;
-                border: 1px solid var(--logged-out-icon-border, #374151);
                 border-radius: 1rem; 
-                transition: all 0.2s ease; border: none; cursor: pointer;
-                border: 1px solid transparent;
-                margin-bottom: 0.5rem; /* Added Spacing */
+                transition: all 0.2s ease; cursor: pointer;
+                border: 1px solid var(--menu-border, #333); /* Visible border when not hovered */
+                margin-bottom: 0; /* Removed margin, using flex gap */
             }
             .auth-menu-link:hover, .auth-menu-button:hover { 
                 background-color: var(--tab-hover-bg, rgba(79, 70, 229, 0.05)); 
@@ -496,7 +496,7 @@ let db;
             .logged-out-auth-toggle { 
                 background: var(--logged-out-icon-bg, #010101); border: 1px solid var(--logged-out-icon-border, #374151); 
                 transition: background-color 0.3s ease, border-color 0.3s ease;
-                border-radius: 16px; 
+                border-radius: 50%; /* Changed to circle */
             }
             .logged-out-auth-toggle i { color: var(--logged-out-icon-color, #DADADA); transition: color 0.3s ease; }
 
@@ -509,7 +509,8 @@ let db;
             #pin-button { 
                 border-color: var(--pin-btn-border, #4b5563); transition: background-color 0.2s, border-color 0.3s ease; 
                 display: flex; align-items: center; justify-content: center; 
-                border-radius: 16px; width: 40px; height: 40px;
+                border-radius: 50%; /* Changed to circle */ 
+                width: 40px; height: 40px;
             }
             #pin-button:hover { background-color: var(--pin-btn-hover-bg, #374151); z-index: 50; }
             #pin-button-icon { color: var(--pin-btn-icon-color, #d1d5db); transition: color 0.3s ease; }
@@ -660,7 +661,7 @@ let db;
 
             return `
                 <div id="pin-area-wrapper" class="relative flex-shrink-0 flex items-center">
-                    <a href="${pinButtonUrl}" id="pin-button" class="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-700 transition" title="${pinButtonTitle}" style="border-radius: 16px;">
+                    <a href="${pinButtonUrl}" id="pin-button" class="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-700 transition" title="${pinButtonTitle}" style="border-radius: 50%;">
                         <i id="pin-button-icon" class="${pinButtonIcon}"></i>
                     </a>
                     <div id="pin-context-menu" class="auth-menu-container closed" style="width: 12rem;">
@@ -822,7 +823,7 @@ let db;
                 
                 return `
                     <div id="auth-button-container" class="relative flex-shrink-0 flex items-center">
-                        <button id="auth-toggle" class="w-10 h-10 border border-gray-600 overflow-hidden" style="border-radius: 16px;">
+                        <button id="auth-toggle" class="w-10 h-10 border border-gray-600 overflow-hidden" style="border-radius: 50%;">
                             ${avatarHtml}
                         </button>
                         <div id="auth-menu-container" class="auth-menu-container closed">

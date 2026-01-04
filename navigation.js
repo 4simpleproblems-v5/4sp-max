@@ -520,16 +520,6 @@ let db;
         `;
         document.head.appendChild(style);
     };
-            .pin-hint-container.show { opacity: 1; transform: translateX(-50%) scale(1); transition-delay: 0.2s; }
-
-            .marquee-container { overflow: hidden; white-space: nowrap; position: relative; max-width: 100%; }
-            .marquee-container.active { mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%); }
-            .marquee-content { display: inline-block; white-space: nowrap; }
-            .marquee-container.active .marquee-content { animation: marquee 10s linear infinite; min-width: 100%; }
-            @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        `;
-        document.head.appendChild(style);
-    };
 
     /**
      * NEW FUNCTION: applyCounterZoom

@@ -253,26 +253,27 @@ let db;
         const container = document.getElementById('navbar-container');
         const logoPath = DEFAULT_THEME['logo-src']; 
         
-        // --- Added Fireworks Container ---
+        // --- Updated Structure to Match 4simpleproblems-v5.html ---
         container.innerHTML = `
-            <header class="auth-navbar">
-                <div id="fireworks-container"></div>
-                <nav>
-                    <a href="/" class="flex items-center space-x-2 flex-shrink-0 overflow-hidden relative" style="z-index: 20;">
-                        <img src="${logoPath}" alt="4SP Logo" class="h-10 w-auto" id="navbar-logo">
-                    </a>
-                    <div class="tab-wrapper" style="z-index: 20;">
-                        <div class="tab-scroll-container flex justify-center items-center overflow-hidden">
-                            <div class="nav-tab-placeholder"></div>
-                            <div class="nav-tab-placeholder hidden sm:block"></div>
-                            <div class="nav-tab-placeholder hidden md:block"></div>
-                        </div>
-                    </div>
-                    <div id="auth-controls-wrapper" class="flex items-center gap-3 flex-shrink-0" style="z-index: 20;">
-                        <div class="auth-toggle-placeholder"></div>
-                    </div>
-                </nav>
-            </header>
+            <div id="fireworks-container"></div>
+            
+            <a href="/" class="flex items-center space-x-2 flex-shrink-0 overflow-hidden relative" style="z-index: 20;">
+                <img src="${logoPath}" alt="4SP Logo" class="navbar-logo" id="navbar-logo">
+            </a>
+            
+            <div class="tab-wrapper" style="z-index: 20;">
+                <button id="glide-left" class="scroll-glide-button hidden"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="tab-scroll-container" id="tabs-container">
+                    <div class="nav-tab-placeholder"></div>
+                    <div class="nav-tab-placeholder hidden sm:block"></div>
+                    <div class="nav-tab-placeholder hidden md:block"></div>
+                </div>
+                <button id="glide-right" class="scroll-glide-button hidden"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+
+            <div id="auth-controls-wrapper" class="auth-controls-wrapper" style="z-index: 20;">
+                <div class="auth-toggle-placeholder"></div>
+            </div>
         `;
 
         // --- NEW: Apply Counter Zoom immediately on creation ---
@@ -308,17 +309,26 @@ let db;
         style.textContent = `
             /* Base Styles */
             body { padding-top: 64px; }
-            .auth-navbar {
+            
+            /* --- Navbar Styles (Matches 4simpleproblems-v5.html) --- */
+            #navbar-container {
                 position: fixed; top: 0; left: 0; 
                 transform-origin: top left;
                 z-index: 9999;
-                background: var(--navbar-bg);
-                border-bottom: 1px solid var(--navbar-border);
+                background: var(--navbar-bg, #000000);
+                border-bottom: 1px solid var(--navbar-border, #1f2937);
                 height: 64px;
+                width: 100%;
+                display: flex; 
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 1rem;
+                box-sizing: border-box;
+                flex-shrink: 0;
                 transition: background-color 0.3s ease, border-color 0.3s ease;
-                width: 100%; 
-                overflow: hidden; /* Ensure fireworks don't spill */
+                overflow: hidden; 
             }
+
             /* Fireworks Container Style */
             #fireworks-container {
                 position: absolute;
@@ -327,21 +337,121 @@ let db;
                 width: 100%;
                 height: 100%;
                 pointer-events: none;
-                z-index: 1; /* Below content but above background */
+                z-index: 1; 
                 opacity: 0;
                 transition: opacity 0.5s ease;
             }
-            .auth-navbar nav { padding: 0 1rem; height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; z-index: 10; }
+
+            .navbar-logo { height: 40px; width: auto; transition: filter 0.3s ease; }
+
+            /* --- GLIDE / SCROLL STYLES --- */
+            .tab-wrapper { 
+                flex-grow: 1; 
+                display: flex; 
+                align-items: center; 
+                position: relative; 
+                min-width: 0; 
+                margin: 0 1rem; 
+                justify-content: center; 
+                overflow: hidden; 
+            }
+
+            .tab-scroll-container { 
+                display: flex; 
+                align-items: center; 
+                gap: 0.5rem; 
+                overflow-x: auto; 
+                scrollbar-width: none; 
+                white-space: nowrap; 
+                max-width: 100%;
+                scroll-behavior: smooth; 
+                padding-left: 20px;      
+                padding-right: 20px;
+                padding-block: 10px;
+            }
+            .tab-scroll-container::-webkit-scrollbar { display: none; }
+
+            /* Glide Buttons */
+            .scroll-glide-button {
+                position: absolute; 
+                top: 0; 
+                height: 100%; 
+                width: 60px; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                color: var(--glide-btn-color, #ffffff); 
+                font-size: 1rem; 
+                cursor: pointer; 
+                opacity: 1; 
+                transition: opacity 0.3s, color 0.3s ease, background-color 0.3s ease; 
+                z-index: 55; 
+                pointer-events: auto;
+                background: transparent;
+                border: none;
+            }
+
+            #glide-left { 
+                left: 0; 
+                background-color: var(--navbar-bg, #000000);
+                -webkit-mask-image: linear-gradient(to right, black 30%, transparent);
+                mask-image: linear-gradient(to right, black 30%, transparent);
+                justify-content: flex-start; 
+                padding-left: 8px; 
+            }
+            #glide-right { 
+                right: 0; 
+                background-color: var(--navbar-bg, #000000);
+                -webkit-mask-image: linear-gradient(to left, black 30%, transparent);
+                mask-image: linear-gradient(to left, black 30%, transparent);
+                justify-content: flex-end; 
+                padding-right: 8px; 
+            }
+            
+            .scroll-glide-button.hidden { opacity: 0 !important; pointer-events: none !important; }
+
+            .nav-tab { 
+                padding: 0.5rem 1rem; 
+                color: var(--tab-text, #9ca3af); 
+                font-size: 0.875rem; font-weight: 400; 
+                border-radius: 16px; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;
+                border: 1px solid transparent; transition: all 0.2s; cursor: pointer;
+                flex-shrink: 0; 
+                position: relative;
+            }
+            .nav-tab:hover { 
+                color: var(--tab-hover-text, #ffffff); 
+                background-color: var(--tab-hover-bg, rgba(79, 70, 229, 0.05));
+                border-color: var(--tab-active-border, #4f46e5);
+                transform: translateY(-1px);
+                z-index: 50; 
+            }
+            .nav-tab.active { 
+                color: var(--tab-active-text, #4f46e5); 
+                border-color: var(--tab-active-border, #4f46e5); 
+                background-color: var(--tab-active-bg, rgba(79, 70, 229, 0.1)); 
+            }
+            .nav-tab.active:hover {
+                color: var(--tab-active-hover-text, #6366f1);
+                border-color: var(--tab-active-hover-border, #6366f1);
+                background-color: var(--tab-active-hover-bg, rgba(79, 70, 229, 0.15));
+            }
+
+            .auth-controls-wrapper { display: flex; align-items: center; gap: 1rem; position: relative; }
+            
             .initial-avatar {
                 background: var(--avatar-gradient);
                 font-family: sans-serif; text-transform: uppercase; display: flex; align-items: center; justify-content: center; color: white;
             }
-            /* Updated Auth Toggle Style: Rounded Rectangle */
             #auth-toggle {
                 border-color: var(--avatar-border);
                 transition: border-color 0.3s ease;
-                border-radius: 16px; /* Matches tabs */
+                border-radius: 16px; 
+                width: 40px; height: 40px;
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer; position: relative;
             }
+            #auth-toggle:hover { z-index: 50; }
 
             /* Auth Dropdown Menu Styles */
             .auth-menu-container {
@@ -374,7 +484,7 @@ let db;
             .logged-out-auth-toggle { 
                 background: var(--logged-out-icon-bg); border: 1px solid var(--logged-out-icon-border); 
                 transition: background-color 0.3s ease, border-color 0.3s ease;
-                border-radius: 16px; /* Matches tabs */
+                border-radius: 16px; 
             }
             .logged-out-auth-toggle i { color: var(--logged-out-icon-color); transition: color 0.3s ease; }
 
@@ -384,45 +494,12 @@ let db;
             }
             .auth-menu-link i.w-4, .auth-menu-button i.w-4 { width: 1rem; text-align: center; } 
 
-            .tab-wrapper { flex-grow: 1; display: flex; align-items: center; position: relative; min-width: 0; margin: 0 1rem; justify-content: center; }
-            .tab-scroll-container { 
-                flex-grow: 1; display: flex; align-items: center; 
-                overflow-x: auto; -webkit-overflow-scrolling: touch; 
-                scrollbar-width: none; -ms-overflow-style: none; 
-                padding-bottom: 5px; margin-bottom: -5px; scroll-behavior: smooth;
-                max-width: 100%; padding-left: 16px; padding-right: 16px; 
-                /* Force Center Alignment Logic is handled in renderNavbar via JS, but default to center here */
-                justify-content: center;
+            #pin-button { 
+                border-color: var(--pin-btn-border); transition: background-color 0.2s, border-color 0.3s ease; 
+                display: flex; align-items: center; justify-content: center; 
+                border-radius: 16px; width: 40px; height: 40px;
             }
-            .tab-scroll-container::-webkit-scrollbar { display: none; }
-            .scroll-glide-button {
-                position: absolute; top: 0; height: 100%; width: 100px; display: flex; align-items: center; justify-content: center; 
-                color: var(--glide-icon-color); font-size: 1.2rem; cursor: pointer; opacity: 1; 
-                transition: opacity 0.3s, color 0.3s ease; z-index: 10; pointer-events: auto;
-            }
-            #glide-left { 
-                left: -1px; background: linear-gradient(to right, var(--menu-bg) 25%, transparent); justify-content: flex-start; padding-left: 8px; 
-                transition: opacity 0.3s, color 0.3s ease, background 0.3s ease;
-            }
-            #glide-right { 
-                right: -1px; background: linear-gradient(to left, var(--menu-bg) 25%, transparent); justify-content: flex-end; padding-right: 8px; 
-                transition: opacity 0.3s, color 0.3s ease, background 0.3s ease;
-            }
-            .scroll-glide-button.hidden { opacity: 0 !important; pointer-events: none !important; }
-            
-            .nav-tab { 
-                flex-shrink: 0; padding: 8px 12px; color: var(--tab-text); 
-                font-size: 0.875rem; font-weight: 400; border-radius: 16px; 
-                transition: all 0.2s, color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease; 
-                text-decoration: none; line-height: 1.5; display: flex; align-items: center; margin-right: 8px; 
-                border: 1px solid transparent; 
-            }
-            .nav-tab:not(.active):hover { color: var(--tab-hover-text); border-color: var(--tab-hover-border); background-color: var(--tab-hover-bg); }
-            .nav-tab.active { color: var(--tab-active-text); border-color: var(--tab-active-border); background-color: var(--tab-active-bg); }
-            .nav-tab.active:hover { color: var(--tab-active-hover-text); border-color: var(--tab-active-hover-border); background-color: var(--tab-active-hover-bg); }
-            
-            #pin-button { border-color: var(--pin-btn-border); transition: background-color 0.2s, border-color 0.3s ease; display: flex; align-items: center; justify-content: center; }
-            #pin-button:hover { background-color: var(--pin-btn-hover-bg); }
+            #pin-button:hover { background-color: var(--pin-btn-hover-bg); z-index: 50; }
             #pin-button-icon { color: var(--pin-btn-icon-color); transition: color 0.3s ease; }
 
             .pin-hint-container {
@@ -443,6 +520,16 @@ let db;
         `;
         document.head.appendChild(style);
     };
+            .pin-hint-container.show { opacity: 1; transform: translateX(-50%) scale(1); transition-delay: 0.2s; }
+
+            .marquee-container { overflow: hidden; white-space: nowrap; position: relative; max-width: 100%; }
+            .marquee-container.active { mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%); }
+            .marquee-content { display: inline-block; white-space: nowrap; }
+            .marquee-container.active .marquee-content { animation: marquee 10s linear infinite; min-width: 100%; }
+            @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        `;
+        document.head.appendChild(style);
+    };
 
     /**
      * NEW FUNCTION: applyCounterZoom
@@ -451,7 +538,7 @@ let db;
      * same physical size regardless of zoom.
      */
     const applyCounterZoom = () => {
-        const navbar = document.querySelector('.auth-navbar');
+        const navbar = document.getElementById('navbar-container');
         if (!navbar) return;
 
         // Get the current zoom ratio (e.g., 1.25 for 125% zoom)
@@ -916,8 +1003,8 @@ let db;
             const container = document.getElementById('navbar-container');
             if (!container) return; 
 
-            const navElement = container.querySelector('nav');
-            const tabWrapper = navElement.querySelector('.tab-wrapper');
+            // --- Updated Selectors to Match new structure ---
+            const tabContainer = document.getElementById('tabs-container'); 
             const authControlsWrapper = document.getElementById('auth-controls-wrapper');
             const navbarLogo = document.getElementById('navbar-logo');
 
@@ -938,34 +1025,24 @@ let db;
 
             const authControlsHtml = getAuthControlsHtml();
 
-            if (tabWrapper) {
-                tabWrapper.innerHTML = `
-                    <button id="glide-left" class="scroll-glide-button"><i class="fa-solid fa-chevron-left"></i></button>
-                    <div class="tab-scroll-container">
-                        ${tabsHtml}
-                    </div>
-                    <button id="glide-right" class="scroll-glide-button"><i class="fa-solid fa-chevron-right"></i></button>
-                `;
+            // Only update innerHTML if tabContainer exists (it should with new structure)
+            if (tabContainer) {
+                tabContainer.innerHTML = tabsHtml;
             }
 
             if (authControlsWrapper) {
                 authControlsWrapper.innerHTML = authControlsHtml;
             }
             
-            const tabContainer = tabWrapper.querySelector('.tab-scroll-container'); 
             const tabCount = tabContainer ? tabContainer.querySelectorAll('.nav-tab').length : 0;
 
             if (tabCount <= 9) {
                 if(tabContainer) {
                     tabContainer.style.justifyContent = 'center';
-                    tabContainer.style.overflowX = 'hidden';
-                    tabContainer.style.flexGrow = '0';
                 }
             } else {
                 if(tabContainer) {
                     tabContainer.style.justifyContent = 'flex-start';
-                    tabContainer.style.overflowX = 'auto';
-                    tabContainer.style.flexGrow = '1';
                 }
             }
 

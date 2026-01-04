@@ -259,49 +259,7 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
-    
-/* INJECTED STYLES */
-:root { --bg-page: #040404; --bg-container: #000000; --border-color: #333; --text-primary: #c0c0c0; --text-light-grey: #d1d5db; --accent-color: #6366f1; --navbar-bg: #000000; --navbar-border: #1f2937; --tab-text: #9ca3af; --tab-hover-text: #ffffff; --tab-active-text: #4f46e5; --tab-active-bg: rgba(79, 70, 229, 0.1); --tab-active-border: #4f46e5; }
-@keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-5deg); } 50% { transform: translateX(5px) rotate(5deg); } 75% { transform: translateX(-5px) rotate(-5deg); } 100% { transform: translateX(0); } }
-.shake-anim { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-body.no-animations * { transition: none !important; animation: none !important; transform: none !important; }
-body:not(.no-animations) .btn-toolbar-style, body:not(.no-animations) .btn-lock-screen, body:not(.no-animations) .icon-btn, body:not(.no-animations) .nav-tab, body:not(.no-animations) .btn-card-action, body:not(.no-animations) .input-text-style, body:not(.no-animations) .input-lock-screen, body:not(.no-animations) .input-key-style { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; }
-body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .btn-lock-screen:active, body:not(.no-animations) .icon-btn:active, body:not(.no-animations) .nav-tab:active, body:not(.no-animations) .btn-card-action:active { transform: scale(0.96); transition: transform 0.05s ease-out !important; }
-.btn-toolbar-style { background: #0a0a0a; border: 1px solid #333; border-radius: 14px; color: #d1d5db; padding: 0.75rem 1.25rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6); }
-.btn-toolbar-style:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1); border-color: #fff; color: #ffffff; }
-.btn-toolbar-style.btn-primary-override { background-color: rgba(79, 70, 229, 0.1); border: 1px solid #4f46e5; color: #4f46e5; }
-.btn-toolbar-style.btn-primary-override:hover { background-color: rgba(79, 70, 229, 0.2); border-color: #6366f1; color: #6366f1; box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4); }
-.btn-toolbar-style.btn-primary-override-danger { background-color: rgba(220, 38, 38, 0.1); border: 1px solid #dc2626; color: #dc2626; }
-.btn-toolbar-style.btn-primary-override-danger:hover { background-color: rgba(220, 38, 38, 0.2); border-color: #ef4444; color: #ef4444; box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4); }
-.btn-lock-screen { padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 500; border-radius: 14px; color: rgb(99 102 241); background-color: rgba(99, 102, 241, 0.1); border: 1px solid rgb(99 102 241); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6); }
-.btn-lock-screen:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4); background-color: rgba(99, 102, 241, 0.2); }
-.icon-btn { width: 40px; height: 40px; border-radius: 14px; border: 1px solid #4b5563; display: flex; align-items: center; justify-content: center; color: #d1d5db; cursor: pointer; background: transparent; }
-.icon-btn:hover { background-color: #374151; color: white; transform: scale(1.1); }
-.btn-card-action { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 14px; background-color: transparent; border: 1px solid transparent; color: #9ca3af; cursor: pointer; }
-.btn-card-action:hover { background-color: rgba(79, 70, 229, 0.1); color: #4f46e5; border-color: #4f46e5; transform: scale(1.15); }
-.input-text-style, .input-select-style { width: 100%; padding: 0.75rem; border: 1px solid #252525; background-color: #111111; border-radius: 14px; color: #c0c0c0; }
-.input-text-style:focus, .input-select-style:focus { border-color: #505050; outline: none; box-shadow: 0 0 0 2px rgba(80, 80, 80, 0.5); transform: scale(1.02); }
-.input-lock-screen { background-color: #111; border: 1px solid #252525; color: white; border-radius: 14px; padding: 0.75rem; text-align: center; letter-spacing: 0.2em; outline: none; }
-.input-lock-screen:focus { border-color: rgb(99 102 241); transform: scale(1.02); }
-.input-key-style { width: 4rem; padding: 0.75rem; border: 1px solid #252525; background-color: #111111; border-radius: 14px; color: #c0c0c0; font-size: 1.1rem; text-align: center; font-weight: 500; text-transform: uppercase; }
-.input-key-style:focus { border-color: #505050; outline: none; box-shadow: 0 0 0 2px rgba(80, 80, 80, 0.5); transform: scale(1.1); }
-.settings-box { border: 1px solid #333; border-radius: 24px; background-color: #000000; padding: 1.5rem; }
-.nav-tab { padding: 0.5rem 1rem; color: var(--tab-text); font-size: 0.875rem; font-weight: 400; border-radius: 12px; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border: 1px solid transparent; cursor: pointer; background: transparent; }
-.nav-tab:hover { color: var(--tab-hover-text); background-color: rgba(79, 70, 229, 0.05); border-color: var(--tab-active-border); transform: scale(1.05); }
-.nav-tab.active { color: var(--tab-active-text); border-color: var(--tab-active-border); background-color: var(--tab-active-bg); transform: scale(1.05); }
-.eagler-dropdown { position: relative; background-color: rgba(20, 20, 20, 0.98); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 0.5rem; min-width: 200px; display: inline-block; }
-.eagler-dropdown-link { display: block; padding: 0.6rem 0.8rem; color: #d1d5db; text-decoration: none; border-radius: 14px; font-size: 0.9rem; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.eagler-dropdown-link:hover { background-color: rgba(255, 255, 255, 0.1); color: white; transform: translateX(4px); }
-#notification-container { position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.75rem; z-index: 1000; pointer-events: none; }
-.notification-toast { background-color: #0a0a0a; border: 1px solid #333; border-radius: 14px; padding: 0.75rem 1.25rem; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; min-width: 200px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background-color 0.2s; opacity: 0; pointer-events: auto; cursor: default; }
-.notification-toast.show { transform: translateX(0); opacity: 1; }
-.notification-toast.show:hover { transform: scale(1.05) translateX(-5px); background-color: #151515; border-color: #555; box-shadow: 0 8px 25px rgba(0,0,0,0.7); }
-.notification-icon { font-size: 1.1rem; }
-.notification-icon.success { color: #4ade80; }
-.notification-icon.info { color: #60a5fa; }
-.notification-icon.warning { color: #fbbf24; }
-
-</style>
+    </style>
     
 </head>
 <body class="min-h-screen">
@@ -377,6 +335,12 @@ body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .bt
                     <span><i class="fa-solid fa-volume-xmark w-5"></i> Stop All Sounds</span>
                     <span class="text-xs text-gray-500 border border-[#333] px-1 rounded">SHIFT+C</span>
                 </div>
+                
+                <div class="dropdown-divider border-t border-[#333] my-2"></div>
+
+                <div id="auth-btn" class="dropdown-item">
+                    <span><i class="fa-brands fa-google w-5"></i> Login</span>
+                </div>
             </div>
 
             <button id="options-menu-btn" class="btn-toolbar-style btn-primary-override">
@@ -394,7 +358,8 @@ body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .bt
 
         // --- Firebase Integration ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // Same config as the admin file
         const firebaseConfig = {
@@ -410,6 +375,10 @@ body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .bt
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        const ADMIN_EMAIL = "4simpleproblems@gmail.com";
+        let isAdmin = false;
 
         // --- UI & State References ---
         const loadingScreen = document.getElementById('loading-screen');
@@ -423,6 +392,7 @@ body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .bt
         const applyDelayBtn = document.getElementById('applyDelayBtn');
         const clearSoundsBtn = document.getElementById('clear-sounds-btn');
         const statusToaster = document.getElementById('status-toaster');
+        const authBtn = document.getElementById('auth-btn');
         
         // Sound Containers
         const normalSoundsContainer = document.getElementById('normalSoundsContainer');
@@ -464,8 +434,6 @@ body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .bt
                         explicitSectionWrapper.style.display = 'block';
                     } else {
                         explicitSectionWrapper.style.display = 'none';
-                        // Optional: Ensure any "explicit" sounds stop playing if they were active?
-                        // For now we just hide the section as per typical admin toggle logic
                     }
 
                     // Admin toggle logic for "thirdPartyEnabled". Default to true.
@@ -488,6 +456,74 @@ body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .bt
                 thirdPartySectionWrapper.style.display = 'block';
             });
         }
+        
+        // --- Auth Logic ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                if (user.email === ADMIN_EMAIL) {
+                    isAdmin = true;
+                    showStatus("Admin Access Granted", "success");
+                    authBtn.innerHTML = `<span><i class="fa-solid fa-user-shield w-5 text-green-500"></i> Admin Logout</span>`;
+                } else {
+                    isAdmin = false;
+                    authBtn.innerHTML = `<span><i class="fa-solid fa-right-from-bracket w-5"></i> Logout</span>`;
+                }
+            } else {
+                // User is signed out
+                isAdmin = false;
+                authBtn.innerHTML = `<span><i class="fa-brands fa-google w-5"></i> Login</span>`;
+            }
+        });
+
+        authBtn.addEventListener('click', () => {
+             if (auth.currentUser) {
+                 signOut(auth).then(() => showStatus("Logged out"));
+             } else {
+                 const provider = new GoogleAuthProvider();
+                 signInWithPopup(auth, provider).catch((error) => {
+                     console.error("Login failed", error);
+                     showStatus("Login failed", "error");
+                 });
+             }
+        });
+        
+        // --- Admin Keybinds ---
+        async function toggleConfig(field, name) {
+            if (!isAdmin) return;
+            const configRef = doc(db, 'config', 'soundboard');
+            try {
+                const snap = await getDoc(configRef);
+                let currentVal = true;
+                if (snap.exists()) {
+                    currentVal = snap.data()[field] !== false;
+                }
+                await setDoc(configRef, { [field]: !currentVal }, { merge: true });
+                showStatus(`${name} ${!currentVal ? 'Enabled' : 'Disabled'}`, 'success');
+            } catch (err) {
+                console.error(err);
+                showStatus(`Error toggling ${name}`, 'error');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            // Stop All Sounds: SHIFT + C
+            if (e.shiftKey && e.key.toLowerCase() === 'c') {
+                stopAllAudios(true);
+            }
+            
+            // Admin Toggles
+            if (isAdmin && e.shiftKey) {
+                if (e.key.toLowerCase() === 'e') {
+                    e.preventDefault();
+                    toggleConfig('explicitEnabled', 'Explicit Sounds');
+                }
+                if (e.key.toLowerCase() === 't') {
+                    e.preventDefault();
+                    toggleConfig('thirdPartyEnabled', 'Third Party Sounds');
+                }
+            }
+        });
 
         function showStatus(message, type = 'info') {
             statusToaster.textContent = message;
@@ -661,10 +697,6 @@ body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .bt
             optionsDropdown.classList.add('hidden');
         });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.shiftKey && e.key.toLowerCase() === 'c') stopAllAudios(true);
-        });
-
         // --- Init ---
         window.addEventListener('load', () => {
             const savedOverlay = localStorage.getItem('soundOverlay') === 'true';
@@ -679,48 +711,7 @@ body:not(.no-animations) .btn-toolbar-style:active, body:not(.no-animations) .bt
             initApp();
         });
     </script>
-
-    <div id="notification-container"></div>
-    <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let isMuted = false; let areAnimationsEnabled = true;
-    function playClickSound() {
-        if (isMuted) return; if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
-        osc.connect(gainNode); gainNode.connect(audioCtx.destination);
-        osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.015);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.015);
-    }
-    function playTypeSound() {
-        if (isMuted) return; if (audioCtx.state === 'suspended') audioCtx.resume();
-        const bufferSize = audioCtx.sampleRate * 0.02; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-        const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-        const noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'bandpass'; noiseFilter.frequency.value = 3000 + (Math.random() * 1000); noiseFilter.Q.value = 1;
-        const noiseGain = audioCtx.createGain(); noiseGain.gain.setValueAtTime(0.04, audioCtx.currentTime); noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.01);
-        noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'sine'; osc.frequency.setValueAtTime(150 + (Math.random() * 50), audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.03, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        noise.start(); osc.start(); noise.stop(audioCtx.currentTime + 0.02); osc.stop(audioCtx.currentTime + 0.02);
-    }
-    const notificationContainer = document.getElementById('notification-container');
-    function showNotification(message, iconClass = 'fa-solid fa-info-circle', type = 'info') {
-        if (!notificationContainer) return;
-        while (notificationContainer.children.length >= 3) notificationContainer.removeChild(notificationContainer.firstChild);
-        const toast = document.createElement('div'); toast.className = 'notification-toast';
-        toast.innerHTML = `<i class="${iconClass} notification-icon ${type}"></i><span>${message}</span>`;
-        notificationContainer.appendChild(toast);
-        requestAnimationFrame(() => { toast.classList.add('show'); playClickSound(); });
-        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => { if (toast.parentElement) toast.remove(); }, 300); }, 3000);
-    }
-    document.addEventListener('click', (e) => { const target = e.target.closest('button, .nav-tab, .zone-item, .btn-card-action, a, .icon-btn'); if (target) playClickSound(); });
-    document.addEventListener('keydown', (e) => { const target = e.target.closest('input, textarea'); if (target && !e.repeat) playTypeSound(); });
-    document.addEventListener('copy', () => { if (window.getSelection().toString().length > 0) showNotification('Copied to clipboard', 'fa-solid fa-copy', 'success'); });
-    document.addEventListener('paste', (e) => { if (e.target.closest('input, textarea')) showNotification('Pasted from clipboard', 'fa-solid fa-paste', 'info'); });
-    </script>
-
+    
+    <script src="../injector.js"></script>
 </body>
 </html>

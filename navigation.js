@@ -140,17 +140,9 @@ window.applyTheme = (theme) => {
             logoImg.src = newLogoSrc;
         }
 
-        // --- Logo Tinting Logic ---
-        const noFilterThemes = ['Dark', 'Light', 'Christmas'];
-
-        if (noFilterThemes.includes(themeToApply.name)) {
-            logoImg.style.filter = ''; 
-            logoImg.style.transform = '';
-        } else {
-            const tintColor = themeToApply['tab-active-text'] || '#ffffff';
-            logoImg.style.filter = `drop-shadow(100px 0 0 ${tintColor})`;
-            logoImg.style.transform = 'translateX(-100px)';
-        }
+        // --- Simplified Logo Logic: Remove animation/filters ---
+        logoImg.style.filter = ''; 
+        logoImg.style.transform = '';
     }
 };
 
@@ -253,7 +245,7 @@ let db;
         const container = document.getElementById('navbar-container');
         const logoPath = '/images/logo.png'; 
         
-        // --- Updated Structure to Match 4simpleproblems-v5.html ---
+        // --- Structure ---
         container.innerHTML = `
             <div id="fireworks-container"></div>
             
@@ -276,8 +268,7 @@ let db;
             </div>
         `;
 
-        // --- NEW: Apply Counter Zoom immediately on creation ---
-        applyCounterZoom();
+        // --- REMOVED: applyCounterZoom call ---
 
         let pages = {};
         await loadCSS("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css");
@@ -310,7 +301,7 @@ let db;
             /* Base Styles */
             body { padding-top: 64px !important; }
             
-            /* --- Navbar Styles (Matches 4simpleproblems-v5.html) --- */
+            /* --- Navbar Styles --- */
             #navbar-container {
                 position: fixed !important;
                 top: 0 !important;
@@ -326,7 +317,7 @@ let db;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                padding: 0 1rem !important;
+                padding: 0 1rem !important; /* Kept minimal padding so logo doesn't hit edge */
                 box-sizing: border-box !important;
                 transition: background-color 0.3s ease, border-color 0.3s ease !important;
                 overflow: visible !important;
@@ -484,20 +475,22 @@ let db;
 
             .auth-menu-more-section { display: none; padding-top: 0.5rem; margin-top: 0.5rem; border-top: 1px solid var(--menu-divider, #333); }
 
+            /* Updated Auth Menu Buttons - Transparent with Tab-like Hover */
             .auth-menu-link, .auth-menu-button { 
                 display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; 
                 padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--menu-text, #d1d5db); 
-                background: var(--menu-item-bg, #0a0a0a);
-                border: 1px solid var(--menu-item-border, #333);
+                background: transparent;
+                border: 1px solid transparent;
                 border-radius: 1rem; 
-                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: none; cursor: pointer;
+                transition: all 0.2s ease; border: none; cursor: pointer;
+                border: 1px solid transparent;
+                margin-bottom: 0.5rem; /* Added Spacing */
             }
             .auth-menu-link:hover, .auth-menu-button:hover { 
-                background-color: var(--menu-item-hover-bg, #000); 
-                border-color: var(--menu-item-hover-border, #fff);
-                color: var(--menu-item-hover-text, #fff);
+                background-color: var(--tab-hover-bg, rgba(79, 70, 229, 0.05)); 
+                border-color: var(--tab-active-border, #4f46e5);
+                color: var(--menu-item-hover-text, #ffffff);
                 transform: translateY(-2px) scale(1.02);
-                box-shadow: 0 5px 15px rgba(255,255,255,0.05);
             }
 
             .logged-out-auth-toggle { 
@@ -540,32 +533,7 @@ let db;
         document.head.appendChild(style);
     };
 
-    /**
-     * NEW FUNCTION: applyCounterZoom
-     * This calculates the browser's current zoom level (devicePixelRatio) and applies
-     * an inverse scale transform to the navbar. This forces the navbar to appear the
-     * same physical size regardless of zoom.
-     */
-    const applyCounterZoom = () => {
-        const navbar = document.getElementById('navbar-container');
-        if (!navbar) return;
-
-        // Get the current zoom ratio (e.g., 1.25 for 125% zoom)
-        // Default to 1 if undefined
-        const dpr = window.devicePixelRatio || 1;
-
-        // Calculate inverse scale (e.g., 0.8 for 125% zoom)
-        const scale = 1 / dpr;
-
-        // Apply scale.
-        // We use transform instead of 'zoom' property for better cross-browser support (Firefox)
-        navbar.style.transform = `scale(${scale})`;
-        
-        // Compensate Width:
-        // If we scale down to 0.5, the 100% width becomes 50% of screen.
-        // We need to double the width to fill the screen again.
-        navbar.style.width = `${dpr * 100}%`;
-    };
+    // --- REMOVED: applyCounterZoom function definition ---
 
     const initializeApp = (pages, firebaseConfig) => {
         if (!document.getElementById('navbar-container')) {
@@ -596,8 +564,8 @@ let db;
         let currentScrollLeft = 0; 
         let hasScrolledToActiveTab = false; 
         let globalClickListenerAdded = false;
-        let authCheckCompleted = false; // <--- NEW FLAG
-        let isRedirecting = false;    // <--- NEW FLAG
+        let authCheckCompleted = false; 
+        let isRedirecting = false;    
 
         const PINNED_PAGE_KEY = 'navbar_pinnedPage';
         const PIN_BUTTON_HIDDEN_KEY = 'navbar_pinButtonHidden';
@@ -606,45 +574,37 @@ let db;
         const getCurrentPageKey = () => {
             const currentPathname = window.location.pathname.toLowerCase();
             let bestMatchKey = null;
-            let longestMatchLength = 0; // Track the length of the matched canonical URL
+            let longestMatchLength = 0; 
 
             const cleanPath = (path) => {
                 try {
-                    // If it's a relative path, resolve it against origin
                     const resolved = new URL(path, window.location.origin).pathname.toLowerCase();
-                    // Normalize index.html
                     if (resolved.endsWith('/index.html')) return resolved.substring(0, resolved.lastIndexOf('/')) + '/';
                     if (resolved.length > 1 && resolved.endsWith('/')) return resolved.slice(0, -1);
                     return resolved;
                 } catch (e) {
-                    return path; // Fallback for invalid URLs
+                    return path; 
                 }
             };
 
             const currentCanonical = cleanPath(currentPathname);
             
-            // Collect all matching keys along with their canonical URLs
             const potentialMatches = [];
 
             for (const [key, page] of Object.entries(allPages)) {
                 const tabCanonical = cleanPath(page.url);
                 let isMatch = false;
 
-                // 1. Check primary URL
                 if (currentCanonical === tabCanonical) {
                     isMatch = true;
                 }
 
-                // 2. Check suffix matching (existing logic)
-                // This is less reliable for full path differentiation, but kept for compatibility
                 const tabPathSuffix = new URL(page.url, window.location.origin).pathname.toLowerCase();
                 const tabSuffixClean = tabPathSuffix.startsWith('/') ? tabPathSuffix.substring(1) : tabPathSuffix;
-                // Avoid aggressive suffix matching for root/short paths
                 if (!isMatch && tabSuffixClean.length > 3 && currentPathname.endsWith(tabSuffixClean)) {
                     isMatch = true;
                 }
 
-                // 3. Check Aliases (NEW)
                 if (!isMatch && page.aliases && Array.isArray(page.aliases)) {
                     for (const alias of page.aliases) {
                         const aliasCanonical = cleanPath(alias);
@@ -652,7 +612,6 @@ let db;
                             isMatch = true;
                             break;
                         }
-                        // Also check alias suffixes if needed, though exact path matching is safer
                         const aliasPathSuffix = new URL(alias, window.location.origin).pathname.toLowerCase();
                          const aliasSuffixClean = aliasPathSuffix.startsWith('/') ? aliasPathSuffix.substring(1) : aliasPathSuffix;
                         if (aliasSuffixClean.length > 3 && currentPathname.endsWith(aliasSuffixClean)) {
@@ -667,13 +626,12 @@ let db;
                 }
             }
 
-            // From potential matches, find the one with the longest canonical URL (most specific)
             if (potentialMatches.length > 0) {
                 potentialMatches.sort((a, b) => b.canonicalUrl.length - a.canonicalUrl.length);
                 return potentialMatches[0].key;
             }
 
-            return null; // No match found
+            return null; 
         };
 
         
@@ -1229,13 +1187,10 @@ let db;
                 const scrollAmount = tabContainer.offsetWidth * 0.8; 
                 tabContainer.addEventListener('scroll', updateScrollGilders);
                 
-                // --- MODIFIED: RESIZE EVENT ---
-                // We now trigger both glider updates AND the counter-zoom logic
+                // --- MODIFIED: REMOVED applyCounterZoom call on resize ---
                 window.addEventListener('resize', () => {
                     debouncedUpdateGilders();
-                    applyCounterZoom(); // Re-calculate zoom scale on resize
                 });
-                // --- END MODIFICATION ---
                 
                 if (leftButton) {
                     leftButton.addEventListener('click', () => {
@@ -1370,7 +1325,7 @@ let db;
             currentUser = user;
             currentUserData = userData;
 
-            // --- NEW: Apply Theme from Firestore ---
+            // --- Apply Theme from Firestore ---
             if (userData && userData.navbarTheme) {
                 window.applyTheme(userData.navbarTheme);
                 // Sync to local storage for future page loads

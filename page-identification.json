@@ -50,6 +50,11 @@
         "url": "../LEVIUM/levium.html",
         "adminOnly": true
     },
+    "velium": {
+        "name": "VELIUM",
+        "icon": "fa-solid fa-music",
+        "url": "../VELIUM/index.html"
+    },
     "securly-tester": {
         "name": "Securly Tester",
         "icon": "fa-solid fa-shield-alt",

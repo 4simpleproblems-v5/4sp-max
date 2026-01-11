@@ -262,9 +262,13 @@ let db;
             document.body.prepend(navbarDiv);
         }
         
+        if (!document.getElementById('notification-container')) {
+            const notifDiv = document.createElement('div');
+            notifDiv.id = 'notification-container';
+            document.body.appendChild(notifDiv);
+        }
+        
         injectStyles();
-
-        const container = document.getElementById('navbar-container');
         const logoPath = '/images/logo.png'; 
         
         // --- Structure ---
@@ -583,6 +587,31 @@ let db;
             .marquee-content { display: inline-block; white-space: nowrap; }
             .marquee-container.active .marquee-content { animation: marquee 10s linear infinite; min-width: 100%; }
             @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+            /* Notifications */
+            #notification-container {
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                z-index: 20000;
+                pointer-events: none;
+            }
+            .notification-toast {
+                background-color: #0a0a0a; border: 1px solid #333; border-radius: 14px;
+                padding: 0.75rem 1.25rem; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+                display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem;
+                min-width: 200px; transform: translateX(120%);
+                transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background-color 0.2s;
+                opacity: 0; pointer-events: auto; cursor: default;
+            }
+            .notification-toast.show { transform: translateX(0); opacity: 1; }
+            .notification-toast.show:hover {
+                transform: scale(1.02) translateX(-5px); background-color: #151515;
+                border-color: #555; box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+            }
         `;
         document.head.appendChild(style);
     };

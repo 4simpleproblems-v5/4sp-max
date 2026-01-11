@@ -1319,12 +1319,15 @@
             document.getElementById('closeBtnZone').addEventListener('click', closeZoneViewer);
 
             // --- FULLSCREEN BUTTON LISTENER ---
+            let escPressCount = 0;
+            let escResetTimer = null;
+
             document.getElementById('fullscreenBtnZone').addEventListener('click', () => {
                 const zoneViewer = document.getElementById('zoneViewer');
                 zoneViewer.classList.add('custom-fullscreen');
                 
                 if (window.showNotification) {
-                    window.showNotification('Press ESC to exit fullscreen', 'fa-solid fa-expand', 'info');
+                    window.showNotification('Press ESC 3 times fast to exit fullscreen', 'fa-solid fa-expand', 'info');
                 }
             });
 
@@ -1333,7 +1336,20 @@
                 if (e.key === 'Escape') {
                     const zoneViewer = document.getElementById('zoneViewer');
                     if (zoneViewer && zoneViewer.classList.contains('custom-fullscreen')) {
-                        zoneViewer.classList.remove('custom-fullscreen');
+                        escPressCount++;
+                        if (escResetTimer) clearTimeout(escResetTimer);
+                        escResetTimer = setTimeout(() => {
+                            escPressCount = 0;
+                        }, 1000); // 1 second window
+
+                        if (escPressCount >= 3) {
+                            zoneViewer.classList.remove('custom-fullscreen');
+                            escPressCount = 0;
+                            if (window.showNotification) window.showNotification('Exited Fullscreen', 'fa-solid fa-compress', 'info');
+                        } else {
+                            const remaining = 3 - escPressCount;
+                            if (window.showNotification) window.showNotification(`Press ESC ${remaining} more time${remaining > 1 ? 's' : ''} to exit`, 'fa-solid fa-expand', 'warning');
+                        }
                     }
                 }
             });

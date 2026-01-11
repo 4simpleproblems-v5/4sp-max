@@ -1495,6 +1495,50 @@ let db;
         });
     };
 
+    // --- Sound & Notification Logic ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let isMuted = false;
+
+    window.playClickSound = function() {
+        if (isMuted) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.015);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.015);
+    };
+
+    window.showNotification = function(message, iconClass = 'fa-solid fa-info-circle', type = 'info') {
+        const notificationContainer = document.getElementById('notification-container');
+        if (!notificationContainer) return;
+        
+        while (notificationContainer.children.length >= 3) {
+            notificationContainer.removeChild(notificationContainer.firstChild);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast';
+        toast.innerHTML = `<i class="${iconClass} notification-icon ${type}"></i><span>${message}</span>`;
+        notificationContainer.appendChild(toast);
+        
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+            if (window.playClickSound) window.playClickSound();
+        });
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 300);
+        }, 3000);
+    };
+
     if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', run);
 } else {

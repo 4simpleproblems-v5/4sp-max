@@ -422,6 +422,11 @@
     </div>
     
     <div id="zoneViewer" aria-modal="true" role="dialog">
+        <!-- Floating Exit Button for Custom Fullscreen -->
+        <button id="floatingExitBtn" class="hidden absolute top-4 right-4 z-[10001] bg-red-600/80 hover:bg-red-600 text-white px-4 py-2 rounded-full font-bold shadow-lg transition-all backdrop-blur-md border border-white/20">
+            <i class="fa-solid fa-compress mr-2"></i>Exit Fullscreen
+        </button>
+
         <div class="zone-header">
              <div class="zone-title">
                 <h2 id="zoneNameEl">Game Title</h2>
@@ -1321,13 +1326,26 @@
             // --- FULLSCREEN BUTTON LISTENER ---
             let escPressCount = 0;
             let escResetTimer = null;
+            const floatingExitBtn = document.getElementById('floatingExitBtn');
+
+            const exitCustomFullscreen = () => {
+                const zoneViewer = document.getElementById('zoneViewer');
+                if (zoneViewer) {
+                    zoneViewer.classList.remove('custom-fullscreen');
+                    floatingExitBtn.classList.add('hidden');
+                    if (window.showNotification) window.showNotification('Exited Fullscreen', 'fa-solid fa-compress', 'info');
+                }
+            };
+
+            floatingExitBtn.addEventListener('click', exitCustomFullscreen);
 
             document.getElementById('fullscreenBtnZone').addEventListener('click', () => {
                 const zoneViewer = document.getElementById('zoneViewer');
                 zoneViewer.classList.add('custom-fullscreen');
+                floatingExitBtn.classList.remove('hidden');
                 
                 if (window.showNotification) {
-                    window.showNotification('Press ESC 3 times fast to exit fullscreen', 'fa-solid fa-expand', 'info');
+                    window.showNotification('Press ESC 3 times or use the Exit button', 'fa-solid fa-expand', 'info');
                 }
             });
 
@@ -1343,9 +1361,8 @@
                         }, 1000); // 1 second window
 
                         if (escPressCount >= 3) {
-                            zoneViewer.classList.remove('custom-fullscreen');
+                            exitCustomFullscreen();
                             escPressCount = 0;
-                            if (window.showNotification) window.showNotification('Exited Fullscreen', 'fa-solid fa-compress', 'info');
                         } else {
                             const remaining = 3 - escPressCount;
                             if (window.showNotification) window.showNotification(`Press ESC ${remaining} more time${remaining > 1 ? 's' : ''} to exit`, 'fa-solid fa-expand', 'warning');

@@ -1307,15 +1307,6 @@ let db;
             if (!authCheckCompleted) {
                 authCheckCompleted = true;
             }
-
-            // Only redirect if auth check is completed, user is logged out, and we are not already redirecting
-            if (authCheckCompleted && !user && !isRedirecting) {
-                const targetUrl = '../index.html'; 
-                
-                console.log(`User logged out. Restricting access and redirecting to ${targetUrl}`);
-                isRedirecting = true; // Set flag to prevent multiple redirects
-                window.location.href = targetUrl;
-            }
         });
     };
 

@@ -965,12 +965,15 @@
             };
             controls.prepend(favBtn);
 
+            // FIX: Show viewer immediately (opacity 0) to ensure layout/viewport is ready for WebGL
+            zoneViewer.style.display = 'flex';
+
             zoneNameEl.textContent = game.name;
             zoneFrame.src = 'about:blank';
             
             const sandboxRules = 'allow-scripts allow-same-origin allow-forms allow-pointer-lock';
             zoneFrame.setAttribute('sandbox', sandboxRules);
-            zoneFrame.setAttribute('allow', 'fullscreen; pointer-lock; autoplay; clipboard-write');
+            zoneFrame.setAttribute('allow', 'fullscreen; autoplay; clipboard-write');
 
             // --- REVISED LOGIC FOR LOADING GAMES WITH RETRY ---
             const isStandardURLGame = game.category === 'StrongdogXP' || game.category === 'Others' || game.category === 'GN-Math';
@@ -1012,7 +1015,6 @@
                         doc.close();
                     }
 
-                    zoneViewer.style.display = "flex";
                     zoneViewer.classList.remove('animate-fade-out');
                     zoneViewer.classList.add('active', 'animate-fade-in');
 

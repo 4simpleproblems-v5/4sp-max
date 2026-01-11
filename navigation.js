@@ -135,14 +135,36 @@ window.applyTheme = (theme) => {
             newLogoSrc = themeToApply['logo-src'] || DEFAULT_THEME['logo-src'];
         }
         const currentSrc = logoImg.src;
-        const expectedSrc = new URL(newLogoSrc, window.location.origin).href;
-        if (currentSrc !== expectedSrc) {
+        // Check if src needs update (ignoring protocol for safer comparison if needed, but strict is fine here)
+        if (!currentSrc.includes(newLogoSrc)) {
             logoImg.src = newLogoSrc;
         }
 
-        // --- Simplified Logo Logic: Remove animation/filters ---
-        logoImg.style.filter = ''; 
-        logoImg.style.transform = '';
+        const noFilterThemes = ['Dark', 'Light', 'Christmas'];
+        const isNoFilter = noFilterThemes.includes(themeToApply.name);
+        
+        // Check if mode is changing (Tinted <-> Standard)
+        const wasNoFilter = logoImg.style.transform === '' || logoImg.style.transform === 'none';
+        const modeChanged = isNoFilter !== wasNoFilter;
+
+        if (modeChanged) {
+            logoImg.style.transition = 'none';
+        }
+
+        if (isNoFilter) {
+            logoImg.style.filter = ''; 
+            logoImg.style.transform = '';
+        } else {
+            const tintColor = themeToApply['tab-active-text'] || '#ffffff';
+            logoImg.style.filter = `drop-shadow(100px 0 0 ${tintColor})`;
+            logoImg.style.transform = 'translateX(-100px)';
+        }
+
+        if (modeChanged) {
+            // Force Reflow
+            void logoImg.offsetWidth; 
+            logoImg.style.transition = 'filter 0.3s ease'; // Restore transition
+        }
     }
 };
 
@@ -473,7 +495,16 @@ let db;
                 text-align: left !important; margin: 0 !important; font-weight: 400 !important;
             }
             .auth-menu-email { color: var(--menu-email-text, #9ca3af); text-align: left !important; margin: 0 !important; font-weight: 400 !important; }
-            .auth-menu-container.open { opacity: 1; transform: translateY(0) scale(1); display: flex !important; }
+            @keyframes menu-pop-in {
+                0% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+                70% { transform: translateY(2px) scale(1.01); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+            }
+
+            .auth-menu-container.open { 
+                display: flex !important; 
+                animation: menu-pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            }
             .auth-menu-container.closed { opacity: 0; pointer-events: none; transform: translateY(-10px) scale(0.95); display: none !important; }
 
             /* Show More Section - Updated to use Flex for spacing */

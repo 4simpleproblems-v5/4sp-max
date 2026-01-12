@@ -470,8 +470,24 @@ function playSong(item, index = -1, queue = []) {
     if (playerImg) playerImg.src = getImageUrl(item);
     updatePlayerLikeIcon();
     if (downloadBtn) downloadBtn.onclick = (e) => { e.preventDefault(); showToast(`Downloading...`); downloadResource(downloadUrl, `${songName}.mp3`); };
-    active.src = downloadUrl; active.volume = (volumeSlider ? volumeSlider.value : 1);
-    active.play().catch(e => console.log("Play error", e));
+    active.src = downloadUrl; 
+    active.load(); // Ensure resource loading starts
+    active.volume = (volumeSlider ? volumeSlider.value : 1);
+    
+    // Attempt play with retry logic
+    const attemptPlay = () => {
+        active.play().catch(e => {
+            console.warn("Play failed, retrying in 1s...", e);
+            setTimeout(() => {
+                active.play().catch(e2 => {
+                    console.error("Play retry failed", e2);
+                    showToast("Error playing song");
+                });
+            }, 1000);
+        });
+    };
+    attemptPlay();
+
     if (playerBar) { playerBar.classList.remove('hidden'); playerBar.style.display = 'flex'; }
 }
 

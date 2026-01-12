@@ -242,6 +242,16 @@
         }
         #zoneViewer.active { display: flex; opacity: 1; }
 
+        /* Custom Fullscreen Mode */
+        #zoneViewer.custom-fullscreen {
+            top: 0 !important;
+            height: 100% !important;
+            z-index: 10000 !important; /* Above navbar (9999) */
+        }
+        #zoneViewer.custom-fullscreen .zone-header {
+            display: none !important;
+        }
+
         #zoneViewer .zone-header {
             background-color: #0a0a0a;
             padding: 12px 24px;
@@ -409,6 +419,11 @@
     </div>
     
     <div id="zoneViewer" aria-modal="true" role="dialog">
+        <!-- Input Tracking Overlay (Captures focus, forwards keys) -->
+        <div id="fullscreenInputOverlay" class="hidden absolute inset-0 z-[10001] bg-transparent pointer-events-none"></div>
+        <!-- Hidden Input for Focus -->
+        <input type="text" id="focusHelper" class="fixed -top-full left-0 opacity-0 pointer-events-none" tabindex="-1">
+
         <div class="zone-header">
              <div class="zone-title">
                 <h2 id="zoneNameEl">Game Title</h2>
@@ -1325,17 +1340,94 @@
             nextCategoryBtn.addEventListener('click', () => switchCategory(currentCategoryIndex + 1));
             document.getElementById('closeBtnZone').addEventListener('click', closeZoneViewer);
 
-            // --- FULLSCREEN BUTTON LISTENER ---
-            document.getElementById('fullscreenBtnZone').addEventListener('click', () => {
-                const zoneFrame = document.getElementById('zoneFrame');
-                if (zoneFrame && zoneFrame.requestFullscreen) {
-                    zoneFrame.requestFullscreen();
-                } else if (zoneFrame && zoneFrame.webkitRequestFullscreen) {
-                    zoneFrame.webkitRequestFullscreen();
-                } else if (zoneFrame && zoneFrame.msRequestFullscreen) {
-                    zoneFrame.msRequestFullscreen();
+            // --- ADVANCED FULLSCREEN & INPUT LOGIC ---
+            let escPressCount = 0;
+            let escResetTimer = null;
+            const inputOverlay = document.getElementById('fullscreenInputOverlay');
+            const focusHelper = document.getElementById('focusHelper');
+
+            const forwardKeyEvent = (e) => {
+                const iframe = document.getElementById('zoneFrame');
+                if (!iframe) return;
+                try {
+                    if (iframe.contentWindow.document) {
+                        const target = iframe.contentWindow.document.activeElement || iframe.contentWindow.document.body;
+                        const newEvent = new KeyboardEvent(e.type, {
+                            key: e.key, code: e.code, keyCode: e.keyCode, charCode: e.charCode,
+                            view: iframe.contentWindow, bubbles: true, cancelable: true, composed: true,
+                            ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey, metaKey: e.metaKey,
+                            repeat: e.repeat, location: e.location
+                        });
+                        target.dispatchEvent(newEvent);
+                    }
+                } catch (err) {
+                    iframe.focus();
                 }
-            });
+            };
+
+            const enterCustomFullscreen = () => {
+                const zoneViewer = document.getElementById('zoneViewer');
+                const zoneFrame = document.getElementById('zoneFrame');
+                zoneViewer.classList.add('custom-fullscreen');
+                inputOverlay.classList.remove('hidden');
+                zoneFrame.focus(); 
+                if (window.showNotification) {
+                    window.showNotification('Fullscreen Active: Triple ESC to exit', 'fa-solid fa-expand', 'info');
+                }
+            };
+
+            const exitCustomFullscreen = () => {
+                const zoneViewer = document.getElementById('zoneViewer');
+                zoneViewer.classList.remove('custom-fullscreen');
+                inputOverlay.classList.add('hidden');
+                escPressCount = 0;
+                if (window.showNotification) window.showNotification('Exited Fullscreen', 'fa-solid fa-compress', 'info');
+            };
+
+            document.getElementById('fullscreenBtnZone').addEventListener('click', enterCustomFullscreen);
+
+            const handleGlobalKey = (e) => {
+                const zoneViewer = document.getElementById('zoneViewer');
+                if (!zoneViewer || !zoneViewer.classList.contains('custom-fullscreen')) return;
+
+                if (e.key === 'Escape') {
+                    if (e.type === 'keydown') {
+                        escPressCount++;
+                        if (escResetTimer) clearTimeout(escResetTimer);
+                        escResetTimer = setTimeout(() => { escPressCount = 0; }, 1000);
+
+                        if (escPressCount >= 3) {
+                            exitCustomFullscreen();
+                            e.preventDefault();
+                            return;
+                        } else {
+                            const remaining = 3 - escPressCount;
+                            if (window.showNotification) window.showNotification(`Press ESC ${remaining} more time${remaining > 1 ? 's' : ''} to exit`, 'fa-solid fa-expand', 'warning');
+                            forwardKeyEvent(e);
+                        }
+                    } else if (e.type === 'keyup') {
+                        forwardKeyEvent(e);
+                    }
+                } else {
+                    forwardKeyEvent(e);
+                }
+            };
+
+            document.addEventListener('keydown', handleGlobalKey, true); 
+            document.addEventListener('keyup', handleGlobalKey, true);
+
+            // --- SCROLL PREVENTION LOGIC ---
+            window.addEventListener('keydown', (e) => {
+                const zoneViewer = document.getElementById('zoneViewer');
+                // Check if any game player is active
+                if (zoneViewer && zoneViewer.style.display === 'flex') {
+                    const scrollKeys = ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+                    if (scrollKeys.includes(e.code) || (e.key === ' ' || scrollKeys.includes(e.key))) {
+                        // Only prevent if focus is on the page itself or the iframe
+                        e.preventDefault();
+                    }
+                }
+            }, false);
 
             creditsBtn.addEventListener('click', () => { creditsModal.style.display = 'flex'; creditsContent.innerHTML = categories.map(cat => CREDITS_DATA[cat] ? `<div class="p-4 border border-brand-border rounded-lg"><h4 class="font-bold mb-1">${cat}</h4><p class="text-sm text-gray-400">${CREDITS_DATA[cat].credit}</p></div>` : '').join(''); });
             closeCreditsBtn.addEventListener('click', () => creditsModal.style.display = 'none');

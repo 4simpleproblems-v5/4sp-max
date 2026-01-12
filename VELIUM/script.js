@@ -317,7 +317,9 @@ function createSongRow(item, contextPlaylistId = null, index) {
     const imgUrl = getImageUrl(item), song = item.song || item, author = item.author || { name: item.primaryArtists || '' }, durationStr = formatTime(song.duration), trackUrl = song.url || item.url;
     const isLiked = library.likedSongs.some(s => (s.id && s.id === item.id) || (trackUrl && (s.song?.url || s.url) === trackUrl));
     let uniqueId = item.id || trackUrl || (song.name + author.name);
-    const domId = btoa(String(uniqueId)).substring(0, 16).replace(/[/+=]/g, '');
+    // Append index to ensure uniqueness in DOM
+    const domId = btoa(String(uniqueId)).substring(0, 16).replace(/[/+=]/g, '') + `-${index}`;
+    
     let actionBtnHtml = contextPlaylistId ? `<button id="remove-${domId}" class="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500 transition-all"><i class="fas fa-minus"></i></button>` : `<button id="add-${domId}" class="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition-all"><i class="fas fa-plus"></i></button>`;
     return `<div id="row-${domId}" class="song-row flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] rounded-2xl border border-[#252525] transition-colors gap-4 cursor-pointer">` + `<img src="${imgUrl}" loading="lazy" class="w-12 h-12 rounded-lg object-cover"><div class="flex-grow overflow-hidden"><div class="text-white font-medium truncate">${song.name}</div><div class="text-gray-500 text-xs truncate">${author.name}</div></div><div class="flex items-center gap-3"><div class="text-gray-600 text-xs">${durationStr}</div>${actionBtnHtml}<button id="like-${domId}" class="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center ${isLiked?'text-red-500 border-red-500':'text-gray-400 hover:text-white hover:border-white'}"><i class="${isLiked?'fas':'far'} fa-heart"></i></button><button id="play-${domId}" class="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition-all"><i class="fas fa-play"></i></button></div></div>`;
 }
@@ -326,7 +328,9 @@ function attachListEvents(items, contextPlaylistId = null, listContext = []) {
     items.forEach((item, index) => {
         const song = item.song || item, trackUrl = song.url || item.url;
         let uniqueId = item.id || trackUrl || (song.name + (item.author?.name || item.primaryArtists || ''));
-        const domId = btoa(String(uniqueId)).substring(0, 16).replace(/[/+=]/g, '');
+        // Reconstruct ID with index
+        const domId = btoa(String(uniqueId)).substring(0, 16).replace(/[/+=]/g, '') + `-${index}`;
+        
         const row = document.getElementById(`row-${domId}`), btn = document.getElementById(`play-${domId}`), likeBtn = document.getElementById(`like-${domId}`);
         const playHandler = () => playSong(item, index, listContext);
         if (row) row.addEventListener('click', playHandler);

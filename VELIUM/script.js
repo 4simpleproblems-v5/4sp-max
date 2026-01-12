@@ -302,11 +302,15 @@ function openPlaylist(playlistId) {
     closeLibraryDrawer(); currentPlaylistId = playlistId; const pl = library.playlists.find(p => p.id === playlistId); if (!pl) return;
     mainHeader.textContent = pl.name; contentArea.className = '';
     const lastUpdated = new Date(pl.updatedAt).toLocaleDateString();
+    
+    // Filter valid songs
+    const validSongs = pl.songs.filter(s => s && (s.id || s.url || (s.song && s.song.url)));
+    
     let coverHtml = pl.cover ? `<img src="${pl.cover}" class="w-32 h-32 rounded-lg object-cover shadow-lg border border-[#333]">` : `<div class="w-32 h-32 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg flex items-center justify-center text-white text-4xl shadow-lg"><i class="fas fa-music"></i></div>`;
-    let html = `<div class="artist-header relative group">${coverHtml}<div class="artist-info"><p>${pl.songs.length} song${pl.songs.length!==1?'s':''} • Updated: ${lastUpdated}</p><button onclick="openEditPlaylistModal()" class="btn-toolbar-style mt-4"><i class="fas fa-pen"></i> Edit Playlist</button></div></div><div class="song-list mt-8">${pl.songs.map((item, idx) => createSongRow(item, playlistId, idx)).join('')}</div>`;
-    if (pl.songs.length === 0) html += `<div class="text-center text-gray-500 mt-10">This playlist is empty.</div>`;
+    let html = `<div class="artist-header relative group">${coverHtml}<div class="artist-info"><p>${validSongs.length} song${validSongs.length!==1?'s':''} • Updated: ${lastUpdated}</p><button onclick="openEditPlaylistModal()" class="btn-toolbar-style mt-4"><i class="fas fa-pen"></i> Edit Playlist</button></div></div><div class="song-list mt-8">${validSongs.map((item, idx) => createSongRow(item, playlistId, idx)).join('')}</div>`;
+    if (validSongs.length === 0) html += `<div class="text-center text-gray-500 mt-10">This playlist is empty.</div>`;
     contentArea.innerHTML = html;
-    attachListEvents(pl.songs, playlistId, pl.songs);
+    attachListEvents(validSongs, playlistId, validSongs);
 }
 
 function createSongRow(item, contextPlaylistId = null, index) {
@@ -482,14 +486,29 @@ function playSong(item, index = -1, queue = []) {
     active.load(); // Ensure resource loading starts
     active.volume = (volumeSlider ? volumeSlider.value : 1);
     
+    // Capture ID for retry logic check
+    const thisTrackId = item.id || item.song?.url || item.url;
+
     // Attempt play with retry logic
     const attemptPlay = () => {
+        // Check if track changed before playing
+        const nowId = currentTrack.id || currentTrack.song?.url || currentTrack.url;
+        if (nowId !== thisTrackId) return;
+
         active.play().catch(e => {
+            if (e.name === 'AbortError') return; // Ignore aborts (track change)
+            
             console.warn("Play failed, retrying in 1s...", e);
             setTimeout(() => {
+                // Re-check ID before retry
+                const retryId = currentTrack.id || currentTrack.song?.url || currentTrack.url;
+                if (retryId !== thisTrackId) return;
+
                 active.play().catch(e2 => {
+                    if (e2.name === 'AbortError') return;
                     console.error("Play retry failed", e2);
                     showToast("Error playing song");
+                    isLoading = false; updatePlayBtn();
                 });
             }, 1000);
         });

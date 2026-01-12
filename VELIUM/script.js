@@ -258,6 +258,127 @@ async function handleSearch() {
 }
 
 // ... (renderResults) ...
+function renderResults(results) {
+    if (!results || results.length === 0) { contentArea.innerHTML = '<div class="col-span-full text-center text-gray-500 mt-10 w-full">No results found.</div>'; return; }
+    currentResults = results; contentArea.innerHTML = '';
+    results.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'zone-item bg-[#111] rounded-3xl border border-[#252525] overflow-hidden relative group cursor-pointer';
+        const imgUrl = getImageUrl(item), name = item.song?.name || item.name || 'Unknown', sub = item.author?.name || item.primaryArtists || '';
+        card.innerHTML = `<div class="relative w-full aspect-square"><img src="${imgUrl}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"><button class="play-overlay-btn absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/30 backdrop-blur-sm"><i class="fas fa-play text-4xl text-white drop-shadow-xl hover:scale-110 transition-transform"></i></button><div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 pointer-events-none"></div><div class="absolute bottom-0 left-0 right-0 p-4 pointer-events-none"><h3 class="text-white font-bold truncate text-lg drop-shadow-md">${name}</h3><p class="text-gray-400 text-sm truncate">${sub}</p></div><button class="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/80 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 fav-btn" title="Like"><i class="far fa-heart"></i></button><button class="absolute top-2 left-2 w-10 h-10 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/80 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 add-btn" title="Add to Playlist"><i class="fas fa-plus"></i></button></div>`;
+        card.addEventListener('click', () => playSong(item, idx, results));
+        card.querySelector('.fav-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleLike(item); const i = e.currentTarget.querySelector('i'); i.classList.toggle('far'); i.classList.toggle('fas'); i.classList.toggle('text-red-500'); });
+        card.querySelector('.add-btn').addEventListener('click', (e) => { e.stopPropagation(); addToPlaylist(item); });
+        contentArea.appendChild(card);
+    });
+}
+
+function openLikedSongs() {
+    closeLibraryDrawer(); currentPlaylistId = null; mainHeader.textContent = "Liked Songs"; contentArea.className = '';
+    let html = `<div class="artist-header"><div class="w-32 h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-4xl shadow-lg"><i class="fas fa-heart"></i></div><div class="artist-info"><p>${library.likedSongs.length} song${library.likedSongs.length!==1?'s':''}</p></div></div><div class="song-list mt-8">${library.likedSongs.map((item, idx) => createSongRow(item, null, idx)).join('')}</div>`;
+    if (library.likedSongs.length === 0) html += `<div class="text-center text-gray-500 mt-10">You haven't liked any songs yet.</div>`;
+    contentArea.innerHTML = html;
+    attachListEvents(library.likedSongs, null, library.likedSongs);
+}
+
+function openPlaylist(playlistId) {
+    closeLibraryDrawer(); currentPlaylistId = playlistId; const pl = library.playlists.find(p => p.id === playlistId); if (!pl) return;
+    mainHeader.textContent = pl.name; contentArea.className = '';
+    const lastUpdated = new Date(pl.updatedAt).toLocaleDateString();
+    let coverHtml = pl.cover ? `<img src="${pl.cover}" class="w-32 h-32 rounded-lg object-cover shadow-lg border border-[#333]">` : `<div class="w-32 h-32 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg flex items-center justify-center text-white text-4xl shadow-lg"><i class="fas fa-music"></i></div>`;
+    let html = `<div class="artist-header relative group">${coverHtml}<div class="artist-info"><p>${pl.songs.length} song${pl.songs.length!==1?'s':''} • Updated: ${lastUpdated}</p><button onclick="openEditPlaylistModal()" class="btn-toolbar-style mt-4"><i class="fas fa-pen"></i> Edit Playlist</button></div></div><div class="song-list mt-8">${pl.songs.map((item, idx) => createSongRow(item, playlistId, idx)).join('')}</div>`;
+    if (pl.songs.length === 0) html += `<div class="text-center text-gray-500 mt-10">This playlist is empty.</div>`;
+    contentArea.innerHTML = html;
+    attachListEvents(pl.songs, playlistId, pl.songs);
+}
+
+function createSongRow(item, contextPlaylistId = null, index) {
+    const imgUrl = getImageUrl(item), song = item.song || item, author = item.author || { name: item.primaryArtists || '' }, durationStr = formatTime(song.duration), trackUrl = song.url || item.url;
+    const isLiked = library.likedSongs.some(s => (s.id && s.id === item.id) || (trackUrl && (s.song?.url || s.url) === trackUrl));
+    let uniqueId = item.id || trackUrl || (song.name + author.name);
+    const domId = btoa(String(uniqueId)).substring(0, 16).replace(/[/+=]/g, '');
+    let actionBtnHtml = contextPlaylistId ? `<button id="remove-${domId}" class="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500 transition-all"><i class="fas fa-minus"></i></button>` : `<button id="add-${domId}" class="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition-all"><i class="fas fa-plus"></i></button>`;
+    return `<div id="row-${domId}" class="song-row flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] rounded-2xl border border-[#252525] transition-colors gap-4 cursor-pointer">` + `<img src="${imgUrl}" loading="lazy" class="w-12 h-12 rounded-lg object-cover"><div class="flex-grow overflow-hidden"><div class="text-white font-medium truncate">${song.name}</div><div class="text-gray-500 text-xs truncate">${author.name}</div></div><div class="flex items-center gap-3"><div class="text-gray-600 text-xs">${durationStr}</div>${actionBtnHtml}<button id="like-${domId}" class="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center ${isLiked?'text-red-500 border-red-500':'text-gray-400 hover:text-white hover:border-white'}"><i class="${isLiked?'fas':'far'} fa-heart"></i></button><button id="play-${domId}" class="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition-all"><i class="fas fa-play"></i></button></div></div>`;
+}
+
+function attachListEvents(items, contextPlaylistId = null, listContext = []) {
+    items.forEach((item, index) => {
+        const song = item.song || item, trackUrl = song.url || item.url;
+        let uniqueId = item.id || trackUrl || (song.name + (item.author?.name || item.primaryArtists || ''));
+        const domId = btoa(String(uniqueId)).substring(0, 16).replace(/[/+=]/g, '');
+        const row = document.getElementById(`row-${domId}`), btn = document.getElementById(`play-${domId}`), likeBtn = document.getElementById(`like-${domId}`);
+        const playHandler = () => playSong(item, index, listContext);
+        if (row) row.addEventListener('click', playHandler);
+        if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); playHandler(); });
+        if (likeBtn) likeBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleLike(item); const i = e.currentTarget.querySelector('i'); i.classList.toggle('far'); i.classList.toggle('fas'); i.classList.toggle('text-red-500'); });
+        if (contextPlaylistId) { const r = document.getElementById(`remove-${domId}`); if (r) r.addEventListener('click', (e) => { e.stopPropagation(); removeFromPlaylist(contextPlaylistId, item.id, trackUrl); }); }
+        else { const a = document.getElementById(`add-${domId}`); if (a) a.addEventListener('click', (e) => { e.stopPropagation(); addToPlaylist(item); }); }
+    });
+}
+
+// --- Modals ---
+function openCreatePlaylistModal() { const m = document.getElementById('create-playlist-modal'); const i = document.getElementById('new-playlist-name'); if(i)i.value=''; if(m){ m.classList.add('active'); if(i)i.focus(); } };
+async function confirmCreatePlaylist() { const i = document.getElementById('new-playlist-name'); const n = i ? i.value.trim() : ''; if (n) { library.playlists.push({ id: 'pl-' + Date.now(), name: n, songs: [], cover: null, updatedAt: new Date().toISOString() }); await saveLibrary(); renderLibrary(); closeModals(); showToast(`Created "${n}"`); } };
+function closeModals() { document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active')); itemToAdd = null; currentPlaylistId = null; };
+function openEditPlaylistModal() { if (!currentPlaylistId) return; const pl = library.playlists.find(p => p.id === currentPlaylistId); if (!pl) return; const modal = document.getElementById('edit-playlist-modal'); if (editPlaylistNameInput) editPlaylistNameInput.value = pl.name; if (modal) modal.classList.add('active'); };
+async function savePlaylistChanges() { if (!currentPlaylistId) return; const idx = library.playlists.findIndex(p => p.id === currentPlaylistId); if (idx === -1) return; const n = editPlaylistNameInput.value.trim(); if (n) { library.playlists[idx].name = n; library.playlists[idx].updatedAt = new Date().toISOString(); await saveLibrary(); renderLibrary(); openPlaylist(currentPlaylistId); closeModals(); showToast("Updated"); } };
+async function deletePlaylist() { if (!currentPlaylistId) return; if (confirm("Delete playlist?")) { library.playlists = library.playlists.filter(p => p.id !== currentPlaylistId); await saveLibrary(); renderLibrary(); closeModals(); showHome(); showToast("Deleted"); } };
+function triggerCoverUpload() { if (playlistCoverInput) playlistCoverInput.click(); };
+
+// --- Cropper ---
+function handleImageUpload(e) { const f = e.target.files[0]; if (!f) return; if (f.size > 2e6) { alert('Too large'); return; } const r = new FileReader(); r.onload = v => { cropperImage = new Image(); cropperImage.onload = initCropper; cropperImage.src = v.target.result; }; r.readAsDataURL(f); }
+function initCropper() { const m = document.getElementById('cropper-modal'); cropperCanvas.height = 400; cropperCanvas.width = cropperImage.width * (400 / cropperImage.height); cropState = { x: cropperCanvas.width / 2, y: cropperCanvas.height / 2, radius: Math.min(cropperCanvas.width, cropperCanvas.height) / 3 }; m.classList.add('active'); requestAnimationFrame(drawCropper); }
+function closeCropper() { document.getElementById('cropper-modal').classList.remove('active'); if (playlistCoverInput) playlistCoverInput.value = ''; };
+const drawCropper = () => { if (!cropperImage) return; const ctx = cropperCanvas.getContext('2d'), w = cropperCanvas.width, h = cropperCanvas.height; ctx.clearRect(0, 0, w, h); ctx.drawImage(cropperImage, 0, 0, w, h); ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.arc(cropState.x, cropState.y, cropState.radius, 0, 2 * Math.PI, true); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.beginPath(); ctx.arc(cropState.x, cropState.y, cropState.radius, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]); };
+const handleCropStart = (x, y) => { if ((x - cropState.x) ** 2 + (y - cropState.y) ** 2 < cropState.radius ** 2) { isDraggingCrop = true; dragStart = { x, y }; } };
+const handleCropMove = (x, y) => { if (isDraggingCrop) { cropState.x = Math.max(cropState.radius, Math.min(cropState.x + (x - dragStart.x), cropperCanvas.width - cropState.radius)); cropState.y = Math.max(cropState.radius, Math.min(cropState.y + (y - dragStart.y), cropperCanvas.height - cropState.radius)); dragStart = { x, y }; requestAnimationFrame(drawCropper); } };
+const handleCropEnd = () => { isDraggingCrop = false; };
+const handleCropScroll = (e) => { e.preventDefault(); let nr = cropState.radius + (e.deltaY > 0 ? -5 : 5); cropState.radius = Math.max(20, Math.min(nr, Math.min(cropperCanvas.width, cropperCanvas.height) / 2)); requestAnimationFrame(drawCropper); };
+async function submitCrop() { const c = document.createElement('canvas'), s = 300; c.width = s; c.height = s; const t = c.getContext('2d'), sc = cropperCanvas.height / cropperImage.height; t.drawImage(cropperImage, (cropState.x - cropState.radius) / sc, (cropState.y - cropState.radius) / sc, (cropState.radius * 2) / sc, (cropState.radius * 2) / sc, 0, 0, s, s); const b = c.toDataURL('image/jpeg', 0.8); if (currentPlaylistId) { const idx = library.playlists.findIndex(p => p.id === currentPlaylistId); if (idx !== -1) { library.playlists[idx].cover = b; library.playlists[idx].updatedAt = new Date().toISOString(); await saveLibrary(); renderLibrary(); openPlaylist(currentPlaylistId); } } closeCropper(); };
+
+// --- Actions ---
+async function toggleLike(item) {
+    const trackUrl = item.song?.url || item.url;
+    const trackId = item.id; 
+    const index = library.likedSongs.findIndex(s => {
+        const sUrl = s.song?.url || s.url;
+        const sId = s.id;
+        if (trackId && sId === trackId) return true;
+        if (trackUrl && sUrl === trackUrl) return true;
+        return false;
+    });
+    if (index > -1) { library.likedSongs.splice(index, 1); showToast("Removed"); }
+    else { let cleanItem = { ...item }; if (!cleanItem.downloadUrl && !cleanItem.url && cleanItem.song?.url) cleanItem.url = cleanItem.song.url; library.likedSongs.unshift(cleanItem); showToast("Liked"); }
+    await saveLibrary(); renderLibrary(); updatePlayerLikeIcon();
+    if (mainHeader && mainHeader.textContent === "Liked Songs") openLikedSongs();
+}
+
+function addToPlaylist(item) {
+    if (library.playlists.length === 0) { openCreatePlaylistModal(); return; }
+    itemToAdd = item; const modal = document.getElementById('add-to-playlist-modal'), list = document.getElementById('modal-playlist-list');
+    if (list) { list.innerHTML = ''; library.playlists.forEach(pl => { const btn = document.createElement('div'); btn.className = 'p-3 bg-[#222] hover:bg-[#333] rounded-lg cursor-pointer flex justify-between items-center transition-colors'; btn.innerHTML = `<span class="text-white font-medium">${pl.name}</span><span class="text-xs text-gray-500">${pl.songs.length} songs</span>`; btn.onclick = () => confirmAddToPlaylist(pl); list.appendChild(btn); }); }
+    if (modal) modal.classList.add('active');
+}
+
+function addCurrentToPlaylist() { if (currentTrack) addToPlaylist(currentTrack); }
+
+async function confirmAddToPlaylist(playlist) {
+    if (!itemToAdd) return;
+    const exists = playlist.songs.some(s => s.id === itemToAdd.id || (s.url && s.url === itemToAdd.url));
+    if (exists) { showToast("Already in playlist"); }
+    else { playlist.songs.push(itemToAdd); playlist.updatedAt = new Date().toISOString(); await saveLibrary(); showToast(`Added to ${playlist.name}`); renderLibrary(); if (currentPlaylistId === playlist.id) openPlaylist(playlist.id); }
+    closeModals();
+}
+
+async function removeFromPlaylist(playlistId, songId, songUrl) {
+    if (!playlistId) return;
+    const idx = library.playlists.findIndex(p => p.id === playlistId);
+    if (idx === -1) return;
+    const pl = library.playlists[idx];
+    pl.songs = pl.songs.filter(s => !((songId && s.id === songId) || (songUrl && (s.song?.url || s.url) === songUrl)));
+    pl.updatedAt = new Date().toISOString();
+    await saveLibrary(); renderLibrary(); openPlaylist(playlistId); showToast("Removed");
+}
 
 // --- Playback ---
 function getDownloadUrl(item) {

@@ -233,7 +233,10 @@
         
         /* --- Game Viewer Modal --- */
         #zoneViewer { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none; position: fixed; 
+            top: 64px; /* Clearance for navbar */
+            left: 0; width: 100%; 
+            height: calc(100% - 64px); 
             background-color: #000; z-index: 5000; flex-direction: column; 
             opacity: 0;
         }

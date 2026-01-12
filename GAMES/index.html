@@ -1345,64 +1345,48 @@
                     }
                 } catch (err) {
                     // Cross-origin: Cannot forward events
+                    iframe.focus();
                 }
             };
 
-            const enterCustomFullscreen = () => {
-                const zoneViewer = document.getElementById('zoneViewer');
-                zoneViewer.classList.add('custom-fullscreen');
-                inputOverlay.classList.remove('hidden');
-                // Ensure overlay has focus
-                inputOverlay.focus();
-                
-                if (window.showNotification) {
-                    window.showNotification('Fullscreen Active: Triple ESC to exit', 'fa-solid fa-expand', 'info');
-                }
-            };
-
-            const exitCustomFullscreen = () => {
-                const zoneViewer = document.getElementById('zoneViewer');
-                zoneViewer.classList.remove('custom-fullscreen');
-                inputOverlay.classList.add('hidden');
-                escPressCount = 0;
-                if (window.showNotification) window.showNotification('Exited Fullscreen', 'fa-solid fa-compress', 'info');
-            };
-
-            document.getElementById('fullscreenBtnZone').addEventListener('click', enterCustomFullscreen);
-
-            // Global Key Listener (Captures ESC + Forwards others)
             const handleGlobalKey = (e) => {
                 const zoneViewer = document.getElementById('zoneViewer');
                 if (!zoneViewer || !zoneViewer.classList.contains('custom-fullscreen')) return;
 
-                if (e.key === 'Escape' && e.type === 'keydown') {
-                    escPressCount++;
-                    if (escResetTimer) clearTimeout(escResetTimer);
-                    escResetTimer = setTimeout(() => { escPressCount = 0; }, 800);
+                if (e.key === 'Escape') {
+                    if (e.type === 'keydown') {
+                        escPressCount++;
+                        if (escResetTimer) clearTimeout(escResetTimer);
+                        escResetTimer = setTimeout(() => { escPressCount = 0; }, 1000);
 
-                    if (escPressCount >= 3) {
-                        exitCustomFullscreen();
-                    } else {
-                        const remaining = 3 - escPressCount;
-                        if (window.showNotification) window.showNotification(`Press ESC ${remaining} more time${remaining > 1 ? 's' : ''} to exit`, 'fa-solid fa-expand', 'warning');
-                        // Also forward ESC to game (some games use it for pause)
+                        if (escPressCount >= 3) {
+                            // Triple escape reached: Exit and DON'T forward the 3rd one
+                            exitCustomFullscreen();
+                            e.preventDefault();
+                            return;
+                        } else {
+                            // Not the 3rd press yet: Show notification AND forward to game
+                            const remaining = 3 - escPressCount;
+                            if (window.showNotification) window.showNotification(`Press ESC ${remaining} more time${remaining > 1 ? 's' : ''} to exit`, 'fa-solid fa-expand', 'warning');
+                            forwardKeyEvent(e);
+                        }
+                    } else if (e.type === 'keyup') {
+                        // Always forward the release of the key
                         forwardKeyEvent(e);
                     }
                 } else {
-                    // Forward all other keys
+                    // Forward all other keys normally
                     forwardKeyEvent(e);
                 }
             };
 
-            document.addEventListener('keydown', handleGlobalKey);
-            document.addEventListener('keyup', handleGlobalKey);
+            document.addEventListener('keydown', handleGlobalKey, true); // Use capture phase
+            document.addEventListener('keyup', handleGlobalKey, true);
             
-            // Keep overlay clickable to regain focus if lost (though it covers screen)
-            inputOverlay.style.pointerEvents = 'auto';
-            inputOverlay.addEventListener('click', () => {
-                // Forward clicks? Mouse forwarding is complex, skipping for now as requested "keyboard input"
-                inputOverlay.focus();
-            });
+            // Keep overlay passive to allow game interaction
+            inputOverlay.style.pointerEvents = 'none';
+            // Click listener removed as it interferes with game
+
 
             creditsBtn.addEventListener('click', () => { creditsModal.style.display = 'flex'; creditsContent.innerHTML = categories.map(cat => CREDITS_DATA[cat] ? `<div class="p-4 border border-brand-border rounded-lg"><h4 class="font-bold mb-1">${cat}</h4><p class="text-sm text-gray-400">${CREDITS_DATA[cat].credit}</p></div>` : '').join(''); });
             closeCreditsBtn.addEventListener('click', () => creditsModal.style.display = 'none');

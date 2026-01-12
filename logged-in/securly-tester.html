@@ -153,7 +153,16 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        
+        // Import config from relative path
+        import { firebaseConfig } from "../firebase-config.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
         const emailInput = document.getElementById('email-input');
         const urlInput = document.getElementById('url-input');
         const checkBtn = document.getElementById('check-btn');
@@ -165,15 +174,20 @@
         // --- AUTH DETECTION ---
         function detectUser() {
             let userEmail = '';
-            // 1. Try injected window.currentUser (from navigation.js injection)
-            if (window.currentUser && window.currentUser.email) {
+            
+            // 1. Try Firebase Auth Direct
+            if (auth.currentUser) {
+                userEmail = auth.currentUser.email;
+            }
+            // 2. Try injected window.currentUser (from navigation.js injection)
+            else if (window.currentUser && window.currentUser.email) {
                 userEmail = window.currentUser.email;
             } 
-            // 2. Try parent scope if accessible
+            // 3. Try parent scope if accessible
             else if (window.parent && window.parent.currentUser && window.parent.currentUser.email) {
                 userEmail = window.parent.currentUser.email;
             }
-            // 3. Fallback
+            // 4. Fallback
             else {
                 userEmail = 'client@4sp'; 
             }
@@ -184,15 +198,15 @@
             }
         }
         
-        // Listen for navigation.js auth updates (if it dispatches events, otherwise rely on reload)
-        // Since navigation.js updates window.currentUser, we can poll or just rely on load.
-        // We'll add a small poller for the first few seconds to catch async auth loads.
-        let authCheckCount = 0;
-        const authInterval = setInterval(() => {
-            detectUser();
-            authCheckCount++;
-            if (authCheckCount > 10) clearInterval(authInterval); // Stop after 5 seconds
-        }, 500);
+        // Listen for Firebase Auth updates
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                detectUser();
+            }
+        });
+
+        // Also run on load
+        detectUser();
 
         // --- CHECK LOGIC ---
         async function checkStatus() {
@@ -246,11 +260,6 @@
                 checkBtn.innerHTML = '<i class="fa-solid fa-search"></i> Check Status';
             }
         }
-
-        // --- INIT ---
-        window.addEventListener('load', () => {
-            detectUser();
-        });
 
         checkBtn.addEventListener('click', checkStatus);
         urlInput.addEventListener('keypress', (e) => {

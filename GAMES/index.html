@@ -422,18 +422,9 @@
     </div>
     
     <div id="zoneViewer" aria-modal="true" role="dialog">
-        <!-- Invisible Overlay for Input Tracking (Passive) -->
-        <div id="fullscreenInputOverlay" class="hidden absolute inset-0 z-[10001] bg-transparent pointer-events-none"></div>
+        <!-- Input Tracking Overlay (Captures focus, forwards keys) -->
+        <div id="fullscreenInputOverlay" class="hidden absolute inset-0 z-[10001] bg-transparent cursor-none"></div>
         
-        <!-- Focus Traps (Edges) -->
-        <div class="focus-trap hidden absolute top-0 left-0 w-full h-2 z-[20005] bg-transparent"></div>
-        <div class="focus-trap hidden absolute bottom-0 left-0 w-full h-2 z-[20005] bg-transparent"></div>
-        <div class="focus-trap hidden absolute top-0 left-0 w-2 h-full z-[20005] bg-transparent"></div>
-        <div class="focus-trap hidden absolute top-0 right-0 w-2 h-full z-[20005] bg-transparent"></div>
-
-        <!-- Hidden Input for Focus -->
-        <input type="text" id="focusHelper" class="fixed -top-full left-0 opacity-0 pointer-events-none" tabindex="-1">
-
         <div class="zone-header">
              <div class="zone-title">
                 <h2 id="zoneNameEl">Game Title</h2>
@@ -1334,18 +1325,38 @@
             let escPressCount = 0;
             let escResetTimer = null;
             const inputOverlay = document.getElementById('fullscreenInputOverlay');
-            const focusTraps = document.querySelectorAll('.focus-trap');
-            const focusHelper = document.getElementById('focusHelper');
+
+            // --- Key Forwarding Logic (Same-Origin Only) ---
+            const forwardKeyEvent = (e) => {
+                const iframe = document.getElementById('zoneFrame');
+                if (!iframe) return;
+                
+                try {
+                    // Check if same-origin
+                    if (iframe.contentWindow.document) {
+                        const target = iframe.contentWindow.document.activeElement || iframe.contentWindow.document.body;
+                        const newEvent = new KeyboardEvent(e.type, {
+                            key: e.key, code: e.code, keyCode: e.keyCode, charCode: e.charCode,
+                            view: iframe.contentWindow, bubbles: true, cancelable: true, composed: true,
+                            ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey, metaKey: e.metaKey,
+                            repeat: e.repeat, location: e.location
+                        });
+                        target.dispatchEvent(newEvent);
+                    }
+                } catch (err) {
+                    // Cross-origin: Cannot forward events
+                }
+            };
 
             const enterCustomFullscreen = () => {
                 const zoneViewer = document.getElementById('zoneViewer');
                 zoneViewer.classList.add('custom-fullscreen');
                 inputOverlay.classList.remove('hidden');
-                focusTraps.forEach(trap => trap.classList.remove('hidden'));
-                focusHelper.focus(); 
+                // Ensure overlay has focus
+                inputOverlay.focus();
                 
                 if (window.showNotification) {
-                    window.showNotification('Fullscreen: Move mouse to edges to enable ESC shortcut', 'fa-solid fa-expand', 'info');
+                    window.showNotification('Fullscreen Active: Triple ESC to exit', 'fa-solid fa-expand', 'info');
                 }
             };
 
@@ -1353,54 +1364,45 @@
                 const zoneViewer = document.getElementById('zoneViewer');
                 zoneViewer.classList.remove('custom-fullscreen');
                 inputOverlay.classList.add('hidden');
-                focusTraps.forEach(trap => trap.classList.add('hidden'));
                 escPressCount = 0;
                 if (window.showNotification) window.showNotification('Exited Fullscreen', 'fa-solid fa-compress', 'info');
             };
 
             document.getElementById('fullscreenBtnZone').addEventListener('click', enterCustomFullscreen);
 
-            // Focus Traps: Hovering edges regains focus
-            focusTraps.forEach(trap => {
-                trap.addEventListener('mouseenter', () => {
-                    focusHelper.focus();
-                });
-            });
-
-            // Pointer Lock Fallback
-            document.addEventListener('pointerlockchange', () => {
+            // Global Key Listener (Captures ESC + Forwards others)
+            const handleGlobalKey = (e) => {
                 const zoneViewer = document.getElementById('zoneViewer');
-                if (!document.pointerLockElement && zoneViewer && zoneViewer.classList.contains('custom-fullscreen')) {
-                    focusHelper.focus();
-                    handleEscLogic({ key: 'Escape' });
-                }
-            });
+                if (!zoneViewer || !zoneViewer.classList.contains('custom-fullscreen')) return;
 
-            // Global ESC listener
-            const handleEscLogic = (e) => {
-                if (e.key === 'Escape') {
-                    const zoneViewer = document.getElementById('zoneViewer');
-                    if (zoneViewer && zoneViewer.classList.contains('custom-fullscreen')) {
-                        escPressCount++;
-                        if (escResetTimer) clearTimeout(escResetTimer);
-                        escResetTimer = setTimeout(() => {
-                            escPressCount = 0;
-                        }, 1000); 
+                if (e.key === 'Escape' && e.type === 'keydown') {
+                    escPressCount++;
+                    if (escResetTimer) clearTimeout(escResetTimer);
+                    escResetTimer = setTimeout(() => { escPressCount = 0; }, 800);
 
-                        if (escPressCount >= 3) {
-                            exitCustomFullscreen();
-                        } else {
-                            const remaining = 3 - escPressCount;
-                            if (window.showNotification) window.showNotification(`Press ESC ${remaining} more time${remaining > 1 ? 's' : ''} to exit`, 'fa-solid fa-expand', 'warning');
-                        }
+                    if (escPressCount >= 3) {
+                        exitCustomFullscreen();
+                    } else {
+                        const remaining = 3 - escPressCount;
+                        if (window.showNotification) window.showNotification(`Press ESC ${remaining} more time${remaining > 1 ? 's' : ''} to exit`, 'fa-solid fa-expand', 'warning');
+                        // Also forward ESC to game (some games use it for pause)
+                        forwardKeyEvent(e);
                     }
+                } else {
+                    // Forward all other keys
+                    forwardKeyEvent(e);
                 }
             };
 
-            document.addEventListener('keydown', handleEscLogic);
-            // Input overlay is now passive (pointer-events: none is default in CSS class or inherent behavior if transparent and not blocking)
-            // But we ensure it doesn't block:
-            inputOverlay.style.pointerEvents = 'none';
+            document.addEventListener('keydown', handleGlobalKey);
+            document.addEventListener('keyup', handleGlobalKey);
+            
+            // Keep overlay clickable to regain focus if lost (though it covers screen)
+            inputOverlay.style.pointerEvents = 'auto';
+            inputOverlay.addEventListener('click', () => {
+                // Forward clicks? Mouse forwarding is complex, skipping for now as requested "keyboard input"
+                inputOverlay.focus();
+            });
 
             creditsBtn.addEventListener('click', () => { creditsModal.style.display = 'flex'; creditsContent.innerHTML = categories.map(cat => CREDITS_DATA[cat] ? `<div class="p-4 border border-brand-border rounded-lg"><h4 class="font-bold mb-1">${cat}</h4><p class="text-sm text-gray-400">${CREDITS_DATA[cat].credit}</p></div>` : '').join(''); });
             closeCreditsBtn.addEventListener('click', () => creditsModal.style.display = 'none');

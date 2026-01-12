@@ -72,29 +72,64 @@
             color: #6366f1;
         }
 
-        /* --- FLOATING OPTIONS BUTTON STYLES --- */
+        /* --- FLOATING OPTIONS & SEARCH STYLES --- */
         #options-menu-container {
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            z-index: 900; /* High z-index to sit above sound buttons */
+            z-index: 900;
+            background-color: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 1.5rem; /* Pill shape for container */
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            transition: transform 0.2s ease, width 0.2s ease;
+        }
+        #options-menu-container:focus-within {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
         }
 
-        /* Update button style to look more like a Floating Action Button */
+        #sound-search {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #d1d5db;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+            width: 8rem; /* Compact width */
+            transition: width 0.3s ease;
+        }
+        #sound-search:focus {
+            width: 12rem; /* Expand on focus */
+            color: #fff;
+        }
+
+        /* Update button style to fit inside container */
         #options-menu-btn {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-            border-color: #4f46e5;
-            background-color: #0a0a0a;
-            padding: 0.75rem 1.25rem;
-            border-radius: 18px; /* Pill shape */
+            box-shadow: none; /* Container has shadow */
+            border: none;
+            background-color: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+            width: 2.5rem;
+            height: 2.5rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.25rem; /* Match container inner radius */
+            flex-shrink: 0;
         }
         
         #options-menu-btn:hover {
-             transform: translateY(-2px);
-             box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+             background-color: rgba(79, 70, 229, 0.2);
+             color: #6366f1;
+             transform: none;
         }
 
-        /* Dropdown Styling - Updated to open UPWARDS */
+        /* Dropdown Styling */
         .dropdown-menu {
             position: absolute;
             top: auto;        /* Disable top positioning */
@@ -307,7 +342,10 @@
             </div>
         </main>
 
-        <div id="options-menu-container" class="relative">
+        <div id="options-menu-container">
+            <div class="pl-3 text-gray-500"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <input type="text" id="sound-search" placeholder="Search...">
+            
             <div id="options-dropdown" class="dropdown-menu hidden">
                 <div class="dropdown-header">Playback Settings</div>
                 
@@ -343,8 +381,8 @@
                 </div>
             </div>
 
-            <button id="options-menu-btn" class="btn-toolbar-style btn-primary-override">
-                <i class="fa-solid fa-sliders"></i> <span>Options</span>
+            <button id="options-menu-btn" title="Options">
+                <i class="fa-solid fa-sliders"></i>
             </button>
         </div>
     </div>
@@ -385,6 +423,23 @@
         const pageContent = document.getElementById('page-content');
         const optionsMenuBtn = document.getElementById('options-menu-btn');
         const optionsDropdown = document.getElementById('options-dropdown');
+        const soundSearchInput = document.getElementById('sound-search');
+        
+        // --- Search Logic ---
+        soundSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const allButtons = document.querySelectorAll('.sound-btn');
+            
+            allButtons.forEach(btn => {
+                const name = btn.textContent.toLowerCase();
+                if (name.includes(query)) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        });
+
         const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
         const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
         const delaySettings = document.getElementById('delay-settings');

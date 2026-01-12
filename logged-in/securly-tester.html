@@ -165,7 +165,7 @@
         // --- AUTH DETECTION ---
         function detectUser() {
             let userEmail = '';
-            // 1. Try injected window.currentUser (from 4simpleproblems_v5.html)
+            // 1. Try injected window.currentUser (from navigation.js injection)
             if (window.currentUser && window.currentUser.email) {
                 userEmail = window.currentUser.email;
             } 
@@ -173,13 +173,26 @@
             else if (window.parent && window.parent.currentUser && window.parent.currentUser.email) {
                 userEmail = window.parent.currentUser.email;
             }
-            // 3. Fallback/Default
+            // 3. Fallback
             else {
-                userEmail = 'client@4sp'; // Default for testing/unauthed
+                userEmail = 'client@4sp'; 
             }
 
-            emailInput.value = userEmail;
+            // Only update if input is empty or has default value
+            if (emailInput.value === '' || emailInput.value === 'client@4sp' || emailInput.value === 'student@school.edu') {
+                emailInput.value = userEmail;
+            }
         }
+        
+        // Listen for navigation.js auth updates (if it dispatches events, otherwise rely on reload)
+        // Since navigation.js updates window.currentUser, we can poll or just rely on load.
+        // We'll add a small poller for the first few seconds to catch async auth loads.
+        let authCheckCount = 0;
+        const authInterval = setInterval(() => {
+            detectUser();
+            authCheckCount++;
+            if (authCheckCount > 10) clearInterval(authInterval); // Stop after 5 seconds
+        }, 500);
 
         // --- CHECK LOGIC ---
         async function checkStatus() {

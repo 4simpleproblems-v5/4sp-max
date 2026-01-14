@@ -47,8 +47,7 @@
     "vern": {
         "name": "VERN",
         "icon": "fa-solid fa-globe",
-        "url": "../VERN/vern.html",
-        "adminOnly": true
+        "url": "../VERN/vern.html"
     },
     "velium": {
         "name": "Velium",

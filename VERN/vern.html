@@ -349,9 +349,9 @@
         };
 
         // --- Configuration ---
-        const connection = new BareMux.BareMuxConnection("baremux/worker.js");
+        const connection = new BareMux.BareMuxConnection("/VERN/baremux/worker.js");
         const wispUrl = "wss://wisp.rhw.one/";
-        connection.setTransport("libcurl/index.mjs", [{ websocket: wispUrl }]);
+        connection.setTransport("/VERN/libcurl/index.mjs", [{ websocket: wispUrl }]);
 
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {

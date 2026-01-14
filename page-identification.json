@@ -44,10 +44,10 @@
         "icon": "fa-solid fa-gamepad",
         "url": "../GAMES/index.html"
     },
-    "levium": {
-        "name": "Levium",
+    "vern": {
+        "name": "Vern",
         "icon": "fa-solid fa-globe",
-        "url": "../logged-in/levium.html"
+        "url": "../logged-in/vern.html"
     },
     "velium": {
         "name": "Velium",

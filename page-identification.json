@@ -45,9 +45,16 @@
         "url": "../GAMES/index.html"
     },
     "vern": {
-        "name": "Vern",
+        "name": "VERN",
         "icon": "fa-solid fa-globe",
-        "url": "../logged-in/vern.html"
+        "url": "../VERN/vern.html",
+        "adminOnly": true
+    },
+    "test_vern": {
+        "name": "Test Vern",
+        "icon": "fa-solid fa-vial",
+        "url": "../VERN_TEST/vern.html",
+        "adminOnly": true
     },
     "velium": {
         "name": "Velium",

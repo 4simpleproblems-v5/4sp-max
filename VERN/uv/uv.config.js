@@ -1,7 +1,7 @@
 (() => {
-    // Explicitly set the base path for LEVIUM UV
-    // This ensures consistency whether loaded from /LEVIUM/levium.html or inside the worker
-    const basePath = "/LEVIUM/uv/";
+    // Explicitly set the base path for VERN UV
+    // This ensures consistency whether loaded from /VERN/vern.html or inside the worker
+    const basePath = "/VERN/uv/";
 
     self.__uv$config = {
         prefix: basePath + "service/",

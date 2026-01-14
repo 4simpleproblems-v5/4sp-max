@@ -353,10 +353,11 @@
         };
 
         // --- Configuration ---
-        // Updated to point to VERN_TEST
-        const connection = new BareMux.BareMuxConnection("/VERN_TEST/baremux/worker.js");
-        const wispUrl = "wss://wisp.rhw.one/";
-        connection.setTransport("/VERN_TEST/libcurl/index.mjs", [{ websocket: wispUrl }]);
+        document.addEventListener('DOMContentLoaded', () => {
+            const connection = new BareMux.BareMuxConnection("/VERN_TEST/baremux/worker.js");
+            const wispUrl = "wss://wisp.rhw.one/";
+            connection.setTransport("/VERN_TEST/libcurl/index.mjs", [{ websocket: wispUrl }]);
+        });
 
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {

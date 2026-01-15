@@ -97,6 +97,37 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 0 2px rgba(79, 70, 229, 0.2);
         }
 
+        .search-results-container {
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #333 transparent;
+            transition: opacity 0.3s ease;
+        }
+        .search-item {
+            display: flex;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #e5e7eb;
+            text-decoration: none;
+            padding: 10px 15px;
+        }
+        .search-item:hover { 
+            background-color: rgba(255, 255, 255, 0.05); 
+            padding-left: 20px;
+        }
+
+        .category-badge {
+            font-size: 0.6rem;
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-weight: 400;
+            margin-top: 4px;
+            border: 1px solid currentColor;
+            background: transparent !important;
+            display: inline-block;
+        }
+
         #sound-search {
             background: transparent;
             border: none;
@@ -347,49 +378,54 @@
             </div>
         </main>
 
-    <div id="bottom-fixed-bar">
-        <div class="pl-3 pr-2 text-gray-500"><i class="fa-solid fa-magnifying-glass"></i></div>
-        <input type="text" id="sound-search" placeholder="Search sounds..." autocomplete="off">
+    <div id="bottom-fixed-bar" class="flex-col">
+        <div id="searchResults" class="search-results-container w-full" style="display: none;"></div>
+        <div id="searchDivider" class="w-full h-[1px] bg-white/10" style="display: none;"></div>
         
-        <div class="h-6 w-[1px] bg-[#333] mx-2"></div>
-
-        <div class="relative">
-            <button id="options-menu-btn" title="Options">
-                <i class="fa-solid fa-sliders"></i>
-            </button>
+        <div class="flex items-center w-full p-1">
+            <div class="pl-3 pr-2 text-gray-500"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <input type="text" id="sound-search" placeholder="Search sounds..." autocomplete="off" class="w-full py-3 pr-4 bg-transparent text-white placeholder-gray-500 focus:outline-none focus:ring-0 text-base">
             
-            <div id="options-dropdown" class="dropdown-menu">
-                <div class="dropdown-header">Playback Settings</div>
+            <div class="h-6 w-[1px] bg-[#333] mx-2"></div>
+
+            <div class="relative flex-shrink-0">
+                <button id="options-menu-btn" title="Options">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
                 
-                <label class="dropdown-item">
-                    <span><i class="fa-solid fa-layer-group w-5 text-accent-indigo"></i> Overlay Mode</span>
-                    <input type="checkbox" id="soundOverlayCheckbox" class="custom-checkbox">
-                </label>
+                <div id="options-dropdown" class="dropdown-menu">
+                    <div class="dropdown-header">Playback Settings</div>
+                    
+                    <label class="dropdown-item">
+                        <span><i class="fa-solid fa-layer-group w-5 text-accent-indigo"></i> Overlay Mode</span>
+                        <input type="checkbox" id="soundOverlayCheckbox" class="custom-checkbox">
+                    </label>
 
-                <label class="dropdown-item">
-                    <span><i class="fa-solid fa-computer-mouse w-5 text-accent-indigo"></i> Auto Clicker</span>
-                    <input type="checkbox" id="autoClickerCheckbox" class="custom-checkbox">
-                </label>
+                    <label class="dropdown-item">
+                        <span><i class="fa-solid fa-computer-mouse w-5 text-accent-indigo"></i> Auto Clicker</span>
+                        <input type="checkbox" id="autoClickerCheckbox" class="custom-checkbox">
+                    </label>
 
-                <div id="delay-settings" class="dropdown-item hidden bg-[#111] mt-1 border border-[#333]">
-                    <span class="text-sm">Interval (ms)</span>
-                    <div class="flex gap-2">
-                        <input type="number" id="autoClickDelay" value="1000" min="0" class="custom-input">
-                        <button id="applyDelayBtn" class="btn-toolbar-style" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Set</button>
+                    <div id="delay-settings" class="dropdown-item hidden bg-[#111] mt-1 border border-[#333]">
+                        <span class="text-sm">Interval (ms)</span>
+                        <div class="flex gap-2">
+                            <input type="number" id="autoClickDelay" value="1000" min="0" class="custom-input">
+                            <button id="applyDelayBtn" class="btn-toolbar-style" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Set</button>
+                        </div>
                     </div>
-                </div>
 
-                <div class="my-2 border-t border-[#333]"></div>
-                
-                <div id="clear-sounds-btn" class="dropdown-item text-red-400 hover:bg-red-900/20 hover:text-red-300">
-                    <span><i class="fa-solid fa-volume-xmark w-5"></i> Stop All</span>
-                    <span class="text-xs text-gray-500 border border-[#333] px-1 rounded">SHIFT+C</span>
-                </div>
-                
-                <div class="my-2 border-t border-[#333]"></div>
+                    <div class="my-2 border-t border-[#333]"></div>
+                    
+                    <div id="clear-sounds-btn" class="dropdown-item text-red-400 hover:bg-red-900/20 hover:text-red-300">
+                        <span><i class="fa-solid fa-volume-xmark w-5"></i> Stop All</span>
+                        <span class="text-xs text-gray-500 border border-[#333] px-1 rounded">SHIFT+C</span>
+                    </div>
+                    
+                    <div class="my-2 border-t border-[#333]"></div>
 
-                <div id="auth-btn" class="dropdown-item">
-                    <span><i class="fa-brands fa-google w-5"></i> Login</span>
+                    <div id="auth-btn" class="dropdown-item">
+                        <span><i class="fa-brands fa-google w-5"></i> Login</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -435,18 +471,71 @@
         const soundSearchInput = document.getElementById('sound-search');
         
         // --- Search Logic ---
-        soundSearchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            const allButtons = document.querySelectorAll('.sound-btn');
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        const handleSearch = debounce(() => {
+            const query = soundSearchInput.value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('searchResults');
+            const divider = document.getElementById('searchDivider');
             
-            allButtons.forEach(btn => {
-                const name = btn.textContent.toLowerCase();
-                if (name.includes(query)) {
-                    btn.style.display = 'flex';
-                } else {
-                    btn.style.display = 'none';
-                }
+            if (!query) {
+                resultsContainer.style.display = 'none';
+                divider.style.display = 'none';
+                return;
+            }
+
+            // Find all sounds
+            const allSounds = [];
+            document.querySelectorAll('.sound-btn').forEach(btn => {
+                allSounds.push({
+                    name: btn.textContent,
+                    btn: btn
+                });
             });
+
+            const filtered = allSounds.filter(s => s.name.toLowerCase().includes(query)).slice(0, 10);
+
+            resultsContainer.innerHTML = '';
+            if (filtered.length === 0) {
+                resultsContainer.innerHTML = '<div class="p-4 text-gray-500 text-center text-sm italic">No sounds found</div>';
+            } else {
+                filtered.forEach(sound => {
+                    const item = document.createElement('div');
+                    item.className = 'search-item';
+                    item.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-volume-high text-accent-indigo text-xs"></i>
+                            <span class="text-sm">${sound.name}</span>
+                        </div>
+                    `;
+                    item.onclick = () => {
+                        sound.btn.click();
+                        resultsContainer.style.display = 'none';
+                        divider.style.display = 'none';
+                    };
+                    resultsContainer.appendChild(item);
+                });
+            }
+
+            resultsContainer.style.display = 'block';
+            divider.style.display = 'block';
+        }, 200);
+
+        soundSearchInput.addEventListener('input', handleSearch);
+        soundSearchInput.addEventListener('focus', handleSearch);
+
+        document.addEventListener('click', (e) => {
+            const bar = document.getElementById('bottom-fixed-bar');
+            if (!bar.contains(e.target)) {
+                document.getElementById('searchResults').style.display = 'none';
+                document.getElementById('searchDivider').style.display = 'none';
+            }
         });
 
         const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');

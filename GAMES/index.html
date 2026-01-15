@@ -1043,11 +1043,22 @@
                         doc.write(html);
                         doc.close();
                         
-                        // Force focus for injected games
-                        setTimeout(() => {
-                            if (zoneFrame.contentWindow) zoneFrame.contentWindow.focus();
-                            zoneFrame.focus();
+                        // Aggressively force focus for injected games (Eaglercraft needs this)
+                        // We try multiple times because the game engine takes a moment to mount the canvas
+                        let focusAttempts = 0;
+                        const forceFocusInterval = setInterval(() => {
+                            if (zoneFrame.contentWindow) {
+                                zoneFrame.contentWindow.focus();
+                                zoneFrame.focus();
+                            }
+                            focusAttempts++;
+                            if (focusAttempts > 20) clearInterval(forceFocusInterval); // Stop after ~2 seconds
                         }, 100);
+                        
+                        // Also ensure clicking the frame area works if the interval misses it
+                        zoneFrame.contentWindow.addEventListener('click', () => {
+                            zoneFrame.contentWindow.focus();
+                        });
                     }
 
                     // Reveal the viewer fully after content load starts
@@ -1355,6 +1366,18 @@
             prevCategoryBtn.addEventListener('click', () => switchCategory(currentCategoryIndex - 1));
             nextCategoryBtn.addEventListener('click', () => switchCategory(currentCategoryIndex + 1));
             document.getElementById('closeBtnZone').addEventListener('click', closeZoneViewer);
+
+            // If the user clicks the black background around the game, force focus back to the game
+            document.getElementById('zoneViewer').addEventListener('click', (e) => {
+                // Don't refocus if they clicked a button in the header
+                if (e.target.closest('.zone-controls')) return;
+                
+                const zoneFrame = document.getElementById('zoneFrame');
+                if (zoneFrame && zoneFrame.contentWindow) {
+                    zoneFrame.contentWindow.focus();
+                    zoneFrame.focus();
+                }
+            });
 
             // --- FULLSCREEN BUTTON LISTENER ---
             document.getElementById('fullscreenBtnZone').addEventListener('click', () => {

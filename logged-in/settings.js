@@ -3004,8 +3004,8 @@ resetBtn.addEventListener('click', () => {
                         
                         // Set inline styles for theme preview
                         // We use the theme's own colors to style its button
-                        const activeBorder = theme.colors['--tab-active-border'] || '#4f46e5';
-                        const activeBg = theme.colors['--tab-active-bg'] || 'rgba(79, 70, 229, 0.1)';
+                        const activeBorder = theme['tab-active-border'] || '#4f46e5';
+                        const activeBg = theme['tab-active-bg'] || 'rgba(79, 70, 229, 0.1)';
                         
                         btn.style.borderColor = '#333'; // Default border
                         btn.style.setProperty('--tab-active-border', activeBorder);
@@ -3015,8 +3015,8 @@ resetBtn.addEventListener('click', () => {
                         // Preview content
                         const preview = document.createElement('div');
                         preview.className = 'w-full h-12 rounded-md mb-2 flex items-center justify-center';
-                        preview.style.backgroundColor = theme.colors['--menu-bg'];
-                        preview.style.border = `1px solid ${theme.colors['--menu-border']}`;
+                        preview.style.backgroundColor = theme['menu-bg'];
+                        preview.style.border = `1px solid ${theme['menu-border']}`;
                         
                         // Fake active tab in preview
                         const fakeTab = document.createElement('div');
@@ -3063,8 +3063,10 @@ resetBtn.addEventListener('click', () => {
         
         function applyTheme(theme) {
             const root = document.documentElement;
-            for (const [key, value] of Object.entries(theme.colors)) {
-                root.style.setProperty(key, value);
+            for (const [key, value] of Object.entries(theme)) {
+                if (key !== 'name' && key !== 'logo-src' && key !== 'colors') {
+                    root.style.setProperty(`--${key}`, value);
+                }
             }
         }
         
@@ -3087,8 +3089,7 @@ resetBtn.addEventListener('click', () => {
                 
                 // --- NEW: Check Admin Status ---
                 try {
-                    const adminCheck = await checkAdminStatus(auth, db);
-                    isUserAdmin = adminCheck.isAdmin;
+                    isUserAdmin = await checkAdminStatus(user.uid);
                     // Show management tab if admin
                     if (isUserAdmin) {
                         document.querySelector('.settings-tab[data-tab="management"]').classList.remove('hidden');

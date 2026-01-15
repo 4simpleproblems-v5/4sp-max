@@ -351,6 +351,308 @@
             0% { transform: translate(0, 0) scale(1); opacity: 1; }
             100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
         }
+
+        /* --- Fullscreen Credits Styles --- */
+        #creditsModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: #000000;
+            display: none; /* Flex when active */
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #creditsModal.active { display: flex; opacity: 1; }
+
+        .credits-scroll-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none; /* Hide scrollbar for immersion */
+        }
+        .credits-scroll-container::-webkit-scrollbar { display: none; }
+
+        .credit-section {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .credit-content-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 6rem;
+            max-width: 1600px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .credit-text-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .credit-title {
+            font-size: 5rem;
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(to right, #fff, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.2s;
+        }
+
+        .credit-desc {
+            font-size: 1.5rem;
+            color: #d1d5db;
+            line-height: 1.6;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.4s;
+        }
+
+        .credit-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.6s;
+        }
+
+        .credit-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .credit-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* Specialized Brand Colors */
+        .btn-github:hover { border-color: #a78bfa; color: #a78bfa; background: rgba(167, 139, 250, 0.1); }
+        .btn-discord:hover { border-color: #5865F2; color: #5865F2; background: rgba(88, 101, 242, 0.1); }
+
+        .credit-img-col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.4s;
+        }
+        .credit-logo {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1/1;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 50px rgba(0,0,0,0.6));
+        }
+
+        @keyframes slideUpFade {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #closeCreditsFixed {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 10000;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid #333;
+            color: #fff;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #closeCreditsFixed:hover {
+            background: #fff;
+            color: #000;
+            transform: rotate(90deg);
+        }
+
+        /* --- Fullscreen Credits Styles --- */
+        #creditsModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: #000000;
+            display: none; /* Flex when active */
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #creditsModal.active { display: flex; opacity: 1; }
+
+        .credits-scroll-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none; /* Hide scrollbar for immersion */
+        }
+        .credits-scroll-container::-webkit-scrollbar { display: none; }
+
+        .credit-section {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .credit-content-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 6rem;
+            max-width: 1600px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .credit-text-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .credit-title {
+            font-size: 5rem;
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(to right, #fff, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.2s;
+        }
+
+        .credit-desc {
+            font-size: 1.5rem;
+            color: #d1d5db;
+            line-height: 1.6;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.4s;
+        }
+
+        .credit-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.6s;
+        }
+
+        .credit-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .credit-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* Specialized Brand Colors */
+        .btn-github:hover { border-color: #a78bfa; color: #a78bfa; background: rgba(167, 139, 250, 0.1); }
+        .btn-discord:hover { border-color: #5865F2; color: #5865F2; background: rgba(88, 101, 242, 0.1); }
+
+        .credit-img-col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.4s;
+        }
+        .credit-logo {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1/1;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 50px rgba(0,0,0,0.6));
+        }
+
+        @keyframes slideUpFade {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #closeCreditsFixed {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 10000;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid #333;
+            color: #fff;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #closeCreditsFixed:hover {
+            background: #fff;
+            color: #000;
+            transform: rotate(90deg);
+        }
     </style>
 </head>
 
@@ -422,14 +724,10 @@
         <iframe id="zoneFrame" title="Game Content" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"></iframe>
     </div>
 
-    <div id="creditsModal" class="fixed top-0 left-0 w-full h-full bg-black/70 backdrop-blur-lg z-[6000] items-center justify-center p-4" style="display: none;">
-        <div class="bg-card-dark rounded-xl border border-brand-border shadow-2xl w-full max-w-lg overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center p-4 border-b border-brand-border sticky top-0 bg-card-dark z-10">
-                <h3 class="text-xl font-bold">Project Credits</h3>
-                <button id="closeCreditsBtn" class="text-white hover:text-gray-400 p-2"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="creditsContent" class="p-6 space-y-6">
-                </div>
+    <div id="creditsModal">
+        <button id="closeCreditsFixed"><i class="fas fa-times text-2xl"></i></button>
+        <div id="creditsScrollContainer" class="credits-scroll-container">
+            <!-- Sections injected via JS -->
         </div>
     </div>
 
@@ -497,10 +795,31 @@
         };
         
         const CREDITS_DATA = {
-            'StrongdogXP': { credit: "Core game collection provided by Josh P.", githubUrl: "https://github.com/jman1593/" },
-            'GN-Math': { credit: "Primary game source and infrastructure provided by the GN-Math Community.", githubUrl: "https://github.com/gn-math/" },
-            'Gameboy Games': { credit: "Emulator and ROM files from various public sources." },
-            'Others': { credit: "Various community developers and open-source projects (e.g., DOOM, Eaglercraft, Carnage3D, JS-DOS)." }
+            'StrongdogXP': { 
+                desc: "The powerhouse behind the core game collection. Providing a vast library of classic and modern web games, StrongdogXP ensures stability and quality for the 4SP Games Hub.",
+                links: [
+                    { type: 'github', url: "https://github.com/jman1593/", label: "GitHub" }
+                ],
+                logo: "./images/credits/strongdog_logo.png"
+            },
+            'GN-Math': { 
+                desc: "A dedicated community focused on unblocked gaming solutions. The GN-Math infrastructure powers our external game loading system, bypassing many common network restrictions.",
+                links: [
+                    { type: 'github', url: "https://github.com/gn-math/", label: "GitHub" },
+                    { type: 'discord', url: "https://discord.gg/gn-math", label: "Discord" }
+                ],
+                logo: "./images/credits/gn_logo.png"
+            },
+            'Gameboy Games': { 
+                desc: "Preserving handheld history. This collection aggregates high-quality ROMs and emulators from various public archives to bring the classic Gameboy experience to the web.",
+                links: [],
+                logo: "./images/credits/gameboy_logo.png"
+            },
+            'Others': { 
+                desc: "A tribute to the open-source community. This section features projects like Eaglercraft, JS-DOS, and Doom, developed by talented individuals who believe in accessible software for everyone.",
+                links: [],
+                logo: "./images/credits/opensource_logo.png"
+            }
         };
 
         const favoritesHeader = document.getElementById("favoritesHeader");
@@ -514,9 +833,9 @@
         const gamesGridContainer = document.getElementById('games-grid-container');
         
         const creditsModal = document.getElementById('creditsModal');
-        const creditsContent = document.getElementById('creditsContent');
+        const creditsScrollContainer = document.getElementById('creditsScrollContainer');
         const creditsBtn = document.getElementById('creditsBtn');
-        const closeCreditsBtn = document.getElementById('closeCreditsBtn');
+        const closeCreditsFixed = document.getElementById('closeCreditsFixed');
 
         const INSTRUCTION_KEY = '4sp-games-instruction-extended-seen';
         const instructionOverlay = document.getElementById('instruction-overlay');
@@ -1411,8 +1730,43 @@
                 }
             }, false);
 
-            creditsBtn.addEventListener('click', () => { creditsModal.style.display = 'flex'; creditsContent.innerHTML = categories.map(cat => CREDITS_DATA[cat] ? `<div class="p-4 border border-brand-border rounded-lg"><h4 class="font-bold mb-1">${cat}</h4><p class="text-sm text-gray-400">${CREDITS_DATA[cat].credit}</p></div>` : '').join(''); });
-            closeCreditsBtn.addEventListener('click', () => creditsModal.style.display = 'none');
+            creditsBtn.addEventListener('click', () => { 
+                creditsModal.classList.add('active');
+                creditsScrollContainer.innerHTML = '';
+                
+                Object.keys(CREDITS_DATA).forEach(key => {
+                    const data = CREDITS_DATA[key];
+                    const section = document.createElement('section');
+                    section.className = 'credit-section';
+                    
+                    let linksHtml = '';
+                    if (data.links.length > 0) {
+                        linksHtml = `<div class="credit-links">` + data.links.map(l => `
+                            <a href="${l.url}" target="_blank" class="credit-btn btn-${l.type}">
+                                <i class="fa-brands fa-${l.type}"></i> ${l.label}
+                            </a>
+                        `).join('') + `</div>`;
+                    }
+
+                    section.innerHTML = `
+                        <div class="credit-content-grid">
+                            <div class="credit-text-col">
+                                <h2 class="credit-title ${categoryColors[key] || 'text-white'}">${key}</h2>
+                                <p class="credit-desc">${data.desc}</p>
+                                ${linksHtml}
+                            </div>
+                            <div class="credit-img-col">
+                                <img src="${data.logo}" class="credit-logo" onerror="this.style.display='none'">
+                            </div>
+                        </div>
+                    `;
+                    creditsScrollContainer.appendChild(section);
+                });
+            });
+            
+            closeCreditsFixed.addEventListener('click', () => {
+                creditsModal.classList.remove('active');
+            });
         }
 
         document.addEventListener('DOMContentLoaded', initializeApp);

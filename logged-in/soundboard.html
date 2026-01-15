@@ -813,12 +813,12 @@
         // --- Event Listeners ---
         optionsMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            optionsDropdown.classList.toggle('hidden');
+            optionsDropdown.classList.toggle('show');
         });
 
         document.addEventListener('click', (e) => {
-            if (!optionsDropdown.classList.contains('hidden') && !optionsMenuBtn.contains(e.target) && !optionsDropdown.contains(e.target)) {
-                optionsDropdown.classList.add('hidden');
+            if (optionsDropdown.classList.contains('show') && !optionsMenuBtn.contains(e.target) && !optionsDropdown.contains(e.target)) {
+                optionsDropdown.classList.remove('show');
             }
         });
 
@@ -847,7 +847,7 @@
 
         clearSoundsBtn.addEventListener('click', () => {
             stopAllAudios(true);
-            optionsDropdown.classList.add('hidden');
+            optionsDropdown.classList.remove('show');
         });
 
         // --- Init ---

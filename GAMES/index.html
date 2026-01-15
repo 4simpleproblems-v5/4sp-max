@@ -732,6 +732,13 @@
 
         // --- URL Resolution Helper for "Others" ---
         function resolveGameUrl(relativePath) {
+            if (!relativePath) return "";
+            
+            // If it's already an absolute URL, return it as is
+            if (relativePath.startsWith('http') || relativePath.startsWith('//')) {
+                return relativePath;
+            }
+
             // Logic: 
             // If path starts with ../ -> Go to WORKER_ROOT + path (stripping ../)
             // If path starts with ../GAMES/ -> It will effectively be WORKER_ROOT/GAMES/ (which matches GAMES_BASE_URL)

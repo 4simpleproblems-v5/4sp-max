@@ -521,19 +521,24 @@
             background: transparent;
             border: none;
             color: #d1d5db;
-            width: 3rem;
-            height: 3rem;
-            border-radius: 0.75rem;
+            width: 2.5rem; /* Smaller width */
+            height: 2.5rem; /* Smaller height */
+            border-radius: 1rem; /* More rounded */
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1rem; /* Smaller icon */
         }
-        .credits-nav-btn:hover {
+        .credits-nav-btn:hover:not(:disabled) {
             background: rgba(255,255,255,0.1);
             color: #fff;
+        }
+        .credits-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+            color: #555;
         }
 
         /* --- Fullscreen Credits Styles --- */
@@ -705,19 +710,24 @@
             background: transparent;
             border: none;
             color: #d1d5db;
-            width: 3rem;
-            height: 3rem;
-            border-radius: 0.75rem;
+            width: 2.5rem; /* Smaller width */
+            height: 2.5rem; /* Smaller height */
+            border-radius: 1rem; /* More rounded */
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1rem; /* Smaller icon */
         }
-        .credits-nav-btn:hover {
+        .credits-nav-btn:hover:not(:disabled) {
             background: rgba(255,255,255,0.1);
             color: #fff;
+        }
+        .credits-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+            color: #555;
         }
     </style>
 </head>
@@ -1801,6 +1811,17 @@
                 }
             }, false);
 
+            const updateNavButtons = () => {
+                const scrollTop = creditsScrollContainer.scrollTop;
+                const maxScroll = creditsScrollContainer.scrollHeight - creditsScrollContainer.clientHeight;
+                
+                // Allow a small buffer (e.g., 5px) for floating point inaccuracies
+                creditsPrevBtn.disabled = scrollTop <= 5;
+                creditsNextBtn.disabled = scrollTop >= maxScroll - 5;
+            };
+
+            creditsScrollContainer.addEventListener('scroll', updateNavButtons);
+
             creditsBtn.addEventListener('click', () => { 
                 creditsModal.classList.add('active');
                 creditsScrollContainer.innerHTML = '';
@@ -1832,6 +1853,12 @@
                         </div>
                     `;
                     creditsScrollContainer.appendChild(section);
+                });
+                
+                // Reset scroll and update buttons after rendering
+                requestAnimationFrame(() => {
+                    creditsScrollContainer.scrollTop = 0;
+                    updateNavButtons();
                 });
             });
             

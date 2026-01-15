@@ -1,4 +1,3 @@
-
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { 
             getAuth, 
@@ -255,7 +254,7 @@
                     savedSettings = JSON.parse(savedSettingsJSON); 
                 } catch (e) { 
                     console.error("Failed to parse saved tab settings, reverting to default.", e); 
-                } 
+                }
             }
             return savedSettings;
         }
@@ -766,7 +765,7 @@
 
             // --- Combined HTML for Account Management ---
             return `
-                <h3 class="text-xl font-bold text-white mb-2">Linked Providers</h3>
+                <h3 class="text-xl font-bold text-white mb-2 mt-8">Linked Providers</h3>
                 <div class="settings-box w-full mb-4 p-0" data-section="linked-providers">
                     ${linkedProvidersHtml}
                 </div>
@@ -871,7 +870,7 @@
                         <p class="text-sm font-light text-gray-400 mb-4">
                             Configure up to 3 panic keys. Pressing the specified key (without Shift, Ctrl, or Alt) on any page will redirect you to the URL you set.
                             <br>
-                            <span class="text-yellow-400">Valid keys:</span> a-z, 0-9, and &#96; - = [ ] \ ; ' , . /
+                            <span class="text-yellow-400">Valid keys:</span> a-z, 0-9, and &#96; - = [ ] \\ ; ' , . /
                         </p>
                         
                         <div class="flex items-center gap-4 px-2 mb-2">
@@ -1094,7 +1093,7 @@
                                                             <option value="0"></option>
                                                         </datalist>
                                                     </div>
-                                                    <p class="text-center text-gray-500 text-sm mt-2"><i class="fa-solid fa-hand-pointer mr-1"></i> Drag avatar to position</p>
+                                                    <p class="text-center text-gray-500 text-xs mt-2"><i class="fa-solid fa-hand-pointer mr-1"></i> Drag avatar to position</p>
                                                 </div>
                                                 
                                                 <p class="text-gray-500 text-sm font-mono mt-2" id="mac-preview-label">Click preview to adjust orientation</p>
@@ -1197,7 +1196,7 @@
                     <h3 class="text-xl font-bold text-white mb-2">Export Data</h3>
                     <div class="settings-box transition-all duration-300 p-4 mb-8">
                         <p class="text-sm font-light text-gray-400 mb-4">
-                            Export all your local game data (from LocalStorage and IndexedDB) into a single JSON file. 
+                            Export all your local game data (from LocalStorage and IndexedDB) into a single JSON file.
                             This file can be used as a backup or to transfer your data to another browser.
                         </p>
                         <button id="exportDataBtn" class="btn-toolbar-style btn-primary-override w-48">
@@ -1766,7 +1765,7 @@
                 if (category === 'hats') {
                     const noneBtn = document.createElement('div');
                     // Light grey background (bg-gray-200), More rounded (rounded-2xl)
-                    noneBtn.className = `bg-gray-200 rounded-2xl p-2 flex flex-col items-center justify-center cursor-pointer border-2 hover:border-dashed hover:border-black transition-all ${!mibiAvatarState[category] ? 'border-black' : 'border-transparent'} aspect-square`;
+                    noneBtn.className = `bg-gray-200 rounded-2xl p-2 flex flex-col items-center justify-center cursor-pointer border-2 hover:border-dashed hover:border-black transition-all ${!mibiAvatarState[category] ? 'border-black' : 'border-transparent'}`;
                     noneBtn.innerHTML = `<i class="fa-solid fa-ban fa-2x text-gray-600"></i>`;
                     noneBtn.onclick = () => {
                         mibiAvatarState[category] = '';
@@ -1782,10 +1781,10 @@
                     const item = document.createElement('div');
                     const isSelected = mibiAvatarState[category] === file;
                     // Light grey background (bg-gray-200), More rounded (rounded-2xl)
-                    item.className = `bg-gray-200 rounded-2xl p-2 flex flex-col items-center justify-center cursor-pointer border-2 hover:border-dashed hover:border-black transition-all ${isSelected ? 'border-black' : 'border-transparent'} aspect-square`;
+                    item.className = `bg-gray-200 rounded-2xl p-2 flex flex-col items-center justify-center cursor-pointer border-2 hover:border-dashed hover:border-black transition-all ${isSelected ? 'border-black' : 'border-transparent'}`;
                     
                     item.innerHTML = `
-                        <img src="../mibi-avatars/${category}/${file}" class="w-full h-full object-contain">
+                        <img src="../mibi-avatars/${category}/${file}" class="w-16 h-16 object-contain">
                     `;
                     
                     item.onclick = () => {
@@ -1798,25 +1797,25 @@
             }
         };
 
-        const preloadMibiAssets = () => {
+                        const preloadMibiAssets = () => {
 
-            const categories = ['eyes', 'mouths', 'hats'];
+                            const categories = ['eyes', 'mouths', 'hats'];
 
-            categories.forEach(cat => {
+                            categories.forEach(cat => {
 
-                const files = MIBI_ASSETS[cat] || [];
+                                const files = MIBI_ASSETS[cat] || [];
 
-                files.forEach(file => {
+                                files.forEach(file => {
 
-                    const img = new Image();
+                                    const img = new Image();
 
-                    img.src = `../mibi-avatars/${cat}/${file}`;
+                                    img.src = `../mibi-avatars/${cat}/${file}`;
 
-                });
+                                });
 
-            });
+                            });
 
-        };
+                        };
 
                 
 
@@ -1870,7 +1869,7 @@
 
                 
 
-                            window.MIBI_ASSETS = MIBI_ASSETS; 
+                            window.Mibi_ASSETS = MIBI_ASSETS; 
 
                             
 
@@ -1883,6 +1882,8 @@
                             
 
                                         let orientationSnapshot = null; // Store state for reverting
+
+                            
 
                             
 
@@ -1910,6 +1911,8 @@
 
                                             
 
+                            
+
                                             // Reset Orientation Mode state on open
 
                             
@@ -1923,6 +1926,8 @@
                             
 
                                             
+
+                            
 
                                             // Trigger click on first tab (or current) to load it
 
@@ -1942,6 +1947,8 @@
 
                             
 
+                            
+
                                         const closeMenu = () => {
 
                             
@@ -1953,6 +1960,8 @@
                                         };
 
                             
+
+                                        
 
                             
 
@@ -1989,1124 +1998,2225 @@
     // DO NOT remove 'flex-shrink-0'. We remove 'w-2/3' and margins, but KEEP flex-shrink-0
     previewContainer.classList.remove('mt-16', 'w-2/3'); 
     previewContainer.classList.add('flex-shrink-0'); // Explicitly force it not to shrink
-    
-    // Show Sliders
-    slidersContainer.classList.remove('hidden');
-    // Trigger reflow/animation
-    setTimeout(() => {
-        slidersContainer.classList.remove('opacity-0');
-        slidersContainer.classList.add('opacity-100');
-    }, 50);
+    // --- FIX END ---
 
-    // Hide Controls
-    controlsWrapper.style.transform = 'translateX(100%)';
-    controlsWrapper.style.opacity = '0';
-    
-    // Hide label
-    if (macPreviewLabel) macPreviewLabel.style.display = 'none';
+    // Adjust sliders container
+    slidersContainer.classList.remove('hidden', 'opacity-0', 'max-w-xs', 'w-1/3', 'ml-4');
+    slidersContainer.classList.add('flex', 'opacity-100', 'flex-grow', 'mt-16', 'p-4'); 
+
+    controlsWrapper.classList.add('translate-x-full', 'w-0', 'overflow-hidden', 'p-0'); 
+    controlsWrapper.classList.remove('translate-x-0', 'w-1/2');
+
+    // Hide "Click preview" text
+    macPreviewLabel.classList.add('hidden');
+
+    // Update Button
+    confirmBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Confirm Orientation';
+
+    // Sync sliders
+    sizeSlider.value = mibiAvatarState.size;
+    rotationSlider.value = mibiAvatarState.rotation;
 };
 
-const exitOrientationMode = (shouldRevert = true) => {
-    if (!isOrientationMode) return;
-    isOrientationMode = false;
+                            
 
-    if (shouldRevert && orientationSnapshot) {
-        // User cancelled, revert changes made during orientation mode
-        mibiAvatarState = { ...orientationSnapshot };
-        // Reset slider values to snapshot
-        sizeSlider.value = mibiAvatarState.size;
-        rotationSlider.value = mibiAvatarState.rotation;
-        updateMibiPreview();
-    }
+                                                    
 
-    // Revert UI
-    previewWrapper.classList.remove('w-full', 'flex-row', 'justify-start', 'items-start', 'gap-x-12', 'pl-16');
-    previewWrapper.classList.add('w-1/2', 'flex-col', 'items-center', 'justify-center');
+                            
 
-    // Reset container size
-    previewContainer.style.width = '';
-    previewContainer.style.height = '';
-    previewContainer.style.minWidth = '';
-    previewContainer.style.minHeight = '';
-    
-    // Re-add removed classes (if any, though w-2/3 might not be needed in vertical mode if sizing is handled by css)
-    // Actually, in vertical mode (start state), it relies on flex centering.
-    
-    // Hide Sliders
-    slidersContainer.classList.remove('opacity-100');
-    slidersContainer.classList.add('opacity-0');
-    setTimeout(() => {
-        if (!isOrientationMode) slidersContainer.classList.add('hidden'); // Check in case re-entered
-    }, 300);
+                                                    const exitOrientationMode = (shouldRevert = false) => {
 
-    // Show Controls
-    controlsWrapper.style.transform = 'translateX(0)';
-    controlsWrapper.style.opacity = '1';
-    
-    // Show label
-    if (macPreviewLabel) macPreviewLabel.style.display = 'block';
-};
+                            
 
-// --- Event Listeners ---
+                                                        isOrientationMode = false;
 
-openBtn.addEventListener('click', openMenu);
-closeBtn.addEventListener('click', () => { closeMenu(); exitOrientationMode(true); });
-cancelBtn.addEventListener('click', () => { closeMenu(); exitOrientationMode(true); });
+                            
 
-// Click outside to close (optional, maybe safer to force button use)
-menu.addEventListener('click', (e) => {
-    if (e.target === menu) { closeMenu(); exitOrientationMode(true); }
-});
+                                                        
 
-// Tab Switching
-tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        tabBtns.forEach(b => {
-            b.classList.remove('active-tab', 'text-white', 'border-white');
-            b.classList.add('text-gray-400', 'border-transparent');
-        });
-        btn.classList.add('active-tab', 'text-white', 'border-white');
-        btn.classList.remove('text-gray-400', 'border-transparent');
+                            
+
+                                                        if (shouldRevert && orientationSnapshot) {
+
+                            
+
+                                                            mibiAvatarState = { ...orientationSnapshot };
+
+                            
+
+                                                            updateMibiPreview();
+
+                            
+
+                                                        }
+
+                            
+
+                                                        orientationSnapshot = null;
+
+                            
+
+                                                        
+
+                            
+
+                                                        // Revert UI
+
+                            
+
+                                                        previewWrapper.classList.add('w-1/2', 'flex-col', 'items-center', 'justify-center'); // Revert to default layout
+
+                            
+
+                                                        previewWrapper.classList.remove('w-full', 'flex-row', 'justify-start', 'items-start', 'gap-x-12', 'pl-16');
+
+                            
+
+                                                        
+
+                            
+
+                                                        // Restore preview container to default (no dynamic styles/classes)
+
+                            
+
+                                                        previewContainer.style.transform = '';
+
+                            
+
+                                                        previewContainer.style.width = ''; // Remove explicitly set width
+
+                            
+
+                                                        previewContainer.style.height = ''; // Remove explicitly set height
+
+
+                                                        previewContainer.style.minWidth = ''; // Clear min-width
+                                                        previewContainer.style.minHeight = ''; // Clear min-height
+
+                            
+
+                                                        previewContainer.classList.remove('mt-16', 'w-2/3', 'flex-shrink-0'); // Ensure these are removed
+
+                                                        previewContainer.classList.add('flex-shrink-0');
+
+                                                        // Default width/height are handled by initial HTML classes `h-64 md:h-80 aspect-square rounded-full`
+
+                            
+
+                                        
+
+                            
+
+                                                        // Restore sliders container
+
+                            
+
+                                                        slidersContainer.classList.add('hidden', 'opacity-0', 'max-w-xs');
+
+                            
+
+                                                        slidersContainer.classList.remove('flex', 'opacity-100', 'flex-grow', 'mt-16', 'p-4'); // Remove dynamic positioning and padding
+
+                            
+
+                                        
+
+                            
+
+                                        
+
+                            
+
+                                                        controlsWrapper.classList.remove('translate-x-full', 'w-0', 'overflow-hidden', 'p-0');
+
+                            
+
+                                                        controlsWrapper.classList.add('translate-x-0', 'w-1/2');
+
+                            
+
+                                        
+
+                            
+
+                                                        // Show "Click preview" text
+
+                            
+
+                                                        macPreviewLabel.classList.remove('hidden');
+
+                            
+
+                                                        
+
+                            
+
+                                                        // Update Button
+
+                            
+
+                                                        confirmBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Confirm Avatar';
+
+                            
+
+                                                    };
+
+                    
+
+                    // Preview Click -> Enter Mode
+
+                    previewContainer.addEventListener('click', (e) => {
+
+                        // Only enter orientation mode if click is not on a slider handle during dragging
+
+                        if (!isOrientationMode) {
+
+                            enterOrientationMode();
+
+                        }
+
+                    });
+
+                    
+
+                    // --- Drag Logic ---
+
+                    let isDragging = false;
+
+                    let startX, startY, initialOffsetX, initialOffsetY;
+
+                    
+
+                    previewContainer.addEventListener('mousedown', (e) => {
+
+                        if (!isOrientationMode) return;
+
+                        isDragging = true;
+
+                        startX = e.clientX;
+
+                        startY = e.clientY;
+
+                        initialOffsetX = mibiAvatarState.offsetX;
+
+                        initialOffsetY = mibiAvatarState.offsetY;
+
+                        previewContainer.style.cursor = 'grabbing';
+
+                    });
+
+                    
+
+                    window.addEventListener('mousemove', (e) => {
+
+                        if (!isDragging || !isOrientationMode) return;
+
+                        
+
+                        const rect = previewContainer.getBoundingClientRect();
+
+                        const dx = e.clientX - startX;
+
+                        const dy = e.clientY - startY;
+
+                        
+
+                        // Convert drag distance to percentage of container size
+
+                        // Removed scale from here as preview is no longer scaled
+
+                        const deltaXPercent = (dx / rect.width) * 100;
+
+                        const deltaYPercent = (dy / rect.height) * 100;
+
+                        
+
+                        let newX = initialOffsetX + deltaXPercent;
+
+                        let newY = initialOffsetY + deltaYPercent;
+
+                        
+
+                        // Clamp values (e.g. -60 to 60)
+
+                        const CLAMP_LIMIT = 60;
+
+                        newX = Math.max(-CLAMP_LIMIT, Math.min(CLAMP_LIMIT, newX));
+
+                        newY = Math.max(-CLAMP_LIMIT, Math.min(CLAMP_LIMIT, newY));
+
         
-        currentTab = btn.dataset.tab;
-        renderMacGrid(currentTab);
-    });
-});
 
-// Orientation Mode Triggers
-previewContainer.addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent bubbling if needed
-    if (isOrientationMode) {
-        exitOrientationMode(false); // Click again to confirm/exit
-    } else {
-        enterOrientationMode();
-    }
-});
+                        mibiAvatarState.offsetX = newX;
 
-// Slider Inputs
-const handleSliderChange = () => {
-    mibiAvatarState.size = parseInt(sizeSlider.value);
-    mibiAvatarState.rotation = parseInt(rotationSlider.value);
-    updateMibiPreview();
-};
+                        mibiAvatarState.offsetY = newY;
 
-sizeSlider.addEventListener('input', handleSliderChange);
-rotationSlider.addEventListener('input', handleSliderChange);
+                        
 
-// --- Draggable Logic (for Orientation Mode) ---
-let isDragging = false;
-let startX, startY;
-// Store initial offsets when drag starts
-let initialOffsetX = 0; 
-let initialOffsetY = 0;
+                        updateMibiPreview();
 
-previewContainer.addEventListener('mousedown', (e) => {
-    if (!isOrientationMode) return;
-    isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    initialOffsetX = mibiAvatarState.offsetX;
-    initialOffsetY = mibiAvatarState.offsetY;
-    previewContainer.style.cursor = 'grabbing';
-});
+                    });
 
-window.addEventListener('mousemove', (e) => {
-    if (!isDragging || !isOrientationMode) return;
-    
-    const deltaX = e.clientX - startX;
-    const deltaY = e.clientY - startY;
-    
-    // Sensitivity factor
-    const factor = 0.2; 
-    
-    mibiAvatarState.offsetX = initialOffsetX + (deltaX * factor); 
-    mibiAvatarState.offsetY = initialOffsetY + (deltaY * factor);
-    
-    updateMibiPreview();
-});
+                    
 
-window.addEventListener('mouseup', () => {
-    if (isDragging) {
-        isDragging = false;
-        previewContainer.style.cursor = 'pointer';
-    }
-});
+                    window.addEventListener('mouseup', () => {
 
-// --- Confirm Logic ---
-confirmBtn.addEventListener('click', async () => {
-    // 1. Capture the preview container as an image
-    // Using HTML2Canvas or constructing a canvas manually.
-    // Manual canvas is safer for cross-origin/local image issues.
-    
-    const canvas = document.createElement('canvas');
-    canvas.width = 500; // High res
-    canvas.height = 500;
-    const ctx = canvas.getContext('2d');
-    
-    // Fill BG
-    ctx.fillStyle = mibiAvatarState.bgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Helper to load image
-    const loadImg = (src) => new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => resolve(null); // Continue even if fail
-        img.src = src;
-    });
-    
-    // Draw layers with transforms
-    // Note: Canvas transforms apply to the drawing context state
-    ctx.save();
-    
-    // Center of canvas
-    ctx.translate(canvas.width/2, canvas.height/2);
-    
-    // Apply user transforms
-    // Translate (percentage converted to pixels relative to canvas)
-    // Actually, offsetX/Y in state are percentages. 
-    // Let's assume 100% translation = full width/height (approx 500px)
-    // Sensitivity factor used in drag was arbitrary, let's just use it as relative units.
-    // Adjust scaling factor to match visual feel
-    ctx.translate(mibiAvatarState.offsetX * 5, mibiAvatarState.offsetY * 5); 
-    
-    ctx.rotate((mibiAvatarState.rotation * Math.PI) / 180);
-    const scale = mibiAvatarState.size / 100;
-    ctx.scale(scale, scale);
-    
-    // Move back to top-left of image (assuming 500x500 images drawn at 0,0 relative to centered context)
-    // Our images are "contained" in the div. 
-    // We should draw them centered.
-    ctx.translate(-canvas.width/2, -canvas.height/2);
+                        isDragging = false;
 
-    const layers = [
-        '../mibi-avatars/head.png',
-        mibiAvatarState.eyes ? `../mibi-avatars/eyes/${mibiAvatarState.eyes}` : null,
-        mibiAvatarState.mouths ? `../mibi-avatars/mouths/${mibiAvatarState.mouths}` : null,
-        mibiAvatarState.hats ? `../mibi-avatars/hats/${mibiAvatarState.hats}` : null
-    ].filter(Boolean);
+                        if (previewContainer) previewContainer.style.cursor = isOrientationMode ? 'grab' : 'pointer';
 
-    for (const src of layers) {
-        const img = await loadImg(src);
-        if (img) {
-            ctx.drawImage(img, 0, 0, 500, 500);
-        }
-    }
-    
-    ctx.restore();
-    
-    // Get Data URL
-    const finalDataUrl = canvas.toDataURL('image/png');
-    
-    // Update User Profile
-    await updateProfilePicture(null, finalDataUrl, 'mibi');
-    
-    closeMenu();
-    exitOrientationMode(false); // Reset mode without reverting state (confirmed)
-});
+                    });
 
-// Reset Button Logic
-resetBtn.addEventListener('click', () => {
-    // Reset state to defaults
-    mibiAvatarState = {
-        eyes: MIBI_ASSETS.eyes[0],
-        mouths: MIBI_ASSETS.mouths[0],
-        hats: '',
-        bgColor: '#3B82F6',
-        size: 100,
-        rotation: 0,
-        offsetX: 0,
-        offsetY: 0
-    };
-    // Reset Sliders UI
-    sizeSlider.value = 100;
-    rotationSlider.value = 0;
-    
-    updateMibiPreview();
-    // Refresh current grid to show cleared selection
-    renderMacGrid(currentTab);
-});
+                    
 
-} // End setupMacMenuListeners
+                    // --- Slider Listeners ---
 
-        // --- Core Functions ---
+                    const snapThreshold = 5; // degrees/percent
 
-        async function updateProfilePicture(file, dataUrl, mode = 'custom') {
-            const userId = auth.currentUser.uid;
-            const storageRef = ref(storage, `profile_pictures/${userId}`);
-            
-            showLoading("Updating profile picture...");
-            
-            try {
-                let downloadURL = dataUrl;
+                    sizeSlider.addEventListener('input', (e) => {
 
-                if (mode === 'custom' && file) {
-                    await uploadBytes(storageRef, file);
-                    downloadURL = await getDownloadURL(storageRef);
-                } else if (mode === 'letter' || mode === 'mibi') {
-                    // For generated avatars, upload the data URL to storage
-                    // to ensure consistency and caching
-                    await uploadString(storageRef, dataUrl, 'data_url');
-                    downloadURL = await getDownloadURL(storageRef);
-                } else if (mode === 'google') {
-                    downloadURL = auth.currentUser.photoURL; // Use Google's URL directly
+                        let value = parseInt(e.target.value);
+
+                        if (Math.abs(value - 100) < snapThreshold) { // Snap to 100
+
+                            value = 100;
+
+                            e.target.value = 100; // Update visual slider position
+
+                        }
+
+                        mibiAvatarState.size = value;
+
+                        updateMibiPreview();
+
+                    });
+
+                    
+
+                    rotationSlider.addEventListener('input', (e) => {
+
+                        let value = parseInt(e.target.value);
+
+                        if (Math.abs(value - 0) < snapThreshold) { // Snap to 0
+
+                            value = 0;
+
+                            e.target.value = 0; // Update visual slider position
+
+                        }
+
+                        mibiAvatarState.rotation = value;
+
+                        updateMibiPreview();
+
+                    });
+
+        
+
+        
+
+                    openBtn.onclick = openMenu;
+
+                    closeBtn.onclick = closeMenu;
+
+                    
+
+                                cancelBtn.onclick = () => {
+
+                    
+
+                                    if (isOrientationMode) {
+
+                    
+
+                                        exitOrientationMode(true); // Revert changes
+
+                    
+
+                                    } else {
+
+                    
+
+                                        closeMenu();
+
+                    
+
+                                    }
+
+                    
+
+                                };
+
+                    
+
+                                
+
+                    
+
+                                // --- Reset Button Logic ---
+
+                    
+
+                                resetBtn.onclick = () => {
+
+                    
+
+                                    // Reset State to Defaults
+
+                    
+
+                                    mibiAvatarState = {
+
+                    
+
+                                        eyes: MIBI_ASSETS.eyes[0], // Default eyes
+
+                    
+
+                                        mouths: MIBI_ASSETS.mouths[0], // Default mouth
+
+                    
+
+                                        hats: '',
+
+                    
+
+                                        bgColor: '#FFFFFF', // Requested white default
+
+                    
+
+                                        size: 100,
+
+                    
+
+                                        rotation: 0,
+
+                    
+
+                                        offsetX: 0,
+
+                    
+
+                                        offsetY: 0
+
+                    
+
+                                    };
+
+                    
+
+                                    
+
+                    
+
+                                    // Update Visuals
+
+                    
+
+                                    updateMibiPreview();
+
+                    
+
+                                    
+
+                    
+
+                                    // Update Sliders
+
+                    
+
+                                    sizeSlider.value = 100;
+
+                    
+
+                                    rotationSlider.value = 0;
+
+                    
+
+                                    
+
+                    
+
+                                    // Re-render current tab (to update selection rings)
+
+                    
+
+                                    renderMacGrid(currentTab);
+
+                    
+
+                                };
+
+                    
+
+                    
+
+                    
+
+                                // Tab Switching Logic
+
+                    
+
+                                tabBtns.forEach(btn => {
+
+                    
+
+                                    btn.onclick = () => {
+
+                    
+
+                                        // Update UI
+
+                    
+
+                                        tabBtns.forEach(b => {
+
+                    
+
+                                            b.classList.remove('active-tab', 'text-white', 'border-blue-500');
+
+                    
+
+                                            b.classList.add('text-gray-400', 'border-transparent');
+
+                    
+
+                                        });
+
+                    
+
+                                        btn.classList.add('active-tab', 'text-white', 'border-blue-500');
+
+                    
+
+                                        btn.classList.remove('text-gray-400', 'border-transparent');
+
+                    
+
+                                        
+
+                    
+
+                                        // Track Tab
+
+                    
+
+                                        currentTab = btn.dataset.tab;
+
+                    
+
+                    
+
+                    
+
+                                        // Load Content
+
+                    
+
+                                        renderMacGrid(btn.dataset.tab);
+
+                    
+
+                                    };
+
+                    
+
+                                });
+
+                    
+
+                    
+
+                    
+
+                                // Confirm Action
+
+                    
+
+                                confirmBtn.onclick = async () => {
+
+                    
+
+                                    if (isOrientationMode) {
+
+                    
+
+                                        exitOrientationMode(false); // Keep changes
+
+                    
+
+                                        return;
+
+                    
+
+                                    }
+                
+                closeMenu();
+                showMessage(pfpMessage, '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving Mibi Avatar...', 'warning');
+                
+                try {
+                    const userDocRef = getUserDocRef(currentUser.uid);
+                    
+                    // Save to Firestore
+                    await updateDoc(userDocRef, {
+                        pfpType: 'mibi',
+                        mibiConfig: mibiAvatarState
+                    });
+                    
+                    // Update local dispatch for immediate feedback
+                    const newUserData = {
+                        pfpType: 'mibi',
+                        mibiConfig: mibiAvatarState
+                    };
+                    
+                    // Dispatch event so navigation bars update immediately
+                    window.dispatchEvent(new CustomEvent('pfp-updated', { detail: newUserData }));
+                    
+                    showMessage(pfpMessage, 'Mibi Avatar saved successfully!', 'success');
+                    
+                    // Update dropdown to reflect choice
+                    if (pfpModeSelect) {
+                        // Logic to handle the custom dropdown implementation if it exists
+                        pfpModeSelect.value = 'mibi';
+                        // Trigger change event if needed, or manually update custom dropdown UI
+                        const wrapper = pfpModeSelect.parentElement.querySelector('.custom-select-trigger');
+                         if (wrapper) {
+                             const option = Array.from(pfpModeSelect.options).find(o => o.value === 'mibi');
+                             if(option) wrapper.innerHTML = `<span>${option.textContent}</span><div class="arrow"></div>`;
+                         }
+                    }
+
+                } catch (error) {
+                    console.error("Error saving Mibi avatar:", error);
+                    showMessage(pfpMessage, 'Failed to save avatar. Please try again.', 'error');
                 }
+            };
+        };
 
-                await updateDoc(getUserDocRef(userId), {
-                    profilePicture: downloadURL,
-                    pfpMode: mode
+        // --- Utility: Custom Dropdown Setup ---
+        function setupCustomDropdown(selectElement, onChangeCallback) {
+            if (!selectElement) {
+                console.error("setupCustomDropdown: selectElement is null.");
+                return null; // Return null if the element doesn't exist
+            }
+            // Hide original select
+            selectElement.style.display = 'none';
+            
+            // Create wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'custom-select-wrapper';
+            selectElement.parentNode.insertBefore(wrapper, selectElement);
+            wrapper.appendChild(selectElement);
+            
+            // Create custom structure
+            const customSelect = document.createElement('div');
+            customSelect.className = 'custom-select';
+            
+            const trigger = document.createElement('div');
+            trigger.className = 'custom-select-trigger';
+            
+            // Helper to get option HTML with favicon
+            const getOptionContentHtml = (option) => {
+                const preset = urlChangerPresets.find(p => p.id === option.value);
+                if (preset && preset.favicon) {
+                    return `
+                        <div class="custom-option-content">
+                            <img src="${preset.favicon}" alt="${preset.name} Favicon">
+                            <span>${option.textContent}</span>
+                        </div>
+                    `;
+                }
+                return `<span>${option.textContent}</span>`;
+            };
+
+            // Get initial text
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const initialHtml = selectedOption ? getOptionContentHtml(selectedOption) : '<span>Select...</span>';
+            
+            trigger.innerHTML = `${initialHtml}<div class="arrow"></div>`; // Use initialHtml here
+            
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'custom-options';
+            
+            // Populate options
+            Array.from(selectElement.options).forEach(option => {
+                const customOption = document.createElement('div');
+                customOption.className = 'custom-option' + (option.selected ? ' selected' : '');
+                customOption.dataset.value = option.value;
+                // --- MODIFICATION: Use innerHTML with favicon ---
+                customOption.innerHTML = getOptionContentHtml(option); 
+                
+                customOption.addEventListener('click', function() {
+                    // Update Trigger Text
+                    trigger.innerHTML = `${this.innerHTML}<div class="arrow"></div>`; // Update trigger with selected option's full HTML
+                    
+                    // Update Classes
+                    customSelect.classList.remove('open');
+                    optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // Update Original Select
+                    selectElement.value = this.dataset.value;
+                    
+                    // Trigger Callback
+                    if (onChangeCallback) onChangeCallback(this.dataset.value);
                 });
                 
-                // Update global state immediately for UI responsiveness
-                if (window.currentUser) {
-                    window.currentUser.profilePicture = downloadURL;
-                    window.currentUser.pfpMode = mode;
-                }
-                
-                // Refresh to show changes
-                showMessage(document.getElementById('pfpMessage'), 'Profile picture updated successfully!', 'success');
-                // Force a reload of the image elements if needed, or just reload page
-                setTimeout(() => location.reload(), 1000); 
-
-            } catch (error) {
-                console.error("Error updating PFP:", error);
-                showMessage(document.getElementById('pfpMessage'), `Failed to update profile picture: ${error.message}`);
-            } finally {
-                hideLoading();
-            }
-        }
-
-
-
-        // --- Tab Switching Logic ---
-        function switchTab(tabId) {
-            // Update Sidebar UI
-            sidebarTabs.forEach(tab => {
-                if (tab.dataset.tab === tabId) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
+                optionsContainer.appendChild(customOption);
+            });
+            
+            customSelect.appendChild(trigger);
+            customSelect.appendChild(optionsContainer);
+            wrapper.appendChild(customSelect);
+            
+            // Trigger Event
+            trigger.addEventListener('click', function() {
+                customSelect.classList.toggle('open');
+            });
+            
+            // Close when clicking outside
+            window.addEventListener('click', function(e) {
+                if (!customSelect.contains(e.target)) {
+                    customSelect.classList.remove('open');
                 }
             });
+            
+            // Return an update function to refresh options dynamically
+            return {
+                refresh: () => {
+                    // Clear existing options
+                    optionsContainer.innerHTML = '';
+                    // Re-populate
+                    Array.from(selectElement.options).forEach(option => {
+                        const customOption = document.createElement('div');
+                        customOption.className = 'custom-option' + (option.selected ? ' selected' : '');
+                        customOption.dataset.value = option.value;
+                        // --- MODIFICATION: Use innerHTML with favicon ---
+                        customOption.innerHTML = getOptionContentHtml(option);
+                        
+                        if (option.selected) {
+                             trigger.innerHTML = `${getOptionContentHtml(option)}<div class="arrow"></div>`;
+                        }
 
-            // Render Content
-            mainView.innerHTML = ''; // Clear current content
-            
-            // Re-fetch current user data to ensure latest state (e.g. for provider linking)
-            const user = auth.currentUser;
-            
-            switch (tabId) {
-                case 'general':
-                    // Need to calculate stats dynamically or pass them if available
-                    // For now, placeholders or simple logic
-                    // We need to fetch the user doc again if we want real-time stats
-                    // But we can use the globally loaded 'currentUser' var if available from init
-                    // Assuming 'currentUser' is populated by init
-                    
-                    if (currentUser) {
-                        const now = new Date();
-                        const currentMonth = now.toISOString().slice(0, 7);
-                        const changes = currentUser.usernameChanges && currentUser.usernameChanges[currentMonth] ? currentUser.usernameChanges[currentMonth] : 0;
-                        const remaining = MAX_CHANGES - changes;
-                        const monthName = now.toLocaleString('default', { month: 'long' });
-                        const isEmail = user.providerData.some(p => p.providerId === 'password');
-                        
-                        mainView.innerHTML = getGeneralContent(
-                            currentUser.username, 
-                            remaining, 
-                            changes, 
-                            monthName, 
-                            isEmail,
-                            user.providerData
-                        );
-                        
-                        // Attach Event Listeners for General Tab
-                        attachGeneralListeners();
-                    } else {
-                        mainView.innerHTML = '<p class="text-white">Loading user data...</p>';
+                        customOption.addEventListener('click', function() {
+                            trigger.innerHTML = `${this.innerHTML}<div class="arrow"></div>`;
+                            customSelect.classList.remove('open');
+                            optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+                            this.classList.add('selected');
+                            selectElement.value = this.dataset.value;
+                            if (onChangeCallback) onChangeCallback(this.dataset.value);
+                        });
+                        optionsContainer.appendChild(customOption);
+                    });
+                },
+                // Helper to manually select value programmatically
+                setValue: (value) => {
+                    const optionToSelect = Array.from(selectElement.options).find(opt => opt.value === value);
+                    if (optionToSelect) {
+                        selectElement.value = value;
+                        trigger.innerHTML = `${getOptionContentHtml(optionToSelect)}<div class="arrow"></div>`;
+                        optionsContainer.querySelectorAll('.custom-option').forEach(opt => {
+                            if (opt.dataset.value === value) opt.classList.add('selected');
+                            else opt.classList.remove('selected');
+                        });
                     }
-                    break;
-                case 'privacy':
-                    mainView.innerHTML = getPrivacyContent();
-                    attachPrivacyListeners();
-                    break;
-                case 'personalization':
-                    mainView.innerHTML = getPersonalizationContent();
-                    attachPersonalizationListeners();
-                    break;
-                case 'data':
-                    mainView.innerHTML = getDataManagementContent();
-                    attachDataListeners();
-                    break;
-                case 'management':
-                    mainView.innerHTML = getManagementContent();
-                    loadManagementTab();
-                    break;
-                case 'about':
-                    mainView.innerHTML = getAboutContent();
-                    break;
-                default:
-                    mainView.innerHTML = getComingSoonContent(tabContent[tabId].title);
-            }
+                }
+            };
         }
 
-        function attachGeneralListeners() {
-            const editBtn = document.getElementById('enterEditModeBtn');
-            const cancelBtn = document.getElementById('cancelEditBtn');
-            const applyBtn = document.getElementById('applyUsernameBtn');
+        /**
+         * Loads user data, checks rate limit, and renders the General tab.
+         */
+        async function loadGeneralTab() {
+            if (!currentUser) return; 
+
+            // Check if user is using email/password authentication (providerId 'password')
+            const isEmailPasswordUser = currentUser.providerData.some(
+                (info) => info.providerId === 'password'
+            );
+            
+            const userDocRef = getUserDocRef(currentUser.uid);
+            let userDocSnap = await getDoc(userDocRef);
+
+            if (!userDocSnap.exists()) {
+                mainView.innerHTML = `<h2 class="text-3xl font-bold text-white mb-6">General Settings</h2><p class="text-red-400">Error: User data not found. Please log out and back in.</p>`;
+                return;
+            }
+
+            let userData = userDocSnap.data();
+            const today = new Date();
+            const currentMonthNumber = today.getMonth() + 1; 
+            const currentMonthName = today.toLocaleDateString('en-US', { month: 'long' }); 
+            
+            let changesThisMonth = userData.usernameChangesThisMonth || 0;
+            let lastChangeMonth = userData.lastUsernameChangeMonth || 0;
+
+            // --- Monthly Reset Logic ---
+            if (currentMonthNumber !== lastChangeMonth) {
+                changesThisMonth = 0;
+                await updateDoc(userDocRef, {
+                    usernameChangesThisMonth: 0,
+                    lastUsernameChangeMonth: currentMonthNumber
+                });
+                userDocSnap = await getDoc(userDocRef);
+                userData = userDocSnap.data(); 
+            }
+            
+            const changesRemaining = MAX_CHANGES - changesThisMonth;
+
+            // 1. Render the General Content
+            mainView.innerHTML = getGeneralContent(
+                userData.username, 
+                changesRemaining, 
+                changesThisMonth, 
+                currentMonthName,
+                isEmailPasswordUser, 
+                currentUser.providerData // Pass provider info
+            );
+            
+            // 2. Element References (Username Section)
             const viewMode = document.getElementById('viewMode');
             const editMode = document.getElementById('editMode');
-            const input = document.getElementById('newUsernameInput');
-            const messageArea = document.getElementById('usernameChangeMessage');
-            
-            // Password Elements
-            const applyPassBtn = document.getElementById('applyPasswordBtn');
-            
-            // Provider Linking Elements
-            const linkBtns = document.querySelectorAll('button[data-action="link"]');
-            const unlinkBtns = document.querySelectorAll('button[data-action="unlink"]');
-            const setPrimaryBtns = document.querySelectorAll('button[data-action="set-primary"]');
-            const reauthBtn = document.getElementById('reauthenticateBtn');
-            const finalDeleteBtn = document.getElementById('finalDeleteBtn');
-            const deleteConfirmInput = document.getElementById('deleteConfirmText');
-            const deletePassInput = document.getElementById('deletePasswordInput');
+            const enterEditModeBtn = document.getElementById('enterEditModeBtn');
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+            const applyUsernameBtn = document.getElementById('applyUsernameBtn');
+            const newUsernameInput = document.getElementById('newUsernameInput');
+            const messageElement = document.getElementById('usernameChangeMessage');
+            const charCountElement = document.getElementById('charCount');
+            const minLengthElement = document.getElementById('minLength');
+            const maxLengthElement = document.getElementById('maxLength');
 
-            // --- Username Logic ---
-            if (editBtn) {
-                editBtn.onclick = () => {
+            // --- Username UI State Management Functions ---
+            const setEditMode = (isEditing) => {
+                showMessage(messageElement, '', 'success'); // Clear message
+                
+                if (isEditing) {
+                    if (changesRemaining <= 0) {
+                        showMessage(messageElement, `You have reached your limit of ${MAX_CHANGES} username changes for the current month.`, 'error'); 
+                        return;
+                    }
                     viewMode.classList.add('hidden');
                     editMode.classList.remove('hidden');
-                    editMode.style.display = 'flex';
-                    input.focus();
-                };
-            }
-
-            if (cancelBtn) {
-                cancelBtn.onclick = () => {
-                    viewMode.classList.remove('hidden');
+                    newUsernameInput.focus();
+                    updateCounterAndValidation(); 
+                } else {
                     editMode.classList.add('hidden');
-                    editMode.style.display = 'none';
-                    input.value = currentUser.username;
-                    messageArea.textContent = '';
-                    // Reset validation display
-                    document.getElementById('charCount').className = 'font-semibold text-gray-400';
-                };
-            }
+                    viewMode.classList.remove('hidden');
+                    newUsernameInput.value = userData.username; // Reset input value
+                    applyUsernameBtn.disabled = true;
+                }
+            };
 
-            if (input) {
-                input.oninput = async () => {
-                    const val = input.value;
-                    const len = val.length;
-                    
-                    document.getElementById('charCount').textContent = len;
-                    
-                    // Basic Validation
-                    const isValidLength = len >= MIN_LENGTH && len <= MAX_LENGTH;
-                    const isValidChars = /^[a-zA-Z0-9_.-]+$/.test(val);
-                    const isChanged = val !== currentUser.username;
-                    
-                    // Profanity Check (Debounced ideally, but direct for now)
-                    // We'll check profanity only on submit to save API calls
-                    
-                    // Visual Feedback
-                    const charCountEl = document.getElementById('charCount');
-                    if (isValidLength) charCountEl.className = 'font-semibold text-green-400';
-                    else charCountEl.className = 'font-semibold text-red-400';
-
-                    if (isValidLength && isValidChars && isChanged) {
-                        applyBtn.disabled = false;
-                        // Check availability asynchronously
-                        const taken = await isUsernameTaken(val);
-                        if (taken) {
-                            showMessage(messageArea, 'Username is taken.', 'error');
-                            applyBtn.disabled = true;
-                        } else {
-                            messageArea.innerHTML = ''; // Clear error
-                        }
-                    } else {
-                        applyBtn.disabled = true;
-                    }
-                };
-            }
-
-            if (applyBtn) {
-                applyBtn.onclick = async () => {
-                    const newName = input.value;
-                    showLoading("Updating username...");
-                    
-                    // Profanity Check
-                    const isProfane = await checkProfanity(newName);
-                    if (isProfane) {
-                        hideLoading();
-                        showMessage(messageArea, 'Username contains disallowed language.', 'error');
-                        return;
-                    }
-
-                    try {
-                        const now = new Date();
-                        const currentMonth = now.toISOString().slice(0, 7);
-                        let changesMap = currentUser.usernameChanges || {};
-                        let monthlyCount = changesMap[currentMonth] || 0;
-
-                        if (monthlyCount >= MAX_CHANGES) {
-                            throw new Error("Maximum username changes reached for this month.");
-                        }
-
-                        // Update Firestore
-                        changesMap[currentMonth] = monthlyCount + 1;
-                        
-                        await updateDoc(getUserDocRef(currentUser.uid), {
-                            username: newName,
-                            usernameChanges: changesMap,
-                            usernameLower: newName.toLowerCase() // Useful for searching
-                        });
-                        
-                        // Update Local State
-                        currentUser.username = newName;
-                        currentUser.usernameChanges = changesMap;
-                        
-                        hideLoading();
-                        showMessage(messageArea, 'Username updated successfully!', 'success');
-                        
-                        // Refresh UI after delay
-                        setTimeout(refreshGeneralTab, 1000);
-
-                    } catch (error) {
-                        hideLoading();
-                        console.error(error);
-                        showMessage(messageArea, error.message);
-                    }
-                };
-            }
-            
-            // --- Password Change Logic ---
-            if (applyPassBtn) {
-                const curP = document.getElementById('currentPasswordInput');
-                const newP = document.getElementById('newPasswordInput');
-                const confP = document.getElementById('confirmPasswordInput');
-                const pMsg = document.getElementById('passwordMessage');
+            const updateCounterAndValidation = () => {
+                const newUsername = newUsernameInput.value.trim();
+                const count = newUsername.length;
                 
-                const validatePass = () => {
-                    const v1 = newP.value;
-                    const v2 = confP.value;
-                    const v0 = curP.value;
-                    
-                    if (v0 && v1 && v2 && v1.length >= 6 && v1 === v2) {
-                        applyPassBtn.disabled = false;
-                    } else {
-                        applyPassBtn.disabled = true;
-                    }
-                };
+                charCountElement.textContent = count;
                 
-                [curP, newP, confP].forEach(el => el.addEventListener('input', validatePass));
+                const isValidLength = count >= MIN_LENGTH && count <= MAX_LENGTH;
+                const isChanged = newUsername !== userData.username;
                 
-                applyPassBtn.onclick = async () => {
-                    showLoading("Updating password...");
-                    const cred = EmailAuthProvider.credential(auth.currentUser.email, curP.value);
-                    
-                    try {
-                        await reauthenticateWithCredential(auth.currentUser, cred);
-                        await updatePassword(auth.currentUser, newP.value);
-                        hideLoading();
-                        showMessage(pMsg, "Password updated successfully!", "success");
-                        // Clear inputs
-                        curP.value = ''; newP.value = ''; confP.value = ''; applyPassBtn.disabled = true;
-                    } catch (error) {
-                        hideLoading();
-                        showMessage(pMsg, "Failed: " + error.message, "error");
+                // 1. Update counter colors
+                minLengthElement.classList.toggle('text-red-400', count < MIN_LENGTH);
+                maxLengthElement.classList.toggle('text-red-400', count > MAX_LENGTH);
+                
+                minLengthElement.classList.toggle('text-gray-400', count >= MIN_LENGTH);
+                maxLengthElement.classList.toggle('text-gray-400', count <= MAX_LENGTH);
+                
+                charCountElement.classList.toggle('text-red-400', !isValidLength);
+                charCountElement.classList.toggle('text-gray-400', isValidLength);
+
+
+                // 2. Update button state
+                applyUsernameBtn.disabled = !isChanged || !isValidLength || changesRemaining <= 0;
+            };
+
+            // --- Username Event Listeners ---
+            enterEditModeBtn.addEventListener('click', () => setEditMode(true));
+            cancelEditBtn.addEventListener('click', () => setEditMode(false));
+            newUsernameInput.addEventListener('input', updateCounterAndValidation);
+
+
+            applyUsernameBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const newUsername = newUsernameInput.value.trim();
+                
+                if (applyUsernameBtn.disabled || changesRemaining <= 0) {
+                    showMessage(messageElement, 'Cannot apply changes due to validation errors, rate limit, or no change was made.', 'error');
+                    return;
+                }
+
+                applyUsernameBtn.disabled = true;
+                showMessage(messageElement, '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Checking availability and profanity...', 'warning');
+
+                try {
+                    // --- Validation ---
+                    if (newUsername.length < MIN_LENGTH || newUsername.length > MAX_LENGTH) { 
+                        showMessage(messageElement, `Username must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters.`, 'error'); 
+                        return; 
                     }
-                };
-            }
-            
-            // --- Provider Linking Logic ---
-            linkBtns.forEach(btn => {
-                btn.onclick = async () => {
-                    const providerId = btn.dataset.providerId;
-                    const provider = PROVIDER_CONFIG[providerId].instance();
-                    
-                    try {
-                        await linkWithPopup(auth.currentUser, provider);
-                        refreshGeneralTab(); // Refresh to update list
-                    } catch (error) {
-                        console.error("Link Error", error);
-                        alert("Failed to link provider: " + error.message);
+                    if (!/^[a-zA-Z0-9.,\-+_\!\?\$\\]+$/.test(newUsername)) { 
+                        showMessage(messageElement, 'Username contains invalid characters (Allowed symbols: .,-+\\_!?$).', 'error'); 
+                        return; 
                     }
-                };
+                    
+                    // --- Checks ---
+                    if (await checkProfanity(newUsername)) { 
+                        showMessage(messageElement, 'This username is not allowed (Profanity filter triggered).', 'error'); 
+                        return; 
+                    }
+                    if (await isUsernameTaken(newUsername)) { 
+                        showMessage(messageElement, 'This username is already taken.', 'error'); 
+                        return; 
+                    }
+                    
+                    // --- Update Logic ---
+                    const newChangesCount = changesThisMonth + 1;
+                    await updateDoc(userDocRef, {
+                        username: newUsername,
+                        usernameChangesThisMonth: newChangesCount,
+                        lastUsernameChangeMonth: currentMonthNumber 
+                    });
+
+                    showMessage(messageElement, `Username successfully changed to ${newUsername}!`, 'success');
+                    
+                    // Re-render the tab content to update the display, counter, and state
+                    setTimeout(() => { switchTab('general'); }, 1500);
+
+                } catch (error) {
+                    console.error("Error updating username:", error);
+                    showMessage(messageElement, `An unexpected error occurred: ${error.message}`, 'error');
+                } finally {
+                    if (messageElement.innerHTML.includes('Error') || messageElement.innerHTML.includes('not allowed') || messageElement.innerHTML.includes('taken')) {
+                        applyUsernameBtn.disabled = false;
+                    }
+                }
             });
             
-            unlinkBtns.forEach(btn => {
-                btn.onclick = async () => {
-                    const providerId = btn.dataset.providerId;
-                    // Double check we are not unlinking the only provider
-                    if (auth.currentUser.providerData.length <= 1) {
-                        alert("Cannot unlink the only login method.");
+            
+            // =================================================================
+            // --- PASSWORD CHANGE LOGIC (Conditional) ---
+            // =================================================================
+            if (isEmailPasswordUser) {
+                const currentPasswordInput = document.getElementById('currentPasswordInput');
+                const newPasswordInput = document.getElementById('newPasswordInput');
+                const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+                const applyPasswordBtn = document.getElementById('applyPasswordBtn');
+                const passwordMessage = document.getElementById('passwordMessage');
+                
+                // Input handler for enabling/disabling apply button
+                const checkPasswordFields = () => {
+                    const currentPass = currentPasswordInput.value;
+                    const newPass = newPasswordInput.value;
+                    const confirmPass = confirmPasswordInput.value;
+                    
+                    const MIN_PASS_LENGTH = 6;
+                    
+                    const isLengthValid = newPass.length >= MIN_PASS_LENGTH;
+                    const isMatch = newPass === confirmPass;
+                    const isCurrentProvided = currentPass.length > 0;
+                    
+                    // Enable if all requirements are met
+                    applyPasswordBtn.disabled = !(isLengthValid && isMatch && isCurrentProvided);
+                    
+                    // Provide gentle feedback
+                    showMessage(passwordMessage, '', 'success');
+                    if (newPass.length > 0 && newPass.length < MIN_PASS_LENGTH) {
+                        showMessage(passwordMessage, `New password must be at least ${MIN_PASS_LENGTH} characters.`, 'warning');
+                    } else if (newPass.length >= MIN_PASS_LENGTH && confirmPass.length > 0 && newPass !== confirmPass) {
+                         showMessage(passwordMessage, 'New and confirmation passwords do not match.', 'warning');
+                    } else if (newPass === currentPass && isLengthValid && isMatch) {
+                         showMessage(passwordMessage, 'New password cannot be the same as your current password.', 'warning');
+                         applyPasswordBtn.disabled = true;
+                    }
+                };
+
+                currentPasswordInput.addEventListener('input', checkPasswordFields);
+                newPasswordInput.addEventListener('input', checkPasswordFields);
+                confirmPasswordInput.addEventListener('input', checkPasswordFields);
+                
+                applyPasswordBtn.addEventListener('click', async () => {
+                    applyPasswordBtn.disabled = true;
+                    showMessage(passwordMessage, '', 'success'); // Clear prior message
+                    showMessage(passwordMessage, '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Attempting password change...', 'warning');
+
+                    const currentPass = currentPasswordInput.value;
+                    const newPass = newPasswordInput.value;
+                    
+                    if (newPass.length < 6) {
+                         showMessage(passwordMessage, 'New password must be at least 6 characters.', 'error');
+                         applyPasswordBtn.disabled = false;
+                         return;
+                    }
+                    if (newPass === currentPass) {
+                        showMessage(passwordMessage, 'New password cannot be the same as your current password.', 'error');
+                        applyPasswordBtn.disabled = false;
                         return;
                     }
+
+                    try {
+                        // 1. Re-authenticate the user
+                        const credential = EmailAuthProvider.credential(currentUser.email, currentPass);
+                        await reauthenticateWithCredential(currentUser, credential);
+
+                        // 2. Update the password
+                        await updatePassword(currentUser, newPass);
+
+                        showMessage(passwordMessage, 'Password successfully updated!', 'success');
+                        
+                        // Clear fields on success
+                        currentPasswordInput.value = '';
+                        newPasswordInput.value = '';
+                        confirmPasswordInput.value = '';
+                        // Re-check fields to disable the button
+                        checkPasswordFields(); 
+
+                    } catch (error) {
+                        console.error("Error changing password:", error);
+                        let errorMessage = "An unknown error occurred.";
+                        
+                        switch (error.code) {
+                            case 'auth/requires-recent-login':
+                                errorMessage = 'Password change failed. Please sign out and sign in again to change your password.';
+                                break;
+                            case 'auth/wrong-password':
+                                errorMessage = 'The current password you provided is incorrect.';
+                                break;
+                            case 'auth/weak-password':
+                                errorMessage = 'The new password is too weak. Please use a stronger one (min 6 characters).';
+                                break;
+                            default:
+                                errorMessage = `Password change failed. (${error.message})`;
+                        }
+                        showMessage(passwordMessage, errorMessage, 'error');
+                    } finally {
+                        // Re-enable button if there was an error
+                        if (!passwordMessage.innerHTML.includes('success')) {
+                            applyPasswordBtn.disabled = false;
+                        }
+                    }
+                });
+            }
+            
+            // =================================================================
+            // --- LINKING / UNLINKING PROVIDERS LOGIC (NEW) ---
+            // =================================================================
+
+            const linkProviderButtons = mainView.querySelectorAll('button[data-action="link"]');
+            const unlinkProviderButtons = mainView.querySelectorAll('button[data-action="unlink"]');
+            const setPrimaryProviderButtons = mainView.querySelectorAll('button[data-action="set-primary"]');
+
+            // --- LINKING Providers ---
+            linkProviderButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const providerId = button.dataset.providerId;
+                    const config = PROVIDER_CONFIG[providerId];
+                    const providerInstance = config.instance();
                     
-                    if (!confirm(`Unlink ${PROVIDER_CONFIG[providerId].name}?`)) return;
+                    showMessage(messageElement, `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Attempting to link with ${config.name}...`, 'warning');
+                    
+                    try {
+                        await linkWithPopup(auth.currentUser, providerInstance);
+                        showMessage(messageElement, `${config.name} successfully linked to your account!`, 'success');
+                        setTimeout(refreshGeneralTab, 1500); // Refresh UI
+                    } catch (error) {
+                        console.error("Error linking provider:", error);
+                        let msg = `Failed to link ${config.name}.`;
+                        if (error.code === 'auth/credential-already-in-use') {
+                            msg = `This ${config.name} account is already linked to another user.`;
+                        } else if (error.code === 'auth/popup-closed-by-user') {
+                            msg = 'Link cancelled by user.';
+                        } else if (error.code === 'auth/requires-recent-login') {
+                            msg = 'Please sign out and sign in again to link a new provider.';
+                        } else if (error.code === 'auth/invalid-credential') {
+                            // Explicitly identifying the configuration error from logs
+                            msg = `Configuration Error: The Client ID or Secret for ${config.name} is incorrect in the Firebase Console.`;
+                        }
+                        showMessage(messageElement, msg, 'error');
+                    }
+                });
+            });
+
+            // --- UNLINKING Providers ---
+            unlinkProviderButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const providerId = button.dataset.providerId;
+                    const config = PROVIDER_CONFIG[providerId];
+                    
+                    showMessage(messageElement, `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Unlinking ${config.name}...`, 'warning');
                     
                     try {
                         await unlink(auth.currentUser, providerId);
-                        refreshGeneralTab();
+                        showMessage(messageElement, `${config.name} successfully unlinked.`, 'success');
+                        setTimeout(refreshGeneralTab, 1500); // Refresh UI
                     } catch (error) {
-                        console.error("Unlink Error", error);
-                        alert("Failed to unlink: " + error.message);
-                    }
-                };
-            });
-            
-            // --- Set Primary Provider Logic ---
-            setPrimaryBtns.forEach(btn => {
-                btn.onclick = async () => {
-                    const providerId = btn.dataset.providerId;
-                    // Logic: We essentially just re-sort visually in most apps, but 
-                    // since Firebase doesn't strictly have a "primary", we can just 
-                    // store a preference in Firestore if needed, or rely on the order in providerData array 
-                    // (which is usually chronological).
-                    // However, for this UI, we might just want to indicate *preferred* login.
-                    // For "Delete Account" logic, we pick providerData[0].
-                    // Changing providerData order isn't directly supported via API easily without re-linking.
-                    // Instead, let's just alert for now or implement a custom sorting in Firestore user doc.
-                    
-                    alert("To set this as primary, please unlink other providers and re-link them in order, or use this provider to log in next time.");
-                };
-            });
-            
-            // --- Account Deletion Logic ---
-            if (deleteConfirmInput) {
-                deleteConfirmInput.oninput = () => {
-                    if (deleteConfirmInput.value.toLowerCase() === "delete my account") {
-                        // If password input exists (for email users), check it too? 
-                        // Actually, re-auth is handled separately or via credential.
-                        // If it's password user, we need them to enter current password.
-                        if (deletePassInput) {
-                            if (deletePassInput.value) finalDeleteBtn.disabled = false;
-                            else finalDeleteBtn.disabled = true;
-                        } else {
-                            finalDeleteBtn.disabled = false;
+                        console.error("Error unlinking provider:", error);
+                        let msg = `Failed to unlink ${config.name}.`;
+                        if (error.code === 'auth/no-such-provider') {
+                            msg = 'Provider not found on this account.';
+                        } else if (error.code === 'auth/requires-recent-login') {
+                             msg = 'Please sign out and sign in again to unlink this provider.';
+                        } else if (error.code === 'auth/provider-already-linked') {
+                            // This can happen if attempting to unlink the last provider
+                            msg = "Cannot unlink the last remaining sign-in method.";
                         }
-                    } else {
-                        finalDeleteBtn.disabled = true;
+                        
+                        showMessage(messageElement, msg, 'error');
                     }
-                };
-                
-                if (deletePassInput) {
-                    deletePassInput.oninput = deleteConfirmInput.oninput;
-                }
-            }
+                });
+            });
             
-            if (reauthBtn && !finalDeleteBtn) { // Only for social providers
-                reauthBtn.onclick = async () => {
-                    const providerId = reauthBtn.dataset.providerId;
-                    const provider = PROVIDER_CONFIG[providerId].instance();
+            // --- SET PRIMARY Provider ---
+            setPrimaryProviderButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const providerId = button.dataset.providerId;
+                    const config = PROVIDER_CONFIG[providerId];
+                    const providerInstance = config.instance();
+                    
+                    showMessage(messageElement, `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Attempting to set ${config.name} as primary...`, 'warning');
+                    
                     try {
-                        await reauthenticateWithPopup(auth.currentUser, provider);
-                        // Hide reauth button, show delete button and input
-                        reauthBtn.classList.add('hidden');
-                        
-                        // Create the confirm input dynamically if not exists (for social users)
-                        // Or just show the hidden button?
-                        // Let's replace the content container
-                        const container = document.getElementById('deletionSection');
-                        container.innerHTML = `
-                            <p class="text-sm font-light text-red-300 mb-3">
-                                Authentication confirmed. This is your last chance.
-                            </p>
-                            <label class="block text-red-300 text-sm font-light mb-2">Type "Delete My Account"</label>
-                            <input type="text" id="finalDeleteConfirm" class="input-text-style w-full bg-red-900/20 border-red-700/50">
-                            <div class="flex justify-end pt-4">
-                                <button id="realDeleteBtn" class="btn-toolbar-style btn-primary-override-danger w-48" disabled>
-                                     <i class="fa-solid fa-trash mr-1"></i> Confirm Delete
-                                </button>
-                            </div>
-                        `;
-                        
-                        const inp = document.getElementById('finalDeleteConfirm');
-                        const btn = document.getElementById('realDeleteBtn');
-                        inp.oninput = () => { btn.disabled = (inp.value.toLowerCase() !== "delete my account"); };
-                        
-                        btn.onclick = performAccountDeletion;
-                        
+                        // Re-authenticate with the desired provider to make it primary
+                        await reauthenticateWithPopup(auth.currentUser, providerInstance);
+                        showMessage(messageElement, `${config.name} successfully set as primary!`, 'success');
+                        setTimeout(refreshGeneralTab, 1500); // Refresh UI
                     } catch (error) {
-                        alert("Re-authentication failed: " + error.message);
+                        console.error("Error setting primary provider:", error);
+                        let msg = `Failed to set ${config.name} as primary.`;
+                        if (error.code === 'auth/popup-closed-by-user') {
+                            msg = 'Operation cancelled by user.';
+                        } else if (error.code === 'auth/requires-recent-login') {
+                            msg = 'Please sign out and sign in again to set a new primary provider.';
+                        } else if (error.code === 'auth/invalid-credential') {
+                            msg = `Configuration Error: Invalid Client ID/Secret. Check Firebase Console settings for ${config.name}.`;
+                        }
+                        showMessage(messageElement, msg, 'error');
                     }
+                });
+            });
+
+            // =================================================================
+            // --- ACCOUNT DELETION LOGIC (NEW) ---
+            // =================================================================
+            const deletePasswordInput = document.getElementById('deletePasswordInput');
+            const deleteConfirmText = document.getElementById('deleteConfirmText');
+            const reauthenticateBtn = document.getElementById('reauthenticateBtn');
+            const finalDeleteBtn = document.getElementById('finalDeleteBtn');
+            const deleteMessage = document.getElementById('deleteMessage');
+            const primaryProviderId = currentUser.providerData[0].providerId;
+
+
+            // --- ACCOUNT DELETION LOGIC --- 
+
+/**
+ * Executes the full account deletion process.
+ * 1. Collects and executes a batch delete for all associated Firestore data.
+ * 2. Deletes the Firebase Auth user (MUST BE LAST).
+ * 3. Cleans up local data.
+ * 4. Redirects the user.
+ */
+const performAccountDeletion = async (credential) => {
+    try {
+        const userId = auth.currentUser.uid;
+        // Assuming showLoading() is defined elsewhere in your file
+        showLoading("Permanently deleting your account and all associated data...");
+
+        // NOTE: All Firestore deletion queries and commits MUST run before deleteUser(auth.currentUser)
+        
+        // --- 1. FIRESTORE DELETION (BATCH WRITE) ---
+        // This is the FIRST action, ensuring permissions are valid while deleting.
+        const batch = writeBatch(db); 
+
+        // A. Delete User Profile Document 
+        const userDocRef = doc(db, 'users', userId); 
+        batch.delete(userDocRef);
+
+        // B. Query and Queue Deletion for Daily Photos
+        const photosQuery = query(collection(db, 'dailyPhotos'), where('userId', '==', userId));
+        const photosSnapshot = await getDocs(photosQuery);
+        photosSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+
+        // C. Query and Queue Deletion for Friend Requests (as sender or recipient)
+        const sentRequestsQuery = query(collection(db, 'friendRequests'), where('senderId', '==', userId));
+        const receivedRequestsQuery = query(collection(db, 'friendRequests'), where('recipientId', '==', userId));
+        
+        const sentSnapshot = await getDocs(sentRequestsQuery);
+        sentSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        const receivedSnapshot = await getDocs(receivedRequestsQuery);
+        receivedSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        // EXECUTE THE BATCH: The permissions check happens here, with a valid token.
+        await batch.commit(); 
+
+        // --- 2. AUTH DELETION (LAST STEP) ---
+        // This is done after Firestore deletion to maintain permissions.
+        await deleteUser(auth.currentUser); 
+
+        // --- 3. Local Storage/IndexedDB Cleanup ---
+        localStorage.clear();
+
+        // --- 4. Sign Out & Redirect ---
+        await signOut(auth);
+        window.location.href = '../authentication.html';
+
+    } catch (error) {
+        console.error("Error deleting account:", error); 
+        let msg = "Failed to delete account completely. Please sign out and sign in again immediately to proceed with deletion.";
+
+        // Handle re-login requirement specifically for security-sensitive operations
+        if (error.code === 'auth/requires-recent-login') {
+            msg = 'Deletion failed: For security, please sign out, sign in again, and then immediately try the deletion process.';
+        } else if (error.code === 'permission-denied' || error.message.includes('Missing or insufficient permissions')) {
+            msg = 'Deletion failed due to insufficient server permissions. Please ensure your Firestore rules and code order are correct.';
+        }
+        
+        // Use the existing message display function
+        // Assuming deleteMessage is the UI element for displaying deletion errors
+        showMessage(deleteMessage, msg, 'error'); 
+
+        // Re-enable/reset UI elements (Requested Addition)
+        if (reauthenticateBtn) reauthenticateBtn.classList.remove('hidden');
+        if (finalDeleteBtn) finalDeleteBtn.classList.add('hidden');
+    }
+};
+
+
+            // --- Email/Password Primary Deletion Logic ---
+            if (primaryProviderId === 'password' && deletePasswordInput) {
+                const checkDeletionInputs = () => {
+                    const passwordMatch = deletePasswordInput.value.length > 0;
+                    const textConfirmed = deleteConfirmText.value.trim().toLowerCase() === 'delete my account';
+                    
+                    finalDeleteBtn.disabled = !(passwordMatch && textConfirmed);
                 };
-            } else if (finalDeleteBtn && !reauthBtn) { // Password user path
-                finalDeleteBtn.onclick = async () => {
-                    const pass = deletePassInput.value;
-                    const cred = EmailAuthProvider.credential(auth.currentUser.email, pass);
+
+                deletePasswordInput.addEventListener('input', checkDeletionInputs);
+                deleteConfirmText.addEventListener('input', checkDeletionInputs);
+                
+                finalDeleteBtn.addEventListener('click', async () => {
+                    if (finalDeleteBtn.disabled) return;
+                    
+                    finalDeleteBtn.disabled = true;
+                    showMessage(deleteMessage, '', 'success');
+                    showMessage(deleteMessage, '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Re-authenticating...', 'warning');
+                    
                     try {
-                        await reauthenticateWithCredential(auth.currentUser, cred);
+                        // Re-authenticate using email/password credential
+                        const credential = EmailAuthProvider.credential(auth.currentUser.email, deletePasswordInput.value);
+                        await reauthenticateWithCredential(auth.currentUser, credential);
+
+                        // If re-auth is successful, proceed to final deletion
                         await performAccountDeletion();
+
                     } catch (error) {
-                        alert("Password incorrect or deletion failed: " + error.message);
+                        console.error("Error during password re-authentication for deletion:", error);
+                        let msg = 'Re-authentication failed. Incorrect password.';
+                        if (error.code === 'auth/requires-recent-login') {
+                             msg = 'Please sign out and sign in again immediately to proceed with deletion.';
+                        }
+                        showMessage(deleteMessage, msg, 'error');
+                        finalDeleteBtn.disabled = false;
                     }
-                };
+                });
+            } 
+            // --- Social Provider Primary Deletion Logic ---
+            else if (reauthenticateBtn) {
+                
+                reauthenticateBtn.addEventListener('click', async () => {
+                    const providerInstance = PROVIDER_CONFIG[primaryProviderId].instance();
+                    
+                    reauthenticateBtn.disabled = true;
+                    showMessage(deleteMessage, '', 'success');
+                    showMessage(deleteMessage, `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Re-authenticating with ${PROVIDER_CONFIG[primaryProviderId].name}...`, 'warning');
+                    
+                    try {
+                        // Re-authenticate using the social provider popup
+                        await reauthenticateWithPopup(auth.currentUser, providerInstance);
+                        
+                        // Re-authentication successful: change button to final delete button
+                        reauthenticateBtn.classList.add('hidden');
+                        finalDeleteBtn.classList.remove('hidden');
+                        showMessage(deleteMessage, 'Authentication successful. Click "Delete Account" one last time to confirm.', 'success');
+
+                    } catch (error) {
+                        console.error("Error during social re-authentication for deletion:", error);
+                        let msg = 'Re-authentication failed. Please try again.';
+                         if (error.code === 'auth/popup-closed-by-user') {
+                            msg = 'Re-authentication cancelled by user.';
+                        } else if (error.code === 'auth/requires-recent-login') {
+                             msg = 'Please sign out and sign in again immediately to proceed with deletion.';
+                        }
+                        showMessage(deleteMessage, msg, 'error');
+                        reauthenticateBtn.disabled = false;
+                    }
+                    if (reauthenticateBtn.classList.contains('hidden') === false) {
+                        reauthenticateBtn.disabled = false;
+                    }
+                });
+                
+                // Final Delete button click
+                finalDeleteBtn.addEventListener('click', performAccountDeletion);
             }
         }
         
-        async function performAccountDeletion() {
-            showLoading("Deleting Account...");
-            try {
-                const uid = auth.currentUser.uid;
-                // Delete Firestore Data
-                await deleteDoc(doc(db, 'users', uid));
-                // Delete Storage (Profile Pic) - Optional/Try-Catch
-                try {
-                    await deleteObject(ref(storage, `profile_pictures/${uid}`));
-                } catch(e) { /* ignore if not exists */ }
-                
-                // Delete Auth
-                await deleteUser(auth.currentUser);
-                
-                hideLoading();
-                alert("Account deleted. Goodbye.");
-                window.location.href = "../index.html";
-            } catch (error) {
-                hideLoading();
-                console.error("Delete Error", error);
-                alert("Critical error deleting account: " + error.message);
-            }
-        }
-
-        function attachPrivacyListeners() {
-            // Panic Key Logic
-            const applyPanicBtn = document.getElementById('applyPanicKeyBtn');
-            const panicMsg = document.getElementById('panicKeyMessage');
-            const panicInputs = document.querySelectorAll('.panic-key-input');
+        /**
+         * NEW: Loads data and adds event listeners for the Privacy tab.
+         */
+        async function loadPrivacyTab() {
+            // --- 1. Get Element References ---
+            // Panic Key
+            const panicKeyInputs = document.querySelectorAll('.panic-key-input');
+            const panicUrl1 = document.getElementById('panicUrl1');
+            const panicUrl2 = document.getElementById('panicUrl2');
+            const panicUrl3 = document.getElementById('panicUrl3');
+            const applyPanicKeyBtn = document.getElementById('applyPanicKeyBtn');
+            const panicKeyMessage = document.getElementById('panicKeyMessage');
             
-            // Load existing
-            getPanicKeySettings().then(settings => {
-                settings.forEach((value, key) => {
-                    const inputKey = document.getElementById(`panicKey${key}`);
-                    const inputUrl = document.getElementById(`panicUrl${key}`);
-                    if (inputKey && inputUrl) {
-                        inputKey.value = value.key;
-                        inputUrl.value = value.url;
-                    }
-                });
-            });
-
-            // Input handlers for single key
-            panicInputs.forEach(input => {
-                input.addEventListener('keydown', (e) => {
-                    e.preventDefault();
-                    if (e.key === 'Backspace' || e.key === 'Delete') {
-                        input.value = '';
-                    } else if (e.key.length === 1) {
-                        input.value = e.key.toUpperCase();
-                    }
-                });
-            });
-
-            applyPanicBtn.onclick = async () => {
-                const settingsToSave = [];
-                for (let i = 1; i <= 3; i++) {
-                    const key = document.getElementById(`panicKey${i}`).value;
-                    const url = document.getElementById(`panicUrl${i}`).value;
-                    if (key && url) {
-                        settingsToSave.push({ id: i, key: key.toLowerCase(), url: url });
-                    }
-                }
-                
-                try {
-                    await savePanicKeySettings(settingsToSave);
-                    showMessage(panicMsg, "Panic keys updated successfully!", "success");
-                    // Update global listener via broadcast or reload? 
-                    // For now, the panic key script reads from DB on keydown so it should be instant.
-                } catch (e) {
-                    showMessage(panicMsg, "Error saving keys.", "error");
-                }
-            };
-            
-            // --- URL Changer Logic ---
+            // URL Changer
             const modeSelect = document.getElementById('tabDisguiseMode');
             const presetGroup = document.getElementById('tabDisguisePresetGroup');
-            const customGroup = document.getElementById('tabDisguiseCustomGroup');
             const presetSelect = document.getElementById('tabDisguisePreset');
-            const applyUrlBtn = document.getElementById('applyUrlChangerBtn');
-            const urlMsg = document.getElementById('urlChangerMessage');
-            const fetchFavBtn = document.getElementById('fetchFaviconBtn');
-            const faviconInput = document.getElementById('faviconFetchInput');
-            const previewImg = document.querySelector('#favicon-fetch-preview-container img');
+            const customGroup = document.getElementById('tabDisguiseCustomGroup');
+            const customTitle = document.getElementById('customTabTitle');
+            const applyUrlChangerBtn = document.getElementById('applyUrlChangerBtn');
+            const urlChangerMessage = document.getElementById('urlChangerMessage');
+            
+            // NEW Favicon Fetcher Elements
+            const faviconFetchInput = document.getElementById('faviconFetchInput');
+            const fetchFaviconBtn = document.getElementById('fetchFaviconBtn');
+            const previewContainer = document.getElementById('favicon-fetch-preview-container');
+            const previewImg = previewContainer.querySelector('img');
 
-            // Load saved settings
+            // --- Initialize Custom Dropdowns ---
+            const modeDropdown = setupCustomDropdown(modeSelect, (value) => {
+                presetGroup.classList.toggle('hidden', value !== 'preset');
+                customGroup.classList.toggle('hidden', value !== 'custom');
+            });
+            
+            const presetDropdown = setupCustomDropdown(presetSelect, null);
+
+            
+            // --- 2. Load Panic Key Settings ---
+            try {
+                const settingsMap = await getPanicKeySettings();
+                const key1 = settingsMap.get('panicKey1');
+                const key2 = settingsMap.get('panicKey2');
+                const key3 = settingsMap.get('panicKey3');
+
+                if (key1) {
+                    document.getElementById('panicKey1').value = key1.key || '';
+                    panicUrl1.value = key1.url || '';
+                }
+                if (key2) {
+                    document.getElementById('panicKey2').value = key2.key || '';
+                    panicUrl2.value = key2.url || '';
+                }
+                if (key3) {
+                    document.getElementById('panicKey3').value = key3.key || '';
+                    panicUrl3.value = key3.url || '';
+                }
+            } catch (e) {
+                console.error("Error loading panic key settings:", e);
+                showMessage(panicKeyMessage, 'Error loading panic key settings.', 'error');
+            }
+            
+            // --- 3. Load URL Changer Settings ---
             const savedUrlSettings = getSavedUrlChangerSetting();
-            modeSelect.value = savedUrlSettings.type || 'none';
-            if (savedUrlSettings.type === 'preset') presetSelect.value = savedUrlSettings.id;
-            if (savedUrlSettings.type === 'custom') {
-                document.getElementById('customTabTitle').value = savedUrlSettings.title || '';
-                faviconInput.value = ''; // We don't store the source url easily, but maybe we should?
+            
+            // Set values and update UI
+            if (savedUrlSettings.type) {
+                modeDropdown.setValue(savedUrlSettings.type);
+                // Manually trigger visibility logic
+                presetGroup.classList.toggle('hidden', savedUrlSettings.type !== 'preset');
+                customGroup.classList.toggle('hidden', savedUrlSettings.type !== 'custom');
+            }
+
+            if (savedUrlSettings.type === 'preset' && savedUrlSettings.id) {
+                presetDropdown.setValue(savedUrlSettings.id);
+            } else if (savedUrlSettings.type === 'custom') {
+                customTitle.value = savedUrlSettings.title || '';
+                
+                // NEW logic to load saved custom favicon into the preview
                 if (savedUrlSettings.favicon) {
                     previewImg.src = savedUrlSettings.favicon;
                     previewImg.style.display = 'block';
                 }
             }
 
-            const updateVisibility = () => {
-                const val = modeSelect.value;
-                presetGroup.classList.toggle('hidden', val !== 'preset');
-                customGroup.classList.toggle('hidden', val !== 'custom');
-            };
+            // --- 4. Add Event Listeners ---
             
-            modeSelect.addEventListener('change', updateVisibility);
-            updateVisibility();
-
-            fetchFavBtn.onclick = () => {
-                const domain = faviconInput.value;
-                if (!domain) return;
-                const url = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-                previewImg.src = url;
-                previewImg.style.display = 'block';
-            };
-
-            applyUrlBtn.onclick = () => {
-                const mode = modeSelect.value;
-                let settings = { type: mode };
-                
-                if (mode === 'preset') {
-                    const presetId = presetSelect.value;
-                    const preset = urlChangerPresets.find(p => p.id === presetId);
-                    if (preset) {
-                        settings = { type: 'preset', ...preset };
+            // Panic Key Input Validation (Whitelist)
+            const validKeyRegex = /^[a-z0-9`\-=\[\]\\;',\.\/]$/;
+            panicKeyInputs.forEach(input => {
+                input.addEventListener('keydown', e => {
+                    // Allow control keys like Tab, Backspace, Arrow keys
+                    if (e.key.length > 1 && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab') {
+                        e.preventDefault();
+                        return;
                     }
-                } else if (mode === 'custom') {
-                    const title = document.getElementById('customTabTitle').value;
-                    const favSrc = previewImg.src; // Use the fetched source
-                    settings = { type: 'custom', title: title, favicon: favSrc };
-                }
-                
-                if (saveUrlChangerSetting(settings)) {
-                    showMessage(urlMsg, "Tab settings applied! Refresh to see.", "success");
-                    // Trigger update immediately if possible
-                    if (window.updateTabDisguise) window.updateTabDisguise();
-                } else {
-                    showMessage(urlMsg, "Error saving settings.", "error");
-                }
-            };
-        }
-        
-        function attachPersonalizationListeners() {
-            // PFP Mode Logic
-            const modeBtns = document.querySelectorAll('.pfp-mode-btn');
-            const letterSettings = document.getElementById('pfpLetterSettings');
-            const mibiSettings = document.getElementById('pfpMibiSettings');
-            const customSettings = document.getElementById('pfpCustomSettings');
-            const pfpMessage = document.getElementById('pfpMessage');
-            
-            // Helper to toggle visibility
-            const updatePfpUI = (mode) => {
-                modeBtns.forEach(btn => {
-                    if (btn.dataset.mode === mode) btn.classList.add('active');
-                    else btn.classList.remove('active');
+                    
+                    const lowerKey = e.key.toLowerCase();
+                    
+                    if (lowerKey.length === 1 && !validKeyRegex.test(lowerKey)) {
+                         e.preventDefault(); // Block invalid key
+                         showMessage(panicKeyMessage, `Invalid key. Only a-z, 0-9, and \` - = [ ] \\ ; ' , . / are allowed.`, 'warning');
+                    } else if (lowerKey.length === 1) {
+                        e.preventDefault(); // Prevent typing
+                        input.value = lowerKey; // Set value
+                        showMessage(panicKeyMessage, '', 'success'); // Clear message
+                    }
                 });
-                
-                letterSettings.classList.add('hidden');
-                mibiSettings.classList.add('hidden');
-                customSettings.classList.add('hidden');
-                
-                if (mode === 'letter') letterSettings.classList.remove('hidden');
-                if (mode === 'mibi') mibiSettings.classList.remove('hidden');
-                if (mode === 'custom') customSettings.classList.remove('hidden');
-                
-                if (mode === 'google') {
-                    // Immediate update for Google mode since no settings
-                    updateProfilePicture(null, null, 'google');
-                }
-            };
-            
-            modeBtns.forEach(btn => {
-                btn.onclick = () => updatePfpUI(btn.dataset.mode);
             });
-            
-            // Load current mode
-            if (currentUser && currentUser.pfpMode) {
-                updatePfpUI(currentUser.pfpMode);
-            }
 
-            // --- Letter Avatar Logic ---
-            const colorGrid = document.getElementById('pfp-color-grid');
-            let selectedColor = letterColors[0];
-            
-            letterColors.forEach(color => {
-                const div = document.createElement('div');
-                div.className = 'w-8 h-8 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform';
-                div.style.backgroundColor = '#' + color;
-                div.onclick = () => {
-                    document.querySelectorAll('#pfp-color-grid div').forEach(d => d.style.borderColor = 'transparent');
-                    div.style.borderColor = 'white';
-                    selectedColor = color;
-                };
-                colorGrid.appendChild(div);
-            });
-            
-            document.getElementById('save-letter-pfp-btn').onclick = () => {
-                const text = document.getElementById('pfp-custom-text').value || currentUser.username.charAt(0);
-                const dataUrl = createLetterAvatar(text, selectedColor);
-                updateProfilePicture(null, dataUrl, 'letter');
-            };
-            
-            // --- Custom Upload Logic with Cropper ---
-            const uploadBtn = document.getElementById('uploadPfpBtn');
-            const fileInput = document.getElementById('pfpFileInput');
-            const cropperModal = document.getElementById('cropperModal');
-            const cropperCanvas = document.getElementById('cropperCanvas');
-            const submitCropBtn = document.getElementById('submitCropBtn');
-            const cancelCropBtn = document.getElementById('cancelCropBtn');
-            
-            let cropperImage = null;
-            let cropState = { x: 0, y: 0, scale: 1 };
-            let isDragging = false;
-            let dragStart = { x: 0, y: 0 };
-            
-            uploadBtn.onclick = () => fileInput.click();
-            
-            fileInput.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
+            // Panic Key Apply Button
+            applyPanicKeyBtn.addEventListener('click', async () => {
+                showMessage(panicKeyMessage, '', 'success');
+                const keys = [
+                    document.getElementById('panicKey1').value,
+                    document.getElementById('panicKey2').value,
+                    document.getElementById('panicKey3').value
+                ];
+                const urls = [
+                    panicUrl1.value,
+                    panicUrl2.value,
+                    panicUrl3.value
+                ];
                 
-                if (file.size > 2 * 1024 * 1024) {
-                    alert("File too large (Max 2MB)");
+                const settingsToSave = [];
+                let hasError = false;
+
+                for (let i = 0; i < 3; i++) {
+                    const key = keys[i];
+                    let url = urls[i]; // Make it 'let'
+                    const id = `panicKey${i + 1}`;
+                    
+                    // If either is blank, skip (or save as empty)
+                    if (!key && !url) {
+                         settingsToSave.push({ id, key: '', url: '' });
+                        continue;
+                    }
+                    
+                    // If one is filled but not the other
+                    if ( (key && !url) || (!key && url) ) {
+                        showMessage(panicKeyMessage, `Panic Key ${i+1} is incomplete. Both key and URL must be filled, or both must be empty.`, 'error');
+                        hasError = true;
+                        break;
+                    }
+
+                    // NEW: Check for relative paths and block them to avoid confusion
+                    if (url.startsWith('/') || url.startsWith('../') || url.startsWith('./')) {
+                        showMessage(panicKeyMessage, `Panic Key ${i+1} must be a full web address (e.g., google.com), not a relative path.`, 'error');
+                        hasError = true;
+                        break;
+                    }
+
+                    // NEW: Prepend https:// if it's missing
+                    if (!url.startsWith('https://') && !url.startsWith('http://')) {
+                        url = 'https://' + url;
+                    }
+
+                    // NEW: Validate URL
+                    try {
+                        new URL(url); // This will validate "https://google.com" and "https://youtube.com/page.html"
+                    } catch (e) {
+                        showMessage(panicKeyMessage, `Panic Key ${i+1} has an invalid URL. Please enter a valid web address (e.g., google.com).`, 'error');
+                        hasError = true;
+                        break;
+                    }
+                    
+                    // Add valid setting
+                    settingsToSave.push({ id, key, url }); // Push the (potentially modified) URL
+                }
+
+                if (hasError) return;
+
+                // Check for duplicate keys
+                const filledKeys = settingsToSave.map(s => s.key).filter(k => k);
+                if (new Set(filledKeys).size !== filledKeys.length) {
+                    showMessage(panicKeyMessage, 'Duplicate panic keys found. Each key must be unique.', 'error');
                     return;
                 }
                 
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    cropperImage = new Image();
-                    cropperImage.onload = () => {
-                        initCropper();
-                    };
-                    cropperImage.src = evt.target.result;
-                };
-                reader.readAsDataURL(file);
-            };
-            
-            function initCropper() {
-                cropperModal.style.display = 'flex';
-                // Reset state
-                cropState = { x: 0, y: 0, scale: 1 };
-                
-                // Initial draw
-                requestAnimationFrame(drawCropper);
-            }
-            
-            function drawCropper() {
-                if (!cropperImage) return;
-                
-                // Set canvas size (fixed viewport)
-                const size = 400;
-                cropperCanvas.width = size;
-                cropperCanvas.height = size;
-                
-                const ctx = cropperCanvas.getContext('2d');
-                ctx.clearRect(0, 0, size, size);
-                
-                // Calculate dimensions to fit/cover
-                // We want to simulate a "window" looking onto the image
-                // The crop is always the center square of the canvas view
-                
-                ctx.save();
-                ctx.translate(size/2 + cropState.x, size/2 + cropState.y);
-                ctx.scale(cropState.scale, cropState.scale);
-                ctx.drawImage(cropperImage, -cropperImage.width/2, -cropperImage.height/2);
-                ctx.restore();
-                
-                // Draw Overlay (Circle or Square mask guide)
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                // 300x300 Selection box in center
-                const boxSize = 300;
-                ctx.rect((size-boxSize)/2, (size-boxSize)/2, boxSize, boxSize);
-                ctx.stroke();
-                
-                // Dim area outside selection
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.beginPath();
-                ctx.rect(0,0,size,size);
-                ctx.rect((size-boxSize)/2, (size-boxSize)/2, boxSize, boxSize);
-                ctx.clip("evenodd");
-                ctx.fillRect(0,0,size,size);
-            }
-            
-            // Cropper Interactions
-            cropperCanvas.onmousedown = (e) => {
-                isDragging = true;
-                dragStart = { x: e.clientX, y: e.clientY };
-            };
-            
-            window.onmousemove = (e) => {
-                if (isDragging) {
-                    const dx = e.clientX - dragStart.x;
-                    const dy = e.clientY - dragStart.y;
-                    cropState.x += dx;
-                    cropState.y += dy;
-                    dragStart = { x: e.clientX, y: e.clientY };
-                    requestAnimationFrame(drawCropper);
+                // Save to IndexedDB
+                try {
+                    applyPanicKeyBtn.disabled = true;
+                    showMessage(panicKeyMessage, '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving...', 'warning');
+                    await savePanicKeySettings(settingsToSave);
+                    showMessage(panicKeyMessage, 'Panic key settings saved successfully!', 'success');
+                    
+                    // ADDED: Refresh page after 1 second
+                    setTimeout(() => location.reload(), 1000); 
+
+                } catch (e) {
+                    console.error("Error saving panic key settings:", e);
+                    showMessage(panicKeyMessage, 'An error occurred while saving.', 'error');
+                } finally {
+                    applyPanicKeyBtn.disabled = false;
                 }
-            };
-            
-            window.onmouseup = () => isDragging = false;
-            
-            cropperCanvas.onwheel = (e) => {
-                e.preventDefault();
-                const zoomSpeed = 0.1;
-                if (e.deltaY < 0) cropState.scale += zoomSpeed;
-                else cropState.scale = Math.max(0.1, cropState.scale - zoomSpeed);
-                requestAnimationFrame(drawCropper);
-            };
-            
-            cancelCropBtn.onclick = () => {
-                cropperModal.style.display = 'none';
-                fileInput.value = '';
-            };
-            
-            submitCropBtn.onclick = () => {
-                // Generate final cropped image
-                const finalCanvas = document.createElement('canvas');
-                finalCanvas.width = 300;
-                finalCanvas.height = 300;
-                const ctx = finalCanvas.getContext('2d');
+            });
+
+            // Mode Select Event Removed - Handled by setupCustomDropdown callback
+
+            // NEW: Favicon Fetcher Button
+            fetchFaviconBtn.addEventListener('click', async () => {
+                let domain = faviconFetchInput.value.trim();
+                if (!domain) {
+                    showMessage(urlChangerMessage, 'Please enter a domain to fetch from.', 'warning');
+                    return;
+                }
+                if (!domain.startsWith('http')) {
+                    domain = 'https://' + domain;
+                }
+
+                fetchFaviconBtn.disabled = true;
+                fetchFaviconBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                showMessage(urlChangerMessage, 'Fetching favicon...', 'warning');
+
+                try {
+                    if (typeof urlChanger === 'undefined' || !urlChanger.fetchFavicon) {
+                        throw new Error("URL Changer script not loaded correctly.");
+                    }
+                    
+                    const faviconUrl = await urlChanger.fetchFavicon(domain);
+                    
+                    // Show preview
+                    previewImg.src = faviconUrl;
+                    previewImg.style.display = 'block';
+                    
+                    showMessage(urlChangerMessage, 'Favicon found and set as preview.', 'success');
+                    
+                } catch (error) {
+                    console.error("Error fetching favicon:", error);
+                    showMessage(urlChangerMessage, `Failed to find favicon: ${error.message}`, 'error');
+                    previewImg.src = '';
+                    previewImg.style.display = 'none';
+                } finally {
+                    fetchFaviconBtn.disabled = false;
+                    fetchFaviconBtn.textContent = 'Fetch';
+                }
+            });
+
+            // URL Changer Apply Button
+            applyUrlChangerBtn.addEventListener('click', () => {
+                const mode = modeSelect.value;
+                let settingsToSave = { type: 'none' };
                 
-                // Replicate the draw logic but centered and clipped
-                // This implies applying the inverse of the view transform relative to the crop box
+                if (mode === 'preset') {
+                    const presetId = presetSelect.value;
+                    if (!presetId) {
+                         showMessage(urlChangerMessage, 'Please select a preset.', 'error');
+                         return;
+                    }
+                    settingsToSave = { type: 'preset', id: presetId };
+                } 
+                else if (mode === 'custom') {
+                    const title = customTitle.value.trim();
+                    // NEW: Get favicon from preview image
+                    const favicon = (previewImg.src && previewImg.style.display !== 'none') ? previewImg.src : '';
+                    
+                    if (!title && !favicon) { // Check against new favicon variable
+                         showMessage(urlChangerMessage, 'Please provide at least a custom title or fetch a favicon.', 'error'); // Update message
+                        return;
+                    }
+                    settingsToSave = { type: 'custom', title: title, favicon: favicon }; // Use new favicon variable
+                }
                 
-                // Simply drawing the view canvas cropped center is easiest but low res
-                // Better: Draw image again with transforms adjusted
-                
-                ctx.translate(150 + cropState.x, 150 + cropState.y);
-                ctx.scale(cropState.scale, cropState.scale);
-                ctx.drawImage(cropperImage, -cropperImage.width/2, -cropperImage.height/2);
-                
-                const dataUrl = finalCanvas.toDataURL('image/jpeg', 0.9);
-                
-                // Upload
-                // We pass null for file because we have a dataUrl now
-                updateProfilePicture(null, dataUrl, 'custom');
-                
-                cropperModal.style.display = 'none';
-                fileInput.value = '';
-            };
-            
-            // --- Theme Picker Logic ---
-            const themeContainer = document.getElementById('theme-picker-container');
+                // Save to localStorage
+                if (saveUrlChangerSetting(settingsToSave)) {
+                    showMessage(urlChangerMessage, 'Tab Disguise settings saved! They will be applied on the next page you load.', 'success');
+                    
+                    // ADDED: Refresh page after 1 second
+                    setTimeout(() => location.reload(), 1000); 
+                    
+                } else {
+                    showMessage(urlChangerMessage, 'An error occurred while saving.', 'error');
+                }
+            });
+        }
+        
+        
+        /**
+         * NEW: Loads data and adds event listeners for the Personalization tab.
+         */
+        async function loadPersonalizationTab() {
+            const themePickerContainer = document.getElementById('theme-picker-container');
             const themeMessage = document.getElementById('themeMessage');
+            const pfpMessage = document.getElementById('pfpMessage'); 
             
-            // Fetch Themes
-            fetch('../themes.json')
-                .then(res => res.json())
-                .then(themes => {
-                    themeContainer.innerHTML = '';
-                    themes.forEach(theme => {
-                        const btn = document.createElement('div');
-                        // MODIFICATION: Use new styling
-                        btn.className = 'theme-button flex flex-col items-center justify-between gap-2 h-full';
-                        
-                        // Set inline styles for theme preview
-                        // We use the theme's own colors to style its button
-                        const activeBorder = theme['tab-active-border'] || '#4f46e5';
-                        const activeBg = theme['tab-active-bg'] || 'rgba(79, 70, 229, 0.1)';
-                        
-                        btn.style.borderColor = '#333'; // Default border
-                        btn.style.setProperty('--tab-active-border', activeBorder);
-                        btn.style.setProperty('--tab-active-hover-border', activeBorder); // Simplify hover
-                        btn.style.setProperty('--tab-active-shadow', activeBg);
-                        
-                        // Preview content
-                        const preview = document.createElement('div');
-                        preview.className = 'w-full h-12 rounded-md mb-2 flex items-center justify-center';
-                        preview.style.backgroundColor = theme['menu-bg'];
-                        preview.style.border = `1px solid ${theme['menu-border']}`;
-                        
-                        // Fake active tab in preview
-                        const fakeTab = document.createElement('div');
-                        fakeTab.className = 'w-3/4 h-6 rounded-md';
-                        fakeTab.style.backgroundColor = activeBg;
-                        fakeTab.style.border = `1px solid ${activeBorder}`;
-                        preview.appendChild(fakeTab);
-                        
-                        const name = document.createElement('span');
-                        name.className = 'theme-button-name text-sm';
-                        name.textContent = theme.name;
-                        
-                        btn.appendChild(preview);
-                        btn.appendChild(name);
-                        
-                        btn.onclick = () => {
-                            // Apply Theme
-                            applyTheme(theme);
-                            localStorage.setItem(THEME_STORAGE_KEY, theme.id);
-                            
-                            // Visual Selection
-                            document.querySelectorAll('.theme-button').forEach(b => {
-                                b.classList.remove('active');
-                                b.style.borderColor = '#333';
-                            });
-                            btn.classList.add('active');
-                            btn.style.borderColor = activeBorder;
-                            
-                            showMessage(themeMessage, `Theme applied: ${theme.name}`, 'success');
-                        };
-                        
-                        // Check if active
-                        if (localStorage.getItem(THEME_STORAGE_KEY) === theme.id) {
-                            btn.classList.add('active');
-                            btn.style.borderColor = activeBorder;
+            // --- 1. PROFILE PICTURE LOGIC ---
+            if (currentUser) {
+                const userDocRef = getUserDocRef(currentUser.uid);
+                let userData = {};
+                try {
+                    const snap = await getDoc(userDocRef);
+                    if (snap.exists()) {
+                        userData = snap.data();
+                        // Initialize mibiAvatarState with saved config if available
+                        if (userData.mibiConfig) {
+                            mibiAvatarState = { ...mibiAvatarState, ...userData.mibiConfig };
                         }
-                        
-                        themeContainer.appendChild(btn);
+                    }
+                } catch (e) { console.error("Error fetching PFP settings:", e); }
+
+                const currentPfpType = userData.pfpType || 'google';
+                const pfpModeBtns = document.querySelectorAll('.pfp-mode-btn');
+                const pfpLetterSettings = document.getElementById('pfpLetterSettings');
+                const mibiSettings = document.getElementById('pfpMibiSettings');
+                const customSettings = document.getElementById('pfpCustomSettings');
+                const previewImg = document.getElementById('customPfpPreview');
+                const previewPlaceholder = document.getElementById('customPfpPlaceholder');
+                const macMenu = document.getElementById('mibi-mac-menu'); 
+                const openMacMenuBtn = document.getElementById('open-mac-menu-btn'); 
+
+                // --- CONDITIONAL GOOGLE OPTION ---
+                const hasGoogle = currentUser.providerData.some(p => p.providerId === 'google.com');
+                if (!hasGoogle) {
+                    const googleBtn = Array.from(pfpModeBtns).find(btn => btn.dataset.mode === 'google');
+                    if (googleBtn) googleBtn.remove();
+                }
+
+                // Function to dispatch instant update event
+                const triggerNavbarUpdate = () => {
+                    window.dispatchEvent(new CustomEvent('pfp-updated', { 
+                        detail: { 
+                            pfpType: userData.pfpType, 
+                            customPfp: userData.customPfp,
+                            pfpLetterBg: userData.pfpLetterBg,
+                            letterAvatarText: userData.letterAvatarText
+                        }
+                    }));
+                };
+
+                // Function to update UI visibility
+                const updatePfpUi = (type) => {
+                    pfpModeBtns.forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.mode === type);
+                        btn.classList.toggle('bg-[#222]', btn.dataset.mode === type);
+                    });
+                    
+                    pfpLetterSettings.classList.toggle('hidden', type !== 'letter');
+                    mibiSettings.classList.toggle('hidden', type !== 'mibi');
+                    customSettings.classList.toggle('hidden', type !== 'custom');
+                    
+                    // Update preview if possible
+                    if (type === 'custom' && userData.customPfp) {
+                        previewImg.src = userData.customPfp;
+                        previewImg.style.display = 'block';
+                        previewPlaceholder.style.display = 'none';
+                    } else if (type === 'letter') {
+                        previewImg.style.display = 'none';
+                        previewPlaceholder.style.display = 'flex';
+                        const text = userData.letterAvatarText || (userData.username || 'U').charAt(0).toUpperCase();
+                        previewPlaceholder.innerText = text;
+                        previewPlaceholder.style.backgroundColor = userData.pfpLetterBg || '#3B82F6';
+                        previewPlaceholder.style.color = '#FFFFFF';
+                    } else {
+                        previewImg.style.display = 'none';
+                        previewPlaceholder.style.display = 'flex';
+                        previewPlaceholder.innerHTML = '<i class="fa-solid fa-user"></i>';
+                        previewPlaceholder.style.background = '';
+                    }
+                };
+
+                // Mode Button Clicks
+                pfpModeBtns.forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const type = btn.dataset.mode;
+                        updatePfpUi(type);
+                        try {
+                            await updateDoc(userDocRef, { pfpType: type });
+                            userData.pfpType = type;
+                            triggerNavbarUpdate();
+                            showMessage(pfpMessage, 'Preference saved!', 'success');
+                        } catch (e) { showMessage(pfpMessage, 'Error saving preference.', 'error'); }
                     });
                 });
-                
-            setupMacMenuListeners(); // Initialize MAC listeners
-        }
-        
-        function applyTheme(theme) {
-            const root = document.documentElement;
-            for (const [key, value] of Object.entries(theme)) {
-                if (key !== 'name' && key !== 'logo-src' && key !== 'colors') {
-                    root.style.setProperty(`--${key}`, value);
-                }
-            }
-        }
-        
-        function attachDataListeners() {
-            document.getElementById('exportDataBtn').onclick = downloadAllSaves;
-            document.getElementById('importDataBtn').onclick = handleFileUpload;
-        }
 
-        // --- Main Initialization ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // Fetch full user data including username
-                const userDoc = await getDoc(getUserDocRef(user.uid));
-                if (userDoc.exists()) {
-                    currentUser = { uid: user.uid, ...userDoc.data() };
-                } else {
-                    // Fallback if doc doesn't exist yet (shouldn't happen in normal flow)
-                    currentUser = { uid: user.uid, email: user.email, username: user.displayName || 'User' };
-                }
+                // Initial UI state
+                updatePfpUi(currentPfpType);
+
+                // --- Letter Avatar Logic ---
+                const pfpCustomText = document.getElementById('pfp-custom-text');
+                const pfpColorGrid = document.getElementById('pfp-color-grid');
+                const saveLetterBtn = document.getElementById('save-letter-pfp-btn');
+                let selectedLetterColor = userData.pfpLetterBg || '#3B82F6';
+
+                if (pfpCustomText) pfpCustomText.value = userData.letterAvatarText || "";
                 
-                // --- NEW: Check Admin Status ---
-                try {
-                    isUserAdmin = await checkAdminStatus(user.uid);
-                    // Show management tab if admin
-                    if (isUserAdmin) {
-                        document.querySelector('.settings-tab[data-tab="management"]').classList.remove('hidden');
+                if (pfpColorGrid) {
+                    pfpColorGrid.innerHTML = '';
+                    letterColors.forEach(color => {
+                        const d = document.createElement('div');
+                        d.className = 'w-8 h-8 rounded-lg cursor-pointer border-2 transition hover:scale-110 ' + (selectedLetterColor === '#' + color ? 'border-white' : 'border-transparent');
+                        d.style.backgroundColor = '#' + color;
+                        d.onclick = () => {
+                            selectedLetterColor = '#' + color;
+                            pfpColorGrid.querySelectorAll('div').forEach(el => el.classList.replace('border-white', 'border-transparent'));
+                            d.classList.replace('border-transparent', 'border-white');
+                            // Update live preview in settings
+                            previewPlaceholder.style.backgroundColor = selectedLetterColor;
+                        };
+                        pfpColorGrid.appendChild(d);
+                    });
+                }
+
+                if (saveLetterBtn) {
+                    saveLetterBtn.onclick = async () => {
+                        const text = pfpCustomText.value.trim().toUpperCase();
+                        showMessage(pfpMessage, 'Saving...', 'warning');
+                        try {
+                            await updateDoc(userDocRef, {
+                                pfpType: 'letter',
+                                pfpLetterBg: selectedLetterColor,
+                                letterAvatarText: text
+                            });
+                            userData.pfpType = 'letter';
+                            userData.pfpLetterBg = selectedLetterColor;
+                            userData.letterAvatarText = text;
+                            triggerNavbarUpdate();
+                            showMessage(pfpMessage, 'Letter avatar saved!', 'success');
+                        } catch (e) { showMessage(pfpMessage, 'Error saving letter avatar.', 'error'); }
+                    };
+                }
+
+                // Add event listener for the Open Mibi Avatar Creator button
+                if (openMacMenuBtn) {
+                    openMacMenuBtn.addEventListener('click', () => {
+                        macMenu.classList.remove('hidden'); // Show the MAC menu overlay
+                        currentMacSlide = 1; // Reset to first slide
+                        showMacSlide(currentMacSlide);
+                    });
+                }
+
+                const uploadBtn = document.getElementById('uploadPfpBtn');
+                const fileInput = document.getElementById('pfpFileInput');
+                const cropperModal = document.getElementById('cropperModal');
+                const cropperCanvas = document.getElementById('cropperCanvas');
+                const cancelCropBtn = document.getElementById('cancelCropBtn');
+                const submitCropBtn = document.getElementById('submitCropBtn');
+                
+                // Show existing custom pfp in preview
+                if (userData.customPfp) {
+                    previewImg.src = userData.customPfp;
+                    previewImg.style.display = 'block';
+                    previewPlaceholder.style.display = 'none';
+                }
+
+                if (uploadBtn) uploadBtn.addEventListener('click', () => fileInput.click());
+
+                let cropperImage = null;
+                let cropState = { x: 0, y: 0, radius: 100 };
+                let isDragging = false;
+                let dragStart = { x: 0, y: 0 };
+                const ctx = cropperCanvas.getContext('2d');
+
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    if (file.size > 2 * 1024 * 1024) {
+                        showMessage(pfpMessage, 'File is too large (max 2MB).', 'error');
+                        return;
                     }
-                } catch (e) { console.error("Admin check failed", e); }
 
-                // Load initial tab
-                switchTab('general');
-            } else {
-                window.location.href = '../index.html';
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        cropperImage = new Image();
+                        cropperImage.onload = () => {
+                            // Setup canvas with fixed height for consistency
+                            const fixedHeight = 400;
+                            const scale = fixedHeight / cropperImage.height;
+                            cropperCanvas.height = fixedHeight;
+                            cropperCanvas.width = cropperImage.width * scale;
+                            
+                            // Initial crop state: center, 1/3 min dim
+                            cropState = {
+                                x: cropperCanvas.width / 2,
+                                y: cropperCanvas.height / 2,
+                                radius: Math.min(cropperCanvas.width, cropperCanvas.height) / 3
+                            };
+                            
+                            cropperModal.style.display = 'flex';
+                            requestAnimationFrame(drawCropper);
+                        };
+                        cropperImage.src = evt.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+                
+                const drawCropper = () => {
+                    if (!cropperImage) return;
+                    const w = cropperCanvas.width;
+                    const h = cropperCanvas.height;
+                    ctx.clearRect(0, 0, w, h);
+                    
+                    // Draw image filling canvas
+                    ctx.drawImage(cropperImage, 0, 0, w, h);
+                    
+                    // Draw overlay
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.beginPath();
+                    ctx.rect(0, 0, w, h);
+                    // Cut hole
+                    ctx.arc(cropState.x, cropState.y, cropState.radius, 0, 2 * Math.PI, true);
+                    ctx.fill();
+                    
+                    // Draw dashed border
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([6, 4]); // Dashed pattern
+                    ctx.beginPath();
+                    ctx.arc(cropState.x, cropState.y, cropState.radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    ctx.setLineDash([]); // Reset
+                };
+
+                // Interaction Handlers
+                const handleStart = (x, y) => {
+                    const dx = x - cropState.x;
+                    const dy = y - cropState.y;
+                    if (dx*dx + dy*dy < cropState.radius * cropState.radius) {
+                        isDragging = true;
+                        dragStart = { x, y };
+                    }
+                };
+                
+                const handleMove = (x, y) => {
+                    if (isDragging) {
+                        const dx = x - dragStart.x;
+                        const dy = y - dragStart.y;
+                        
+                        let newX = cropState.x + dx;
+                        let newY = cropState.y + dy;
+                        
+                        // Constraint: Circle must stay within canvas
+                        const r = cropState.radius;
+                        const w = cropperCanvas.width;
+                        const h = cropperCanvas.height;
+                        
+                        newX = Math.max(r, Math.min(newX, w - r));
+                        newY = Math.max(r, Math.min(newY, h - r));
+                        
+                        cropState.x = newX;
+                        cropState.y = newY;
+                        
+                        dragStart = { x, y };
+                        requestAnimationFrame(drawCropper);
+                    }
+                };
+
+                const handleEnd = () => { isDragging = false; };
+                
+                const handleScroll = (e) => {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -5 : 5;
+                    let newRadius = cropState.radius + delta;
+                    const w = cropperCanvas.width;
+                    const h = cropperCanvas.height;
+                    const maxPossibleRadius = Math.min(w, h) / 2;
+                    newRadius = Math.max(20, Math.min(newRadius, maxPossibleRadius));
+                    const minX = newRadius;
+                    const maxX = w - newRadius;
+                    const minY = newRadius;
+                    const maxY = h - newRadius;
+                    cropState.x = Math.max(minX, Math.min(cropState.x, maxX));
+                    cropState.y = Math.max(minY, Math.min(cropState.y, maxY));
+                    cropState.radius = newRadius;
+                    requestAnimationFrame(drawCropper);
+                };
+
+                cropperCanvas.addEventListener('mousedown', e => handleStart(e.offsetX, e.offsetY));
+                cropperCanvas.addEventListener('mousemove', e => handleMove(e.offsetX, e.offsetY));
+                cropperCanvas.addEventListener('mouseup', handleEnd);
+                cropperCanvas.addEventListener('mouseleave', handleEnd);
+                cropperCanvas.addEventListener('wheel', handleScroll);
+                
+                cancelCropBtn.addEventListener('click', () => {
+                    cropperModal.style.display = 'none';
+                    fileInput.value = ''; 
+                });
+
+                submitCropBtn.addEventListener('click', async () => {
+                    const tempCanvas = document.createElement('canvas');
+                    const size = 128; // Output size
+                    tempCanvas.width = size;
+                    tempCanvas.height = size;
+                    const tCtx = tempCanvas.getContext('2d');
+                    const scale = cropperCanvas.height / cropperImage.height;
+                    const sourceX = (cropState.x - cropState.radius) / scale;
+                    const sourceY = (cropState.y - cropState.radius) / scale;
+                    const sourceSize = (cropState.radius * 2) / scale;
+                    tCtx.drawImage(cropperImage, sourceX, sourceY, sourceSize, sourceSize, 0, 0, size, size);
+                    const base64 = tempCanvas.toDataURL('image/jpeg', 0.8);
+                    try {
+                        submitCropBtn.disabled = true;
+                        submitCropBtn.textContent = "Saving...";
+                        await updateDoc(userDocRef, { customPfp: base64, pfpType: 'custom' });
+                        userData.customPfp = base64;
+                        userData.pfpType = 'custom';
+                        triggerNavbarUpdate();
+                        updatePfpUi('custom');
+                        cropperModal.style.display = 'none';
+                        showMessage(pfpMessage, 'Profile picture updated!', 'success');
+                    } catch (e) {
+                        console.error(e);
+                        alert('Failed to save image.');
+                    } finally {
+                        submitCropBtn.disabled = false;
+                        submitCropBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Submit';
+                    }
+                });
             }
-        });
 
-        // Tab Navigation
+            // Setup MAC Menu Listeners
+            setupMacMenuListeners();
+
+            // --- MAC Menu: Slide 2 (Background Color) Event Listeners ---
+            const mibiColorPalette = document.getElementById('mibi-color-palette');
+            const mibiCustomColorPicker = document.getElementById('mibi-custom-color-picker');
+
+            if (mibiColorPalette) {
+                mibiColorPalette.querySelectorAll('.color-swatch').forEach(swatch => {
+                    swatch.addEventListener('click', () => {
+                        const color = swatch.dataset.color;
+                        if (color === 'custom') {
+                            mibiCustomColorPicker.click(); // Open color picker
+                        } else {
+                            mibiAvatarState.bgColor = color;
+                            updateMibiAvatarPreview();
+                        }
+                    });
+                });
+            }
+
+            if (mibiCustomColorPicker) {
+                mibiCustomColorPicker.addEventListener('input', (e) => {
+                    mibiAvatarState.bgColor = e.target.value;
+                    updateMibiAvatarPreview();
+                });
+            }
+
+            // --- MAC Menu: Slide 3 (Orientation) Event Listeners ---
+            const mibiSizeSlider = document.getElementById('mibi-size-slider');
+            const mibiRotationSlider = document.getElementById('mibi-rotation-slider');
+
+            if (mibiSizeSlider) {
+                mibiSizeSlider.addEventListener('input', (e) => {
+                    mibiAvatarState.size = parseInt(e.target.value, 10);
+                    updateMibiAvatarPreview();
+                });
+            }
+
+            if (mibiRotationSlider) {
+                mibiRotationSlider.addEventListener('input', (e) => {
+                    mibiAvatarState.rotation = parseInt(e.target.value, 10);
+                    updateMibiAvatarPreview();
+                });
+            }
+
+            // --- 2. THEME LOGIC (Existing) ---
+            
+            if (!themePickerContainer) return;
+            
+            // From navigation.js
+            const lightThemeNames = ['Light', 'Lavender', 'Rose Gold', 'Mint', 'Pink'];
+
+            try {
+                // 1. Fetch themes
+                const response = await fetch('../themes.json');
+                if (!response.ok) throw new Error('Failed to fetch themes.json');
+                let themes = await response.json(); // Use 'let' to reassign
+                
+                if (!themes || themes.length === 0) {
+                     throw new Error('themes.json is empty or invalid');
+                }
+
+                // --- NEW: Sorting Logic ---
+                const orderedThemeNames = ['Dark', 'Light', 'Christmas'];
+                const sortedThemes = [];
+
+                // Add themes in the specified order first
+                orderedThemeNames.forEach(name => {
+                    const theme = themes.find(t => t.name === name);
+                    if (theme) {
+                        sortedThemes.push(theme);
+                        themes = themes.filter(t => t.name !== name); // Remove from original list
+                    }
+                });
+
+                // Sort remaining themes by Rainbow Color then Type
+                const colorMap = {
+                    'Crimson': 1, 'Fire': 1,
+                    'Orange': 2, 'Sunset': 2, 'Rust': 2, 'Ember': 2, 'Copper': 2,
+                    'Gold': 3,
+                    'Green': 4, 'Forest': 4, 'Matrix': 4,
+                    'Mint': 5,
+                    'Ocean': 6, 'Deep Blue': 6,
+                    'Purple': 7, 'Royal': 7, 'Haze': 7, 'Lavender': 7,
+                    'Pink': 8, 'Coral': 8, 'Rose Gold': 8,
+                    'Clanker': 9, 'Monochrome': 9, 'Silver': 9, 'Slate': 9
+                };
+                
+                // Helper to determine type (Dark=0, Light=1 for sorting)
+                // Light themes use logo-dark.png
+                const getThemeType = (t) => (t['logo-src'] && t['logo-src'].includes('logo-dark.png')) ? 1 : 0;
+
+                themes.sort((a, b) => {
+                    const colorA = colorMap[a.name] || 100; // Default to end if unknown
+                    const colorB = colorMap[b.name] || 100;
+                    
+                    if (colorA !== colorB) {
+                        return colorA - colorB;
+                    }
+                    
+                    // If same color, sort by type
+                    const typeA = getThemeType(a);
+                    const typeB = getThemeType(b);
+                    
+                    if (typeA !== typeB) {
+                        return typeA - typeB; // Dark first, then Light
+                    }
+                    
+                    // If same color and type, alphabetical
+                    return a.name.localeCompare(b.name);
+                });
+
+                // Combine them
+                themes = [...sortedThemes, ...themes];
+                // --- END NEW: Sorting Logic ---
+                
+                // 2. Get currently saved theme to set the active state
+                let savedTheme = null;
+                try {
+                    savedTheme = JSON.parse(localStorage.getItem(THEME_STORAGE_KEY));
+                } catch (e) {
+                    console.warn('Could not parse saved theme.');
+                }
+                
+                // 3. Process and render themes
+                const modifiedThemes = []; // Store themes with correct logo paths
+                let themeButtonsHtml = '';
+                
+                for (const theme of themes) {
+                    // --- This is the logic requested by the user ---
+                    // It modifies the theme object *in memory* before saving/applying
+                    // We use root-relative paths as defined in navigation.js
+                    if (lightThemeNames.includes(theme.name)) {
+                        theme['logo-src'] = '/images/logo-dark.png'; 
+                    } else {
+                        theme['logo-src'] = '/images/logo.png';
+                    }
+                    // --- End of user logic ---
+                    
+                    modifiedThemes.push(theme);
+                    
+                    const isActive = savedTheme && savedTheme.name === theme.name;
+                    
+                    // Use active tab colors for the button style to match navigation.js look
+                    const activeText = theme['tab-active-text'] || '#4f46e5';
+                    const activeBorder = theme['tab-active-border'] || '#4f46e5';
+                    const activeBg = theme['tab-active-bg'] || 'rgba(79, 70, 229, 0.1)';
+                    
+                    // Hover states
+                    const hoverText = theme['tab-active-hover-text'] || activeText;
+                    const hoverBorder = theme['tab-active-hover-border'] || activeBorder;
+                    const hoverBg = theme['tab-active-hover-bg'] || activeBg;
+
+                    themeButtonsHtml += `
+                        <button 
+                            class="theme-button ${isActive ? 'active' : ''}" 
+                            data-theme-name="${theme.name}" 
+                            style="
+                                color: ${activeText}; 
+                                border-color: ${activeBorder}; 
+                                background-color: ${activeBg};
+                                --hover-color: ${hoverText};
+                                --hover-border: ${hoverBorder};
+                                --hover-bg: ${hoverBg};
+                            "
+                        >
+                            ${theme.name}
+                        </button>
+                    `;
+                }
+                
+                // Inject buttons into the DOM
+                themePickerContainer.innerHTML = themeButtonsHtml;
+                
+                // 4. Add event listeners
+                const themeButtons = themePickerContainer.querySelectorAll('.theme-button');
+                themeButtons.forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const themeName = button.dataset.themeName;
+                        const themeToApply = modifiedThemes.find(t => t.name === themeName);
+                        
+                        if (themeToApply) {
+                            // 1. Save to localStorage (Backup/Fast Load)
+                            localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(themeToApply));
+                            
+                            // 2. Apply theme for live preview
+                            if (window.applyTheme) {
+                                window.applyTheme(themeToApply);
+                            } else {
+                                console.error('window.applyTheme is not defined. Is navigation.js loaded?');
+                                showMessage(themeMessage, 'Error applying theme preview.', 'error');
+                                return;
+                            }
+
+                            // 3. Save to Firestore (Persistence)
+                            if (currentUser) {
+                                try {
+                                    const userDocRef = getUserDocRef(currentUser.uid);
+                                    // Ensure we're only saving valid data
+                                    await updateDoc(userDocRef, { navbarTheme: themeToApply });
+                                } catch (error) {
+                                    console.error("Error saving theme to Firestore:", error);
+                                    // Don't block UI feedback for this
+                                }
+                            }
+                            
+                            // 4. Update active class
+                            themeButtons.forEach(btn => btn.classList.remove('active'));
+                            button.classList.add('active');
+                            
+                            // 5. Show success message
+                            showMessage(themeMessage, `${themeToApply.name} theme applied!`, 'success');
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading themes:', error);
+                themePickerContainer.innerHTML = `<p class="text-red-400">Error: Could not load themes. (${error.message})</p>`;
+            }
+        }
+        
+        // --- NEW: Loads data and adds event listeners for the Data tab ---
+        async function loadDataTab() {
+            // Get elements (buttons, modal)
+            const exportBtn = document.getElementById('exportDataBtn');
+            const importBtn = document.getElementById('importDataBtn');
+            const modal = document.getElementById('modalPrompt');
+            const modalClose = document.getElementById('modalClose');
+            
+            // Wire up buttons
+            if (exportBtn) exportBtn.addEventListener('click', downloadAllSaves);
+            if (importBtn) importBtn.addEventListener('click', handleFileUpload);
+            
+            // Wire up modal close events
+            if (modalClose) {
+                modalClose.addEventListener('click', () => {
+                    modal.style.display = "none";
+                });
+            }
+            // Use a new listener specific to this page
+            const modalBackground = document.getElementById('modalPrompt');
+            if (modalBackground) {
+                modalBackground.addEventListener('click', event => {
+                    if (event.target === modalBackground) {
+                        modal.style.display = "none";
+                    }
+                });
+            }
+        }
+
+
+        /**
+         * Handles the switching of tabs and updating the main content view.
+         */
+        async function switchTab(tabId) {
+            // 1. Update active class on sidebar tabs
+            sidebarTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            // 2. Update the main view content and alignment
+            mainView.style.justifyContent = 'flex-start';
+            mainView.style.alignItems = 'flex-start';
+
+            if (tabId === 'general') {
+                await loadGeneralTab(); 
+            }
+            else if (tabId === 'privacy') {
+                // NEW: Load Privacy Tab
+                mainView.innerHTML = getPrivacyContent(); // Render HTML first
+                await loadPrivacyTab(); // Then load data and add listeners
+            }
+            else if (tabId === 'personalization') {
+                // --- NEW: Load Personalization Tab ---
+                mainView.innerHTML = getPersonalizationContent(); // Render HTML
+                await loadPersonalizationTab(); // Load data and add listeners
+            }
+            else if (tabId === 'data') {
+                // --- NEW: Load Data Management Tab ---
+                mainView.innerHTML = getDataManagementContent(); // Render HTML
+                await loadDataTab(); // Load data and add listeners
+            }
+            else if (tabId === 'management') {
+                // --- NEW: Load Management Tab ---
+                mainView.innerHTML = getManagementContent();
+                await loadManagementTab();
+            }
+            else if (tabId === 'about') {
+                mainView.innerHTML = getAboutContent();
+            } else {
+                const content = tabContent[tabId];
+                mainView.innerHTML = getComingSoonContent(content.title);
+            }
+
+            // 3. New: Smoothly scroll the window back to the top (y=0)
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // --- Initialization on Load ---
+        
+        // Add listener to each sidebar button
         sidebarTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                switchTab(tab.dataset.tab);
+            tab.addEventListener('click', async () => {
+                await switchTab(tab.dataset.tab);
             });
         });
 
+
+        // --- AUTHENTICATION/REDIRECT LOGIC (Retained and Modified) ---
+
+
+
+        function initializeAuth() {
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    // No user is logged in, redirect to authentication.html (path corrected)
+                    window.location.href = '../authentication.html'; 
+                } else {
+                    currentUser = user; 
+                    
+                    // --- MODIFIED: Mandatory Admin Status Check ---
+                    // We MUST await this check before proceeding to load tabs that might require admin privileges.
+                    // This prevents "Missing or insufficient permissions" errors due to race conditions.
+                    isUserAdmin = await checkAdminStatus(user.uid);
+
+                    if (isUserAdmin) {
+                        const adminTab = document.getElementById('tab-management');
+                        if (adminTab) adminTab.classList.remove('hidden');
+                    }
+
+                    // Set initial state to 'General' (or the first tab)
+                    switchTab('general'); 
+                }
+            });
+        }
+        
+        // Use a short timeout to allow the rest of the script to run before auth check
+        setTimeout(() => { initializeAuth(); }, 100);

@@ -360,7 +360,6 @@
         }
 
         /* --- NEW: Theme Picker Styles --- */
-        /* MODIFICATION: These styles ARE theme-aware */
         #theme-picker-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -368,34 +367,31 @@
             width: 100%;
         }
         .theme-button {
-            /* MODIFICATION: Border color is now theme-aware */
-            border: 2px solid var(--tab-active-border, #4f46e5); 
-            background-color: #111; /* This will be overridden by inline style */
-            border-radius: 0.75rem; 
-            padding: 0.75rem; /* MODIFICATION: Reduced padding */
-            text-align: center;
+            border-radius: 14px;
+            border-width: 1px;
+            border-style: solid;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
             cursor: pointer;
-            transition: all 0.2s ease-out;
-            opacity: 0.7;
-            position: relative;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            width: 100%;
         }
         .theme-button:hover {
-            opacity: 1;
-            /* MODIFICATION: Use a consistent hover border */
-            border-color: var(--tab-active-hover-border, #6366f1);
-            transform: translateY(-2px);
+            color: var(--hover-color) !important;
+            border-color: var(--hover-border) !important;
+            background-color: var(--hover-bg) !important;
+            transform: translateY(-1px);
         }
         .theme-button.active {
-            opacity: 1;
-            /* MODIFICATION: Removed redundant border-color */
-            box-shadow: 0 0 10px rgba(79, 70, 229, 0.3); /* Will use variable shadow */
-            box-shadow: 0 0 10px var(--tab-active-shadow, rgba(79, 70, 229, 0.3));
+            box-shadow: 0 0 0 2px var(--hover-border);
         }
         
-        .theme-button-name {
-            font-weight: 500;
-            color: #e0e0e0; /* This will be overridden by inline style */
-        }
+        .theme-button-name { display: none; }
         
         /* --- NEW: Modal and Loading Styles (from index.html) --- */
         .modal {

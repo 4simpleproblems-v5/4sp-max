@@ -12,14 +12,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- VERN_SYSTEM Proxy Scripts (Local) -->
-    <link rel="preload" href="/4sp-max/VELIUM/uv/uv.bundle.js" as="script">
-    <link rel="preload" href="/4sp-max/VELIUM/baremux/index.js" as="script">
-    <link rel="preload" href="/4sp-max/VELIUM/baremux/worker.js" as="worker">
-    <link rel="preload" href="/4sp-max/VELIUM/uv/sw.js" as="worker">
+    <link rel="preload" href="/VELIUM/uv/uv.bundle.js" as="script">
+    <link rel="preload" href="/VELIUM/baremux/index.js" as="script">
+    <link rel="preload" href="/VELIUM/baremux/worker.js" as="worker">
+    <link rel="preload" href="/VELIUM/uv/sw.js" as="worker">
 
-    <script src="/4sp-max/VELIUM/uv/uv.bundle.js"></script>
+    <script src="/VELIUM/uv/uv.bundle.js"></script>
     <script>
-        const basePath = "/4sp-max/VELIUM/uv/";
+        const basePath = "/VELIUM/uv/";
         self.__uv$config = {
             prefix: basePath + "service/",
             encodeUrl: Ultraviolet.codec.xor.encode,
@@ -32,15 +32,15 @@
             stockSW: basePath + "sw.js",
         };
     </script>
-    <script src="/4sp-max/VELIUM/baremux/index.js"></script>
+    <script src="/VELIUM/baremux/index.js"></script>
     <script>
         // Immediate Initialization of VERN_SYSTEM Proxy
         (async () => {
             if ("serviceWorker" in navigator) {
                 try {
                     // Register Root SW
-                    const reg = await navigator.serviceWorker.register("/4sp-max/VELIUM/sw.js", {
-                        scope: "/4sp-max/VELIUM/"
+                    const reg = await navigator.serviceWorker.register("/VELIUM/sw.js", {
+                        scope: "/VELIUM/"
                     });
                     console.log("VERN_SYSTEM SW Registered");
 
@@ -56,9 +56,9 @@
                 }
             }
             try {
-                const connection = new BareMux.BareMuxConnection("/4sp-max/VELIUM/baremux/worker.js");
+                const connection = new BareMux.BareMuxConnection("/VELIUM/baremux/worker.js");
                 const wispUrl = "wss://wisp.rhw.one/";
-                connection.setTransport("/4sp-max/VELIUM/libcurl/index.mjs", [{ websocket: wispUrl }]);
+                connection.setTransport("/VELIUM/libcurl/index.mjs", [{ websocket: wispUrl }]);
                 console.log("BareMux Initialized");
             } catch (e) {
                 console.error("BareMux Init Failed", e);

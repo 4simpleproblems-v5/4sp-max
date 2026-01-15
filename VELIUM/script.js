@@ -9,7 +9,7 @@ function getProxyUrl(url) {
     // Fallback if config isn't ready but we know the structure
     // We need Ultraviolet for encoding. If that's missing, we are stuck.
     if (window.Ultraviolet && window.Ultraviolet.codec && window.Ultraviolet.codec.xor) {
-         return "/4sp-max/VELIUM/uv/service/" + window.Ultraviolet.codec.xor.encode(url);
+         return "/VELIUM/uv/service/" + window.Ultraviolet.codec.xor.encode(url);
     }
     
     console.warn("UV/Ultraviolet not loaded, returning original URL");

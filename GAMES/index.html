@@ -490,7 +490,7 @@
             color: #fff;
             width: 3.5rem;
             height: 3.5rem;
-            border-radius: 50%;
+            border-radius: 14px; /* Matches auth button shape */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -498,9 +498,42 @@
             transition: all 0.2s;
         }
         #closeCreditsFixed:hover {
-            background: #fff;
-            color: #000;
-            transform: rotate(90deg);
+            filter: brightness(1.2);
+            background: rgba(20, 20, 20, 0.8);
+            border-color: #555;
+        }
+
+        .credits-nav-bar {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            gap: 1rem;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 1rem;
+            border: 1px solid #333;
+        }
+        .credits-nav-btn {
+            background: transparent;
+            border: none;
+            color: #d1d5db;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .credits-nav-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
         }
 
         /* --- Fullscreen Credits Styles --- */
@@ -641,7 +674,7 @@
             color: #fff;
             width: 3.5rem;
             height: 3.5rem;
-            border-radius: 50%;
+            border-radius: 14px; /* Matches auth button shape */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -649,9 +682,42 @@
             transition: all 0.2s;
         }
         #closeCreditsFixed:hover {
-            background: #fff;
-            color: #000;
-            transform: rotate(90deg);
+            filter: brightness(1.2);
+            background: rgba(20, 20, 20, 0.8);
+            border-color: #555;
+        }
+
+        .credits-nav-bar {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            gap: 1rem;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 1rem;
+            border: 1px solid #333;
+        }
+        .credits-nav-btn {
+            background: transparent;
+            border: none;
+            color: #d1d5db;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .credits-nav-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
         }
     </style>
 </head>
@@ -728,6 +794,10 @@
         <button id="closeCreditsFixed"><i class="fas fa-times text-2xl"></i></button>
         <div id="creditsScrollContainer" class="credits-scroll-container">
             <!-- Sections injected via JS -->
+        </div>
+        <div class="credits-nav-bar">
+            <button id="creditsPrevBtn" class="credits-nav-btn"><i class="fas fa-chevron-up"></i></button>
+            <button id="creditsNextBtn" class="credits-nav-btn"><i class="fas fa-chevron-down"></i></button>
         </div>
     </div>
 
@@ -835,6 +905,8 @@
         const creditsScrollContainer = document.getElementById('creditsScrollContainer');
         const creditsBtn = document.getElementById('creditsBtn');
         const closeCreditsFixed = document.getElementById('closeCreditsFixed');
+        const creditsPrevBtn = document.getElementById('creditsPrevBtn');
+        const creditsNextBtn = document.getElementById('creditsNextBtn');
 
         const INSTRUCTION_KEY = '4sp-games-instruction-extended-seen';
         const instructionOverlay = document.getElementById('instruction-overlay');
@@ -1765,6 +1837,14 @@
             
             closeCreditsFixed.addEventListener('click', () => {
                 creditsModal.classList.remove('active');
+            });
+
+            creditsPrevBtn.addEventListener('click', () => {
+                creditsScrollContainer.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
+            });
+
+            creditsNextBtn.addEventListener('click', () => {
+                creditsScrollContainer.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
             });
         }
 

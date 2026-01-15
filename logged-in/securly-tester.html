@@ -51,12 +51,9 @@
                 }
             }
             try {
-                const baremuxPath = window.location.origin + pathPrefix + "baremux/worker.js";
-                const libcurlPath = window.location.origin + pathPrefix + "libcurl/index.mjs";
-                
-                const connection = new BareMux.BareMuxConnection(baremuxPath);
-                const wispUrl = "wss://wisp.rhw.one/";
-                connection.setTransport(libcurlPath, [{ websocket: wispUrl }]);
+                const connection = new BareMux.BareMuxConnection("./baremux/worker.js");
+                const wispUrl = "wss://wisp.mercurywork.shop/";
+                connection.setTransport("./libcurl/index.mjs", [{ websocket: wispUrl }]);
                 console.log("BareMux Initialized");
             } catch (e) {
                 console.error("BareMux Init Failed", e);

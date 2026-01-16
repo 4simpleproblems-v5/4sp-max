@@ -222,6 +222,7 @@
         </header>
 
         <div id="tab-users" class="tab-content">
+<<<<<<< HEAD
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="stat-card">
                     <span class="text-gray-400 text-sm mb-2 uppercase tracking-wide">Total Users</span>
@@ -252,6 +253,43 @@
                 </div>
                 <div class="relative h-full w-full" style="height: 220px;">
                     <canvas id="userGrowthChart"></canvas>
+=======
+            <!-- Sync Stats Card -->
+            <div id="sync-stats-card" class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl p-4 mb-6 flex justify-between items-center">
+                <div class="flex gap-8">
+                    <div class="flex flex-col">
+                        <span class="text-gray-500 text-xs uppercase tracking-widest">Auth Users</span>
+                        <span id="auth-user-count" class="text-2xl text-white font-mono">--</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-gray-500 text-xs uppercase tracking-widest">DB Users</span>
+                        <span id="db-user-count" class="text-2xl text-white font-mono">--</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-gray-500 text-xs uppercase tracking-widest text-red-400">Missing</span>
+                        <span id="missing-user-count" class="text-2xl text-red-400 font-mono">--</span>
+                    </div>
+                </div>
+                <button id="mass-sync-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition hidden">
+                    Mass Add Missing
+                </button>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="chart-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-white text-lg">New Users</h3>
+                        <select id="chart-period" class="bg-[#1a1a1a] text-gray-300 border border-[#333] rounded px-2 py-1 text-sm focus:outline-none">
+                            <option value="week">Past Week</option>
+                            <option value="month" selected>Past Month</option>
+                            <option value="year">Past Year</option>
+                        </select>
+                    </div>
+                    <div class="relative h-full w-full" style="height: 220px;">
+                        <canvas id="userGrowthChart"></canvas>
+                    </div>
+>>>>>>> 6b868b5 (Update Analytics with Auth Sync and Mass Add)
                 </div>
             </div>
 
@@ -453,6 +491,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
         import { 
             getFirestore, 
             collection, 
@@ -465,15 +504,23 @@
             query,
             orderBy,
             limit,
+<<<<<<< HEAD
             onSnapshot
+=======
+            onSnapshot,
+            writeBatch,
+            serverTimestamp
+>>>>>>> 6b868b5 (Update Analytics with Auth Sync and Mass Add)
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { firebaseConfig } from "../firebase-config.js";
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const functions = getFunctions(app);
 
         let allUsers = [];
+        let missingAuthUsers = [];
         let allSessions = [];
         let admins = new Set();
         let bannedUsers = new Set();
@@ -536,10 +583,106 @@
             });
         };
 
+<<<<<<< HEAD
         const subscribeToData = () => {
             // 1. Listen for BANS
             unsubscribeBans = onSnapshot(collection(db, 'bans'), (snapshot) => {
                 bannedUsers = new Set(snapshot.docs.map(d => d.id));
+=======
+        const checkAuthSync = async () => {
+            const syncCard = document.getElementById('sync-stats-card');
+            const syncBtn = document.getElementById('mass-sync-btn');
+            const authCountEl = document.getElementById('auth-user-count');
+            const dbCountEl = document.getElementById('db-user-count');
+            const missingCountEl = document.getElementById('missing-user-count');
+
+            if (!syncCard) return;
+
+            try {
+                const getAuthUsers = httpsCallable(functions, 'getAuthUsers');
+                const result = await getAuthUsers();
+                const authUsers = result.data;
+                
+                const dbUserIds = new Set(allUsers.map(u => u.id));
+                missingAuthUsers = authUsers.filter(u => !dbUserIds.has(u.uid));
+
+                authCountEl.textContent = authUsers.length;
+                dbCountEl.textContent = allUsers.length;
+                missingCountEl.textContent = missingAuthUsers.length;
+
+                if (missingAuthUsers.length > 0) {
+                    syncBtn.classList.remove('hidden');
+                    syncBtn.textContent = `Mass Add ${missingAuthUsers.length} Users`;
+                } else {
+                    syncBtn.classList.add('hidden');
+                }
+
+            } catch (error) {
+                console.error("Failed to fetch auth users:", error);
+                authCountEl.textContent = "Error";
+            }
+        };
+
+        document.getElementById('mass-sync-btn')?.addEventListener('click', async () => {
+            if (!missingAuthUsers.length) return;
+            if (!confirm(`Create Firestore docs for ${missingAuthUsers.length} users?`)) return;
+            
+            const btn = document.getElementById('mass-sync-btn');
+            btn.disabled = true;
+            btn.innerText = "Syncing...";
+            
+            try {
+                let batch = writeBatch(db);
+                let count = 0;
+                
+                for (const u of missingAuthUsers) {
+                    let rawUsername = u.email ? u.email.split('@')[0] : 'User';
+                    if (u.displayName) rawUsername = u.displayName;
+                    let username = rawUsername.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
+                    if (username.length < 6) username = `User${u.uid.substring(0, 8)}`;
+                    
+                    const providerId = (u.providerData && u.providerData.length > 0) ? u.providerData[0].providerId : 'unknown';
+
+                    const docRef = doc(db, 'users', u.uid);
+                    batch.set(docRef, {
+                        email: u.email || null,
+                        authMethod: providerId,
+                        createdAt: u.creationTime ? new Date(u.creationTime) : serverTimestamp(),
+                        username: username,
+                        emailVerified: u.emailVerified, 
+                        photoURL: u.photoURL || null
+                    });
+                    
+                    count++;
+                    if (count >= 400) { 
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        count = 0;
+                    }
+                }
+                
+                if (count > 0) await batch.commit();
+                
+                alert("Sync Complete!");
+                btn.classList.add('hidden');
+                checkAuthSync(); // Refresh
+            } catch (e) {
+                console.error(e);
+                alert("Sync failed: " + e.message);
+                btn.disabled = false;
+                btn.innerText = "Retry Sync";
+            }
+        });
+
+        const loadUserData = async () => {
+            try {
+                const adminsSnap = await getDocs(collection(db, 'admins'));
+                admins = new Set(adminsSnap.docs.map(d => d.id));
+                document.getElementById('total-admins-count').textContent = admins.size;
+
+                const bansSnap = await getDocs(collection(db, 'bans'));
+                bannedUsers = new Set(bansSnap.docs.map(d => d.id));
+>>>>>>> 6b868b5 (Update Analytics with Auth Sync and Mass Add)
                 document.getElementById('total-banned-count').textContent = bannedUsers.size;
                 renderTable(getFilteredUsers()); // Re-render table to update status
             });
@@ -561,8 +704,16 @@
                 
                 // Update Counts
                 document.getElementById('total-users-count').textContent = allUsers.length;
+<<<<<<< HEAD
                 const verifiedCount = allUsers.filter(u => u.emailVerified).length;
                 document.getElementById('total-verified-count').textContent = verifiedCount;
+=======
+                document.getElementById('loading-users').style.display = 'none';
+
+                renderTable(allUsers);
+                renderChart(allUsers);
+                checkAuthSync();
+>>>>>>> 6b868b5 (Update Analytics with Auth Sync and Mass Add)
                 
                 document.getElementById('loading-users').style.display = 'none';
                 

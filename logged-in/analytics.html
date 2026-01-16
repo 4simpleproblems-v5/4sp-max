@@ -94,6 +94,32 @@
         .btn-delete { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
         .btn-delete:hover { background-color: rgba(239, 68, 68, 0.2); }
 
+        /* --- Custom Nav Tab Style (Mirrors navigation.js) --- */
+        .nav-tab-style {
+            padding: 0.5rem 1rem;
+            color: var(--tab-text, #9ca3af);
+            font-size: 0.875rem;
+            font-weight: 400;
+            border-radius: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            background-color: transparent;
+        }
+        .nav-tab-style:hover {
+            color: var(--tab-hover-text, #ffffff);
+            background-color: var(--tab-hover-bg, rgba(79, 70, 229, 0.05));
+            border-color: var(--tab-active-border, #4f46e5);
+            transform: translateY(-1px);
+        }
+        .nav-tab-style.hidden {
+            display: none !important;
+        }
+
         /* --- Modals --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -181,7 +207,8 @@
                         <span id="missing-user-count" class="text-2xl text-red-400 font-mono">--</span>
                     </div>
                 </div>
-                <button id="mass-sync-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition hidden">
+                <button id="mass-sync-btn" class="nav-tab-style hidden">
+                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i>
                     Mass Add Missing
                 </button>
             </div>
@@ -212,6 +239,7 @@
                         <option value="week">Past Week</option>
                         <option value="month" selected>Past Month</option>
                         <option value="year">Past Year</option>
+                        <option value="all">Since First User</option>
                     </select>
                 </div>
                 <div class="relative h-full w-full" style="height: 220px;">
@@ -487,7 +515,6 @@
         let osChartInstance = null;
         let userToBan = null;
         
-        // Listeners for real-time data
         let unsubscribeUsers = null;
         let unsubscribeBans = null;
         let unsubscribeAdmins = null;
@@ -508,7 +535,6 @@
                     const isSuperAdmin = user.email === '4simpleproblems@gmail.com';
                     
                     if (adminDoc.exists() || isSuperAdmin) {
-                        // Start Real-time Listeners
                         subscribeToData();
                         loadTrafficData(); 
                     } else {
@@ -532,11 +558,8 @@
                     const tabId = btn.dataset.tab;
                     document.getElementById(`tab-${tabId}`).classList.remove('hidden');
                     
-                    // Re-render charts/tables if hidden/shown
                     if(tabId === 'users') renderChart(allUsers);
                     if(tabId === 'health') {
-                        // The health charts (Browser/OS) are rendered in loadTrafficData
-                        // But we might need to refresh the comparison tables
                         refreshSyncTables(); 
                     }
                 });
@@ -544,27 +567,23 @@
         };
 
         const subscribeToData = () => {
-            // 1. Listen for BANS
             unsubscribeBans = onSnapshot(collection(db, 'bans'), (snapshot) => {
                 bannedUsers = new Set(snapshot.docs.map(d => d.id));
                 document.getElementById('total-banned-count').textContent = bannedUsers.size;
                 renderTable(getFilteredUsers());
             });
 
-            // 2. Listen for ADMINS
             unsubscribeAdmins = onSnapshot(collection(db, 'admins'), (snapshot) => {
                 admins = new Set(snapshot.docs.map(d => d.id));
                 document.getElementById('total-admins-count').textContent = admins.size;
                 renderTable(getFilteredUsers()); 
             });
 
-            // 3. Listen for USERS (Real-time Signup Feed)
             const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
             
             unsubscribeUsers = onSnapshot(q, (snapshot) => {
                 allUsers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 
-                // Update Counts
                 document.getElementById('total-users-count').textContent = allUsers.length;
                 const verifiedCount = allUsers.filter(u => u.emailVerified).length;
                 document.getElementById('total-verified-count').textContent = verifiedCount;
@@ -574,7 +593,6 @@
                 renderTable(getFilteredUsers());
                 renderChart(allUsers);
                 
-                // Refresh Sync Data (Both Tabs)
                 refreshAuthData();
             }, (error) => {
                 console.error("Error subscribing to users:", error);
@@ -582,7 +600,6 @@
             });
         };
 
-        // Fetches Auth users from Cloud Function and updates BOTH tabs
         const refreshAuthData = async () => {
             const authCountEl = document.getElementById('auth-user-count');
             const dbCountEl = document.getElementById('db-user-count');
@@ -592,33 +609,27 @@
             if (!authCountEl) return;
 
             try {
-                // Fetch only if we haven't recently, or force refresh logic here
-                // For now, fetch every time users update to keep in sync
                 const getAuthUsers = httpsCallable(functions, 'getAuthUsers');
                 const result = await getAuthUsers();
                 allAuthUsers = result.data; 
                 
-                // 1. Calculate Missing Profiles (Auth exists, Doc missing)
                 const dbUserIds = new Set(allUsers.map(u => u.id));
                 missingAuthUsers = allAuthUsers.filter(u => !dbUserIds.has(u.uid));
 
-                // 2. Calculate Orphaned Docs (Doc exists, Auth missing)
                 const authUserIds = new Set(allAuthUsers.map(u => u.uid));
                 orphanedDocs = allUsers.filter(u => !authUserIds.has(u.id));
 
-                // 3. Update Sync Card (Users Tab)
                 authCountEl.textContent = allAuthUsers.length;
                 dbCountEl.textContent = allUsers.length;
                 missingCountEl.textContent = missingAuthUsers.length;
 
                 if (missingAuthUsers.length > 0) {
                     syncBtn.classList.remove('hidden');
-                    syncBtn.textContent = `Mass Add ${missingAuthUsers.length} Users`;
+                    syncBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up mr-2"></i> Mass Add ${missingAuthUsers.length} Users`;
                 } else {
                     syncBtn.classList.add('hidden');
                 }
 
-                // 4. Update Health Tab Tables
                 refreshSyncTables();
 
             } catch (error) {
@@ -628,7 +639,6 @@
         };
 
         const refreshSyncTables = () => {
-            // -- Table 1: Missing Profiles --
             const missingBody = document.getElementById('missing-profile-body');
             document.getElementById('count-missing-profile').textContent = missingAuthUsers.length;
             
@@ -655,7 +665,6 @@
                 }).join('');
             }
 
-            // -- Table 2: Orphaned Docs --
             const orphanedBody = document.getElementById('orphaned-doc-body');
             document.getElementById('count-orphaned-doc').textContent = orphanedDocs.length;
 
@@ -680,7 +689,6 @@
                 `).join('');
             }
 
-            // Attach listeners to new buttons
             document.querySelectorAll('.btn-create[data-action="create-missing"]').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const uid = e.currentTarget.dataset.uid;
@@ -694,7 +702,6 @@
                     const uid = e.currentTarget.dataset.uid;
                     if(confirm(`Delete orphaned document for ${uid}? This cannot be undone.`)) {
                         await deleteDoc(doc(db, 'users', uid));
-                        // UI updates via snapshot
                     }
                 });
             });
@@ -718,20 +725,18 @@
                     emailVerified: u.emailVerified, 
                     photoURL: u.photoURL || null
                 });
-                // UI updates via snapshot
             } catch (e) {
                 alert("Error: " + e.message);
             }
         };
 
-        // --- Mass Sync Button Logic ---
         document.getElementById('mass-sync-btn')?.addEventListener('click', async () => {
             if (!missingAuthUsers.length) return;
             if (!confirm(`Create Firestore docs for ${missingAuthUsers.length} users?`)) return;
             
             const btn = document.getElementById('mass-sync-btn');
             btn.disabled = true;
-            btn.innerText = "Syncing...";
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Syncing...`;
             
             try {
                 let batch = writeBatch(db);
@@ -767,19 +772,17 @@
                 
                 alert("Sync Complete!");
                 btn.classList.add('hidden');
-                refreshAuthData(); // Refresh both tabs
+                refreshAuthData(); 
             } catch (e) {
                 console.error(e);
                 alert("Sync failed: " + e.message);
                 btn.disabled = false;
-                btn.innerText = "Retry Sync";
+                btn.innerHTML = `<i class="fa-solid fa-rotate-right mr-2"></i> Retry Sync`;
             }
         });
 
-        // --- Traffic & Charts Logic (No changes, just structure) ---
         const loadTrafficData = async () => {
             try {
-                // Fetch all recent sessions (limit to 200 for perf)
                 const q = query(collection(db, 'analytics'), orderBy('lastActive', 'desc'), limit(200));
                 const snap = await getDocs(q);
                 allSessions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -789,7 +792,6 @@
                     return;
                 }
 
-                // --- Calculate Stats ---
                 const totalSessions = allSessions.length; 
                 let totalDuration = 0;
                 let totalPageViews = 0;
@@ -827,13 +829,11 @@
 
                 const avgDuration = totalSessions > 0 ? (totalDuration / totalSessions).toFixed(1) : 0;
 
-                // --- Render Top Stats ---
                 document.getElementById('stat-total-sessions').textContent = totalSessions + (allSessions.length === 200 ? '+' : '');
                 document.getElementById('stat-avg-duration').textContent = formatDuration(avgDuration);
                 document.getElementById('stat-total-views').textContent = totalPageViews;
                 document.getElementById('stat-active-24h').textContent = active24h;
 
-                // --- Render Top Pages ---
                 const sortedPages = Object.values(pageCounts).sort((a, b) => b.count - a.count).slice(0, 10);
                 const pagesBody = document.getElementById('top-pages-body');
                 pagesBody.innerHTML = sortedPages.map(p => `
@@ -844,7 +844,6 @@
                     </tr>
                 `).join('');
 
-                // --- Render Recent Sessions ---
                 const sessionsBody = document.getElementById('recent-sessions-body');
                 sessionsBody.innerHTML = allSessions.slice(0, 15).map(s => {
                     let displayName = 'Guest';
@@ -889,7 +888,6 @@
             }
         };
 
-        // --- Helpers ---
         const parseUserAgent = (ua) => {
             let browser = 'Unknown';
             let os = 'Unknown';
@@ -1167,7 +1165,6 @@
             document.getElementById('user-modal').classList.remove('open');
         });
 
-        // Filter Function
         const getFilteredUsers = () => {
             const searchTerm = document.getElementById('user-search').value.toLowerCase();
             const sortVal = document.getElementById('user-sort').value;
@@ -1211,36 +1208,72 @@
             let startDate;
             let unit;
 
+            // Sort users by date first for 'all' logic
+            const sortedUsers = [...users].sort((a, b) => {
+                const dA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date();
+                const dB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date();
+                return dA - dB;
+            });
+
             if (period === 'week') {
                 startDate = moment().subtract(7, 'days');
                 unit = 'day';
             } else if (period === 'month') {
                 startDate = moment().subtract(1, 'month');
                 unit = 'day';
-            } else {
+            } else if (period === 'year') {
                 startDate = moment().subtract(1, 'year');
                 unit = 'month';
+            } else if (period === 'all') {
+                if (sortedUsers.length > 0 && sortedUsers[0].createdAt) {
+                    const firstDate = sortedUsers[0].createdAt.toDate ? sortedUsers[0].createdAt.toDate() : new Date(sortedUsers[0].createdAt);
+                    startDate = moment(firstDate).startOf('day');
+                } else {
+                    startDate = moment().subtract(1, 'month');
+                }
+
+                // Determine unit based on timespan
+                const diffMonths = moment().diff(startDate, 'months');
+                if (diffMonths > 24) unit = 'year';
+                else if (diffMonths > 2) unit = 'month';
+                else unit = 'day';
             }
 
             const groups = {};
-            if (period === 'year') {
-                for (let i = 0; i <= 12; i++) {
-                    const d = moment().subtract(i, 'months').format('YYYY-MM');
-                    groups[d] = 0;
+            // Generate labels based on unit
+            if (unit === 'year') {
+                // Group by Year
+                const startYear = startDate.year();
+                const endYear = now.year();
+                for (let y = startYear; y <= endYear; y++) {
+                    groups[y.toString()] = 0;
+                }
+            } else if (unit === 'month') {
+                // Group by Month (YYYY-MM)
+                let current = startDate.clone().startOf('month');
+                while (current.isBefore(now) || current.isSame(now, 'month')) {
+                    groups[current.format('YYYY-MM')] = 0;
+                    current.add(1, 'month');
                 }
             } else {
-                const days = period === 'week' ? 7 : 30;
-                for (let i = 0; i <= days; i++) {
-                    const d = moment().subtract(i, 'days').format('YYYY-MM-DD');
-                    groups[d] = 0;
+                // Group by Day (YYYY-MM-DD)
+                let current = startDate.clone().startOf('day');
+                while (current.isBefore(now) || current.isSame(now, 'day')) {
+                    groups[current.format('YYYY-MM-DD')] = 0;
+                    current.add(1, 'day');
                 }
             }
 
             users.forEach(u => {
                 if (!u.createdAt) return;
                 const d = u.createdAt.toDate ? moment(u.createdAt.toDate()) : moment(u.createdAt);
-                if (d.isAfter(startDate)) {
-                    const key = unit === 'month' ? d.format('YYYY-MM') : d.format('YYYY-MM-DD');
+                
+                if (d.isAfter(startDate) || d.isSame(startDate)) {
+                    let key;
+                    if (unit === 'year') key = d.format('YYYY');
+                    else if (unit === 'month') key = d.format('YYYY-MM');
+                    else key = d.format('YYYY-MM-DD');
+
                     if (groups[key] !== undefined) groups[key]++;
                 }
             });
@@ -1249,6 +1282,11 @@
             const data = labels.map(l => groups[l]);
 
             if (chartInstance) chartInstance.destroy();
+
+            // Format tooltip/axis based on unit
+            let tooltipFormat = 'MMM DD';
+            if (unit === 'month') tooltipFormat = 'MMM YYYY';
+            if (unit === 'year') tooltipFormat = 'YYYY';
 
             chartInstance = new Chart(ctx, {
                 type: 'line',
@@ -1279,7 +1317,7 @@
                             type: 'time',
                             time: {
                                 unit: unit,
-                                tooltipFormat: unit === 'month' ? 'MMM YYYY' : 'MMM DD'
+                                tooltipFormat: tooltipFormat
                             },
                             grid: { color: '#1a1a1a' },
                             ticks: { color: '#707070' }

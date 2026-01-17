@@ -221,6 +221,116 @@
             opacity: 1;
         }
 
+        /* --- Custom Time Picker --- */
+        #time-picker-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        #time-picker-modal.visible {
+            opacity: 1;
+            display: flex;
+        }
+        
+        .tp-container {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            width: 320px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: scale(0.95);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #time-picker-modal.visible .tp-container {
+            transform: scale(1);
+        }
+
+        .tp-columns {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            height: 200px;
+            position: relative;
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        }
+
+        .tp-col {
+            width: 60px;
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            padding: 80px 0; /* Pad top/bottom to center first/last item */
+            text-align: center;
+            scroll-snap-type: y mandatory;
+        }
+        .tp-col::-webkit-scrollbar { display: none; }
+
+        .tp-item {
+            height: 40px;
+            line-height: 40px;
+            font-size: 1.2rem;
+            color: #666;
+            scroll-snap-align: center;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .tp-item.active {
+            color: #fff;
+            font-weight: 600;
+            transform: scale(1.1);
+        }
+
+        /* Highlight bar */
+        .tp-highlight {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 40px;
+            margin-top: -20px;
+            background: rgba(79, 70, 229, 0.1);
+            border-top: 1px solid rgba(79, 70, 229, 0.3);
+            border-bottom: 1px solid rgba(79, 70, 229, 0.3);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .tp-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .tp-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tp-btn-cancel {
+            background: #111;
+            color: #999;
+            border: 1px solid #333;
+        }
+        .tp-btn-cancel:hover { background: #222; color: #fff; }
+        
+        .tp-btn-save {
+            background: var(--accent-color);
+            color: #fff;
+            border: 1px solid var(--accent-color);
+        }
+        .tp-btn-save:hover { background: #4338ca; }
+
     </style>
 </head>
 <body>
@@ -247,6 +357,26 @@
         </button>
     </div>
 
+    <!-- Custom Time Picker Modal -->
+    <div id="time-picker-modal">
+        <div class="tp-container">
+            <h3 class="text-white text-center mb-4 text-lg font-medium">Select Time</h3>
+            <div class="tp-columns">
+                <div class="tp-highlight"></div>
+                <div class="tp-col" id="tp-hour"></div>
+                <div class="tp-col" id="tp-minute"></div>
+                <div class="tp-col" id="tp-ampm">
+                    <div class="tp-item" data-val="AM">AM</div>
+                    <div class="tp-item" data-val="PM">PM</div>
+                </div>
+            </div>
+            <div class="tp-actions">
+                <button class="tp-btn tp-btn-cancel" onclick="closeTimePicker()">Cancel</button>
+                <button class="tp-btn tp-btn-save" onclick="saveTimePicker()">Set Time</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Inject Navigation -->
     <script src="../navigation.js"></script>
     <script src="../injector.js"></script>
@@ -260,6 +390,200 @@
 
         let periods = [];
         const MAX_PERIODS = 18;
+
+        // --- Time Picker State ---
+        let tpActivePeriodId = null;
+        let tpActiveField = null; // 'start' or 'end'
+        
+        // Init Time Picker Columns
+        const tpHour = document.getElementById('tp-hour');
+        const tpMinute = document.getElementById('tp-minute');
+        const tpAmpm = document.getElementById('tp-ampm');
+        
+        // Populate Hours (1-12)
+        for (let i = 1; i <= 12; i++) {
+            const div = document.createElement('div');
+            div.className = 'tp-item';
+            div.textContent = i.toString(); // No padding for 1-9 usually, or use padStart(2,'0')
+            div.dataset.val = i;
+            tpHour.appendChild(div);
+        }
+        // Populate Minutes (00-59)
+        for (let i = 0; i < 60; i++) {
+            const div = document.createElement('div');
+            div.className = 'tp-item';
+            div.textContent = i.toString().padStart(2, '0');
+            div.dataset.val = i;
+            tpMinute.appendChild(div);
+        }
+
+        // --- Helper: Format 24h to 12h string ---
+        function format24to12(time24) {
+            if (!time24) return "--:--";
+            const [h, m] = time24.split(':').map(Number);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+        }
+
+        // --- Helper: Convert 12h parts to 24h string ---
+        function format12to24(h, m, ampm) {
+            let hour = parseInt(h);
+            if (ampm === 'PM' && hour < 12) hour += 12;
+            if (ampm === 'AM' && hour === 12) hour = 0;
+            return `${hour.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        }
+
+        function createPeriodElement(period, index) {
+            const div = document.createElement('div');
+            div.className = 'period-card';
+            div.draggable = true;
+            div.dataset.id = period.id;
+            
+            // Format time for display
+            const startDisplay = format24to12(period.start);
+            const endDisplay = format24to12(period.end);
+
+            div.innerHTML = `
+                <div class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
+                <div class="input-group">
+                    <input type="text" class="input-field font-semibold text-lg" value="${period.title}" placeholder="Period Name" onchange="updatePeriod('${period.id}', 'title', this.value)">
+                    <div class="time-inputs">
+                        <div class="relative w-full cursor-pointer" onclick="openTimePicker('${period.id}', 'start')">
+                            <i class="fa-solid fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none"></i>
+                            <input type="text" readonly class="input-field pl-9 cursor-pointer text-center" value="${startDisplay}">
+                        </div>
+                        <span class="text-gray-500 font-light">to</span>
+                        <div class="relative w-full cursor-pointer" onclick="openTimePicker('${period.id}', 'end')">
+                            <i class="fa-solid fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none"></i>
+                            <input type="text" readonly class="input-field pl-9 cursor-pointer text-center" value="${endDisplay}">
+                        </div>
+                    </div>
+                </div>
+                <button class="delete-btn" onclick="deletePeriod('${period.id}')">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+
+            addDragEvents(div);
+            return div;
+        }
+
+        // --- Picker Logic ---
+        
+        function setupScrollListener(col) {
+            col.addEventListener('scroll', () => {
+                clearTimeout(col.scrollTimeout);
+                col.scrollTimeout = setTimeout(() => {
+                    snapToNearest(col);
+                }, 100);
+            });
+            // Click to select
+            col.querySelectorAll('.tp-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation(); // prevent closing
+                    scrollToItem(col, item);
+                });
+            });
+        }
+
+        function snapToNearest(col) {
+            const itemHeight = 40;
+            const scrollTop = col.scrollTop;
+            const index = Math.round(scrollTop / itemHeight);
+            const targetTop = index * itemHeight;
+            
+            col.scrollTo({ top: targetTop, behavior: 'smooth' });
+            
+            // Update Active Class
+            updateActiveItem(col, index);
+        }
+
+        function scrollToItem(col, item) {
+            const itemHeight = 40;
+            const index = Array.from(col.children).indexOf(item);
+            col.scrollTo({ top: index * itemHeight, behavior: 'smooth' });
+            updateActiveItem(col, index);
+        }
+
+        function updateActiveItem(col, index) {
+            Array.from(col.children).forEach((child, i) => {
+                if (i === index) child.classList.add('active');
+                else child.classList.remove('active');
+            });
+        }
+
+        // Init listeners
+        setupScrollListener(tpHour);
+        setupScrollListener(tpMinute);
+        setupScrollListener(tpAmpm);
+
+        window.openTimePicker = (id, field) => {
+            tpActivePeriodId = id;
+            tpActiveField = field;
+            
+            const period = periods.find(p => p.id === id);
+            if (!period) return;
+            
+            const val = period[field] || "08:00";
+            const [h24, m] = val.split(':').map(Number);
+            
+            let h12 = h24 % 12 || 12;
+            let ampm = h24 >= 12 ? 'PM' : 'AM';
+            
+            const modal = document.getElementById('time-picker-modal');
+            modal.style.display = 'flex'; // Force display first for calculations
+            // trigger reflow
+            modal.offsetHeight;
+            modal.classList.add('visible');
+
+            // Scroll to positions (need slight delay for visible check/rendering)
+            setTimeout(() => {
+                // Hour (index is val-1 because 1-based text)
+                const hourItem = Array.from(tpHour.children).find(el => el.dataset.val == h12);
+                if (hourItem) scrollToItem(tpHour, hourItem);
+
+                // Minute
+                const minItem = Array.from(tpMinute.children).find(el => el.dataset.val == m);
+                if (minItem) scrollToItem(tpMinute, minItem);
+
+                // AM/PM
+                const ampmItem = Array.from(tpAmpm.children).find(el => el.dataset.val == ampm);
+                if (ampmItem) scrollToItem(tpAmpm, ampmItem);
+            }, 50);
+        };
+
+        window.closeTimePicker = () => {
+            const modal = document.getElementById('time-picker-modal');
+            modal.classList.remove('visible');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                tpActivePeriodId = null;
+                tpActiveField = null;
+            }, 200);
+        };
+
+        window.saveTimePicker = () => {
+            if (!tpActivePeriodId || !tpActiveField) return;
+
+            // Get selected values
+            const getActiveVal = (col) => {
+                const active = col.querySelector('.active');
+                return active ? active.dataset.val : null;
+            };
+
+            const h = getActiveVal(tpHour);
+            const m = getActiveVal(tpMinute);
+            const ampm = getActiveVal(tpAmpm);
+            
+            if (h && m && ampm) {
+                const time24 = format12to24(h, m, ampm);
+                updatePeriod(tpActivePeriodId, tpActiveField, time24);
+                renderPeriods(); // Re-render to show new formatted string
+            }
+            closeTimePicker();
+        };
+
 
         // Load data
         function loadData() {
@@ -294,43 +618,15 @@
         }
 
         function renderPeriods() {
+            // Must preserve scroll position? For now full re-render is fine.
+            const scrollPos = periodsList.scrollTop;
             periodsList.innerHTML = '';
             periods.forEach((period, index) => {
                 const el = createPeriodElement(period, index);
                 periodsList.appendChild(el);
             });
+            periodsList.scrollTop = scrollPos;
             updateAddButtonState();
-        }
-
-        function createPeriodElement(period, index) {
-            const div = document.createElement('div');
-            div.className = 'period-card';
-            div.draggable = true;
-            div.dataset.id = period.id;
-            
-            div.innerHTML = `
-                <div class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
-                <div class="input-group">
-                    <input type="text" class="input-field font-semibold text-lg" value="${period.title}" placeholder="Period Name" onchange="updatePeriod('${period.id}', 'title', this.value)">
-                    <div class="time-inputs">
-                        <div class="relative w-full">
-                            <i class="fa-solid fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none"></i>
-                            <input type="time" class="input-field pl-9" value="${period.start}" onchange="updatePeriod('${period.id}', 'start', this.value)">
-                        </div>
-                        <span class="text-gray-500 font-light">to</span>
-                        <div class="relative w-full">
-                            <i class="fa-solid fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none"></i>
-                            <input type="time" class="input-field pl-9" value="${period.end}" onchange="updatePeriod('${period.id}', 'end', this.value)">
-                        </div>
-                    </div>
-                </div>
-                <button class="delete-btn" onclick="deletePeriod('${period.id}')">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            `;
-
-            addDragEvents(div);
-            return div;
         }
 
         function addPeriod() {
@@ -417,7 +713,11 @@
         const MAX_SCROLL_SPEED = 12;
 
         function addDragEvents(item) {
-            item.addEventListener('dragstart', () => {
+            item.addEventListener('dragstart', (e) => {
+                if (e.target.closest('.input-group')) {
+                    e.preventDefault(); // Don't drag if clicking inputs
+                    return;
+                }
                 draggedItem = item;
                 setTimeout(() => item.classList.add('dragging'), 0);
                 startScrollLoop();

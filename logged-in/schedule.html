@@ -313,9 +313,15 @@
                 <div class="input-group">
                     <input type="text" class="input-field font-semibold text-lg" value="${period.title}" placeholder="Period Name" onchange="updatePeriod('${period.id}', 'title', this.value)">
                     <div class="time-inputs">
-                        <input type="time" class="input-field" value="${period.start}" onchange="updatePeriod('${period.id}', 'start', this.value)">
+                        <div class="relative w-full">
+                            <i class="fa-solid fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none"></i>
+                            <input type="time" class="input-field pl-9" value="${period.start}" onchange="updatePeriod('${period.id}', 'start', this.value)">
+                        </div>
                         <span class="text-gray-500 font-light">to</span>
-                        <input type="time" class="input-field" value="${period.end}" onchange="updatePeriod('${period.id}', 'end', this.value)">
+                        <div class="relative w-full">
+                            <i class="fa-solid fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none"></i>
+                            <input type="time" class="input-field pl-9" value="${period.end}" onchange="updatePeriod('${period.id}', 'end', this.value)">
+                        </div>
                     </div>
                 </div>
                 <button class="delete-btn" onclick="deletePeriod('${period.id}')">

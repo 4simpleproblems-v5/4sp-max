@@ -42,12 +42,17 @@
             align-items: baseline;
             gap: 0.75rem;
             white-space: nowrap;
+            flex: 1;
+            min-width: 0; /* Critical for text truncation in flex items */
         }
 
         .sn-next {
             font-style: italic;
             color: #9ca3af;
             font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .sn-countdown {

@@ -396,8 +396,6 @@
         </main>
 
     <div id="bottom-fixed-bar" class="flex-col">
-        <div id="searchResults" class="search-results-container w-full" style="display: none;"></div>
-        <div id="searchDivider" class="w-full h-[1px] bg-white/10" style="display: none;"></div>
         
         <div class="flex items-center w-full p-1">
             <div class="pl-3 pr-2 text-gray-500"><i class="fa-solid fa-magnifying-glass"></i></div>
@@ -498,62 +496,19 @@
 
         const handleSearch = debounce(() => {
             const query = soundSearchInput.value.toLowerCase().trim();
-            const resultsContainer = document.getElementById('searchResults');
-            const divider = document.getElementById('searchDivider');
             
-            if (!query) {
-                resultsContainer.style.display = 'none';
-                divider.style.display = 'none';
-                return;
-            }
-
-            // Find all sounds
-            const allSounds = [];
             document.querySelectorAll('.sound-btn').forEach(btn => {
-                allSounds.push({
-                    name: btn.textContent,
-                    btn: btn
-                });
+                const soundName = btn.textContent.toLowerCase();
+                if (!query || soundName.includes(query)) {
+                    btn.style.display = '';
+                } else {
+                    btn.style.display = 'none';
+                }
             });
-
-            const filtered = allSounds.filter(s => s.name.toLowerCase().includes(query)).slice(0, 10);
-
-            resultsContainer.innerHTML = '';
-            if (filtered.length === 0) {
-                resultsContainer.innerHTML = '<div class="p-4 text-gray-500 text-center text-sm italic">No sounds found</div>';
-            } else {
-                filtered.forEach(sound => {
-                    const item = document.createElement('div');
-                    item.className = 'search-item';
-                    item.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-volume-high text-accent-indigo text-xs"></i>
-                            <span class="text-sm">${sound.name}</span>
-                        </div>
-                    `;
-                    item.onclick = () => {
-                        sound.btn.click();
-                        resultsContainer.style.display = 'none';
-                        divider.style.display = 'none';
-                    };
-                    resultsContainer.appendChild(item);
-                });
-            }
-
-            resultsContainer.style.display = 'block';
-            divider.style.display = 'block';
         }, 200);
 
         soundSearchInput.addEventListener('input', handleSearch);
         soundSearchInput.addEventListener('focus', handleSearch);
-
-        document.addEventListener('click', (e) => {
-            const bar = document.getElementById('bottom-fixed-bar');
-            if (!bar.contains(e.target)) {
-                document.getElementById('searchResults').style.display = 'none';
-                document.getElementById('searchDivider').style.display = 'none';
-            }
-        });
 
         const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
         const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');

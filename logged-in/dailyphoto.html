@@ -464,6 +464,7 @@
         
         let CURRENT_FRIENDS = [];
         let CURRENT_USERNAME = 'User'; 
+        let CURRENT_USER_TAG = null;
         let UNSUBSCRIBE_POSTS = () => {};
         let UNSUBSCRIBE_MODAL = () => {}; 
         let BLOCKED_USERS = []; 
@@ -806,10 +807,16 @@ async function cleanText(text) {
             UNSUBSCRIBE_MODAL(); 
             document.removeEventListener('click', closeMenuHandler); // Clean up any lingering emoji menu handler
             
-            UNSUBSCRIBE_MODAL = onSnapshot(doc(DAILY_COLLECTION, photoId), (snap) => {
+            UNSUBSCRIBE_MODAL = onSnapshot(doc(DAILY_COLLECTION, photoId), async (snap) => {
                 if (!snap.exists()) { modal.classList.add('hidden'); return; }
                 const data = snap.data();
                 if (data.status === 'hidden') { modal.classList.add('hidden'); return; }
+
+                let creatorTag = null;
+                try {
+                    const cSnap = await getDoc(doc(db, USERS_COLLECTION, data.creatorUid));
+                    if (cSnap.exists()) creatorTag = cSnap.data().userTag;
+                } catch(e) { console.error("Error fetching tag", e); }
 
                 const currentUser = auth.currentUser;
                 const hearts = data.hearts || [];
@@ -828,7 +835,10 @@ async function cleanText(text) {
                         <div class="modal-header mt-6">
                             <div class="modal-title-box">
                                 <h2 class="text-xl text-white font-normal truncate" title="${data.title}">${data.title || 'Untitled'}</h2>
-                                <p class="text-sm text-indigo-400 font-bold">${data.creatorUsername}</p>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="text-sm text-indigo-400 font-bold">${data.creatorUsername}</p>
+                                    ${creatorTag ? `<span style="color: ${creatorTag.color}; font-style: italic; font-size: 0.75rem;">${creatorTag.text}</span>` : ''}
+                                </div>
                             </div>
                             <div class="modal-actions-box">
                                 <button id="heart-btn" class="text-2xl transition-colors ${isHearted ? 'text-red-500' : 'text-gray-600 hover:text-red-500'}" title="${isHearted ? 'Unlike' : 'Like'}">
@@ -853,6 +863,7 @@ async function cleanText(text) {
                             ${comments.map(c => `
                                 <div class="mb-2 text-sm break-words">
                                     <span class="text-indigo-300 font-bold">${c.username}</span>
+                                    ${c.userTag ? `<span style="color: ${c.userTag.color}; font-style: italic; font-size: 0.75rem; margin-left: 4px; margin-right: 4px;">${c.userTag.text}</span>` : ''}
                                     <span class="text-gray-400">: ${c.text}</span>
                                 </div>
                             `).join('') || '<p class="text-gray-600 text-sm italic">No comments yet.</p>'}
@@ -911,6 +922,7 @@ async function cleanText(text) {
                         comments: arrayUnion({
                             uid: currentUser.uid,
                             username: CURRENT_USERNAME,
+                            userTag: CURRENT_USER_TAG,
                             text: await cleanText(text),
                             timestamp: new Date()
                         })
@@ -1377,6 +1389,7 @@ async function cleanText(text) {
             onSnapshot(userRef, async (snap) => {
                 const d = snap.data() || {};
                 CURRENT_USERNAME = d.username || 'User';
+                CURRENT_USER_TAG = d.userTag || null;
                 const friends = d.friends || [];
                 const pending = d.pending_requests || [];
                 BLOCKED_USERS = d.blocked_users || [];

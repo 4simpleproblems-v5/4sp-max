@@ -306,6 +306,11 @@ let db;
             await loadScript("/schedule_notifications.js");
         } catch(e) { console.warn("Schedule notifications script not loaded", e); }
         
+        // Load Admin Keybinds
+        try {
+            await loadScript("/admin_keybinds.js");
+        } catch(e) { console.warn("Admin keybinds script not loaded", e); }
+
         try {
             const response = await fetch(PAGE_CONFIG_URL);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -912,6 +917,10 @@ let db;
                     ? `<button id="show-pin-button" class="auth-menu-link"><i class="fa-solid fa-map-pin w-4"></i>Show Pin Button</button>` 
                     : '';
                 
+                const userTagHtml = (userData?.userTag) 
+                    ? `<div class="text-xs font-italic" style="color: ${userData.userTag.color}; font-style: italic; margin-top: 2px;">${userData.userTag.text}</div>`
+                    : '';
+
                 return `
                     <div id="auth-button-container" class="relative flex-shrink-0 flex items-center">
                         <button id="auth-toggle" class="w-10 h-10 border border-gray-600 overflow-hidden" style="border-radius: 14px;">
@@ -926,6 +935,7 @@ let db;
                                     <div class="marquee-container" id="email-marquee">
                                         <p class="text-xs text-gray-400 auth-menu-email marquee-content">${email}</p>
                                     </div>
+                                    ${userTagHtml}
                                 </div>
                             </div>
                             <a href="/logged-in/settings.html" class="auth-menu-link">

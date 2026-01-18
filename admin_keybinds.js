@@ -1,4 +1,3 @@
-
 (async function() {
     console.log("[Admin Keybinds] Script Loaded");
 
@@ -38,15 +37,12 @@
     const db = getFirestore(app);
 
     // State
-    let explicitEnabled = true;
-    let lastEnablePressTime = 0;
     let isAdmin = false;
     let adminUnsubscribe = null;
-    let configUnsubscribe = null;
     
     const OWNER_EMAIL = "4simpleproblems@gmail.com";
 
-    // Visual Feedback Helper (Updated to match site style)
+    // Visual Feedback Helper
     function showAdminToast(message, type = "neutral") {
         const existing = document.getElementById("admin-keybind-toast");
         if (existing) existing.remove();
@@ -54,7 +50,7 @@
         const toast = document.createElement("div");
         toast.id = "admin-keybind-toast";
 
-        // Styles resembling notes.html/settings.html elements
+        // Styles
         Object.assign(toast.style, {
             position: "fixed",
             bottom: "24px",
@@ -78,7 +74,7 @@
             transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
         });
 
-        // Type-specific accents (using FontAwesome icons if available)
+        // Type-specific accents
         let iconHtml = '';
         if (type === "success" || type === "green") {
             toast.style.borderColor = "rgba(34, 197, 94, 0.5)"; // Green hint
@@ -113,73 +109,57 @@
             adminUnsubscribe();
             adminUnsubscribe = null;
         }
-        if (configUnsubscribe) {
-            configUnsubscribe();
-            configUnsubscribe = null;
-        }
         isAdmin = false;
     }
 
-    function subscribeToConfig() {
-        if (configUnsubscribe) return;
-        console.log("[Admin Keybinds] Subscribing to config...");
+    // Toggle Config Function
+    async function toggleConfig(field, name) {
+        if (!isAdmin) {
+             console.warn("[Admin Keybinds] Access denied. Not an admin.");
+             return;
+        }
         
+        console.log(`[Admin Keybinds] Toggling ${name}...`);
         const configRef = doc(db, 'config', 'soundboard');
         
-        configUnsubscribe = onSnapshot(configRef, async (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.explicitEnabled !== undefined) {
-                    explicitEnabled = data.explicitEnabled;
-                    console.log(`[Admin Keybinds] Explicit Enabled: ${explicitEnabled}`);
+        try {
+            const snap = await getDoc(configRef);
+            let currentVal = true; // Default to true if not set
+            if (snap.exists()) {
+                const data = snap.data();
+                if (data[field] !== undefined) {
+                    currentVal = data[field];
                 }
-            } else {
-                console.log("[Admin Keybinds] Config doc missing. Defaulting to TRUE.");
-                explicitEnabled = true;
             }
-        }, (error) => console.error("Config Listen Error:", error));
+            
+            const newVal = !currentVal;
+            await setDoc(configRef, { [field]: newVal }, { merge: true });
+            
+            const statusColor = newVal ? "green" : "red";
+            const statusText = newVal ? "ENABLED" : "DISABLED";
+            showAdminToast(`${name}: ${statusText}`, statusColor);
+            
+        } catch (err) {
+            console.error(`[Admin Keybinds] Error toggling ${name}:`, err);
+            showAdminToast(`Error: ${err.message}`, "error");
+        }
     }
 
     // Keybind Listener
     document.addEventListener('keydown', async (e) => {
-        if (e.ctrlKey && e.altKey && (e.key.toLowerCase() === 'e' || e.code === 'KeyE')) {
+        // Only run if admin and Shift key is pressed
+        if (!isAdmin || !e.shiftKey) return;
+
+        // Shift + E: Explicit Sounds
+        if (e.key.toLowerCase() === 'e') {
+            e.preventDefault(); // Prevent default browser behavior if any
+            toggleConfig('explicitEnabled', 'Explicit Sounds');
+        }
+
+        // Shift + F: Third Party Sounds
+        if (e.key.toLowerCase() === 'f') {
             e.preventDefault();
-            
-            if (!isAdmin) {
-                console.warn("[Admin Keybinds] Access denied. Not an admin.");
-                return;
-            }
-
-            console.log("[Admin Keybinds] Ctrl+Alt+E detected.");
-
-            if (explicitEnabled) {
-                console.log("[Admin Keybinds] Disabling explicit sounds...");
-                try {
-                    await setDoc(doc(db, 'config', 'soundboard'), { explicitEnabled: false }, { merge: true });
-                    showAdminToast("Explicit Sounds: DISABLED", "red");
-                    lastEnablePressTime = 0;
-                } catch (err) {
-                    console.error("[Admin Keybinds] Failed to disable:", err);
-                    showAdminToast("Error: Check Console", "red");
-                }
-            } else {
-                const now = Date.now();
-                if (now - lastEnablePressTime < 1500) { 
-                    console.log("[Admin Keybinds] Enabling explicit sounds...");
-                    try {
-                        await setDoc(doc(db, 'config', 'soundboard'), { explicitEnabled: true }, { merge: true });
-                        showAdminToast("Explicit Sounds: ENABLED", "green");
-                        lastEnablePressTime = 0;
-                    } catch (err) {
-                        console.error("[Admin Keybinds] Failed to enable:", err);
-                        showAdminToast("Error: Check Console", "red");
-                    }
-                } else {
-                    console.log("[Admin Keybinds] Waiting for confirm...");
-                    showAdminToast("Press Ctrl+Alt+E again to ENABLE", "blue");
-                    lastEnablePressTime = now;
-                }
-            }
+            toggleConfig('thirdPartyEnabled', 'Third Party Sounds');
         }
     });
 
@@ -189,7 +169,6 @@
             if (user.email && user.email.toLowerCase() === OWNER_EMAIL) {
                 console.log(`[Admin Keybinds] Owner recognized: ${OWNER_EMAIL}`);
                 isAdmin = true;
-                subscribeToConfig();
                 return;
             }
 
@@ -200,20 +179,13 @@
                     const data = docSnap.data();
                     const role = (data.role || '').toLowerCase();
                     
-                    console.log(`[Admin Keybinds] Role update for ${user.uid}: ${role}`);
-
                     if (role === 'admin' || role === 'superadmin') {
-                        if (!isAdmin) {
-                            console.log("[Admin Keybinds] Admin privileges active.");
-                        }
+                        if (!isAdmin) console.log("[Admin Keybinds] Admin privileges active.");
                         isAdmin = true;
-                        subscribeToConfig();
                     } else {
-                        console.log("[Admin Keybinds] Role is not admin/superadmin.");
                         isAdmin = false;
                     }
                 } else {
-                    console.log("[Admin Keybinds] Admin doc does not exist.");
                     isAdmin = false;
                 }
             }, (error) => {
@@ -221,7 +193,6 @@
                 isAdmin = false;
             });
         } else {
-            console.log("[Admin Keybinds] No user logged in.");
             cleanupListeners();
         }
     });

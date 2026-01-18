@@ -613,40 +613,10 @@
              }
         });
         
-        // --- Admin Keybinds ---
-        async function toggleConfig(field, name) {
-            if (!isAdmin) return;
-            const configRef = doc(db, 'config', 'soundboard');
-            try {
-                const snap = await getDoc(configRef);
-                let currentVal = true;
-                if (snap.exists()) {
-                    currentVal = snap.data()[field] !== false;
-                }
-                await setDoc(configRef, { [field]: !currentVal }, { merge: true });
-                showStatus(`${name} ${!currentVal ? 'Enabled' : 'Disabled'}`, 'success');
-            } catch (err) {
-                console.error(err);
-                showStatus(`Error toggling ${name}`, 'error');
-            }
-        }
-
         document.addEventListener('keydown', (e) => {
             // Stop All Sounds: SHIFT + C
             if (e.shiftKey && e.key.toLowerCase() === 'c') {
                 stopAllAudios(true);
-            }
-            
-            // Admin Toggles
-            if (isAdmin && e.shiftKey) {
-                if (e.key.toLowerCase() === 'e') {
-                    e.preventDefault();
-                    toggleConfig('explicitEnabled', 'Explicit Sounds');
-                }
-                if (e.key.toLowerCase() === 'f') {
-                    e.preventDefault();
-                    toggleConfig('thirdPartyEnabled', 'Third Party Sounds');
-                }
             }
         });
 

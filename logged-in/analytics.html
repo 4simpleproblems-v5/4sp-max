@@ -94,6 +94,9 @@
         .btn-delete { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
         .btn-delete:hover { background-color: rgba(239, 68, 68, 0.2); }
 
+        .btn-tag { background-color: rgba(168, 85, 247, 0.1); color: #a855f7; border-color: rgba(168, 85, 247, 0.2); }
+        .btn-tag:hover { background-color: rgba(168, 85, 247, 0.2); }
+
         /* --- Custom Nav Tab Style (Mirrors navigation.js) --- */
         .nav-tab-style {
             padding: 0.5rem 1rem;
@@ -475,6 +478,51 @@
         </div>
     </div>
 
+    <div id="tag-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-start mb-6 border-b border-[#333] pb-4">
+                <h3 class="text-xl text-white font-light">Set User Tag</h3>
+                <button id="close-tag-modal" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark fa-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-gray-300 text-sm bg-[#111] p-3 rounded border border-[#333]" id="tag-user-target">Target: ...</p>
+                
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-widest mb-2">Tag Text</label>
+                    <input type="text" id="tag-text" class="w-full bg-[#111] text-white border border-[#333] rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500" placeholder="e.g. The Legend">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-widest mb-2">Tag Color</label>
+                    <div class="flex gap-2 mb-2">
+                        <input type="color" id="tag-color" class="h-10 w-14 bg-transparent border border-[#333] rounded cursor-pointer" value="#3b82f6">
+                        <input type="text" id="tag-color-hex" class="flex-1 bg-[#111] text-white border border-[#333] rounded-lg px-4 py-2 text-sm font-mono uppercase" value="#3b82f6">
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="w-6 h-6 rounded-full bg-red-500 cursor-pointer border border-transparent hover:border-white color-preset" data-color="#ef4444"></button>
+                        <button class="w-6 h-6 rounded-full bg-orange-500 cursor-pointer border border-transparent hover:border-white color-preset" data-color="#f97316"></button>
+                        <button class="w-6 h-6 rounded-full bg-yellow-500 cursor-pointer border border-transparent hover:border-white color-preset" data-color="#eab308"></button>
+                        <button class="w-6 h-6 rounded-full bg-green-500 cursor-pointer border border-transparent hover:border-white color-preset" data-color="#22c55e"></button>
+                        <button class="w-6 h-6 rounded-full bg-blue-500 cursor-pointer border border-transparent hover:border-white color-preset" data-color="#3b82f6"></button>
+                        <button class="w-6 h-6 rounded-full bg-purple-500 cursor-pointer border border-transparent hover:border-white color-preset" data-color="#a855f7"></button>
+                        <button class="w-6 h-6 rounded-full bg-pink-500 cursor-pointer border border-transparent hover:border-white color-preset" data-color="#ec4899"></button>
+                        <button class="w-6 h-6 rounded-full bg-white cursor-pointer border border-transparent hover:border-white color-preset" data-color="#ffffff"></button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between gap-3 mt-6 pt-4 border-t border-[#333]">
+                    <button id="remove-tag-btn" class="px-4 py-2 text-red-400 hover:text-red-300 text-sm hover:bg-red-900/20 rounded transition">Remove Tag</button>
+                    <div class="flex gap-3">
+                        <button id="cancel-tag" class="px-4 py-2 text-gray-400 hover:text-white text-sm">Cancel</button>
+                        <button id="save-tag" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition font-medium shadow-lg shadow-blue-900/20">
+                            Save Tag
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -493,7 +541,8 @@
             limit,
             onSnapshot,
             writeBatch,
-            serverTimestamp
+            serverTimestamp,
+            deleteField
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { firebaseConfig } from "../firebase-config.js";
 
@@ -514,6 +563,7 @@
         let browserChartInstance = null;
         let osChartInstance = null;
         let userToBan = null;
+        let userToTag = null;
         
         let unsubscribeUsers = null;
         let unsubscribeBans = null;
@@ -997,6 +1047,9 @@
                             <button class="action-btn ${isAdmin ? 'btn-remove-admin' : 'btn-admin'}" data-action="toggle-admin" data-uid="${user.id}" title="${isAdmin ? 'Remove Admin' : 'Make Admin'}">
                                 ${isAdmin ? '<i class="fa-solid fa-user-minus"></i>' : '<i class="fa-solid fa-user-shield"></i>'}
                             </button>
+                            <button class="action-btn btn-tag" data-action="set-tag" data-uid="${user.id}" data-username="${user.username || user.email}" title="Set Tag">
+                                <i class="fa-solid fa-tag"></i>
+                            </button>
                             <button class="action-btn text-gray-400 hover:text-white hover:bg-white/10" data-action="view-details" data-uid="${user.id}" title="View Details">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
@@ -1045,6 +1098,10 @@
                 }
             } else if (action === 'view-details') {
                 showUserDetails(uid);
+            } else if (action === 'set-tag') {
+                userToTag = { uid, username: btn.dataset.username };
+                const user = allUsers.find(u => u.id === uid);
+                openTagModal(user?.userTag);
             }
         };
 
@@ -1087,6 +1144,83 @@
                 closeBanModal();
             } catch (err) {
                 alert("Ban failed: " + err.message);
+            }
+        });
+
+        /* --- Tag Modal Logic --- */
+        const openTagModal = (existingTag) => {
+            document.getElementById('tag-user-target').textContent = `Target: ${userToTag.username}`;
+            const textInput = document.getElementById('tag-text');
+            const colorInput = document.getElementById('tag-color');
+            const hexInput = document.getElementById('tag-color-hex');
+            
+            if (existingTag) {
+                textInput.value = existingTag.text || '';
+                colorInput.value = existingTag.color || '#3b82f6';
+                hexInput.value = existingTag.color || '#3b82f6';
+            } else {
+                textInput.value = '';
+                colorInput.value = '#3b82f6';
+                hexInput.value = '#3b82f6';
+            }
+            
+            document.getElementById('tag-modal').classList.add('open');
+        };
+
+        const closeTagModal = () => {
+            document.getElementById('tag-modal').classList.remove('open');
+            userToTag = null;
+        };
+
+        document.getElementById('close-tag-modal').addEventListener('click', closeTagModal);
+        document.getElementById('cancel-tag').addEventListener('click', closeTagModal);
+
+        // Color Picker Sync
+        const colorInput = document.getElementById('tag-color');
+        const hexInput = document.getElementById('tag-color-hex');
+
+        colorInput.addEventListener('input', (e) => hexInput.value = e.target.value);
+        hexInput.addEventListener('input', (e) => colorInput.value = e.target.value);
+
+        document.querySelectorAll('.color-preset').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const color = btn.dataset.color;
+                colorInput.value = color;
+                hexInput.value = color;
+            });
+        });
+
+        document.getElementById('save-tag').addEventListener('click', async () => {
+            if (!userToTag) return;
+            const text = document.getElementById('tag-text').value.trim();
+            const color = hexInput.value;
+
+            if (!text) {
+                alert("Please enter tag text.");
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'users', userToTag.uid), {
+                    userTag: { text, color }
+                });
+                closeTagModal();
+            } catch (err) {
+                alert("Failed to save tag: " + err.message);
+            }
+        });
+
+        document.getElementById('remove-tag-btn').addEventListener('click', async () => {
+            if (!userToTag) return;
+            if (!confirm("Remove tag from this user?")) return;
+
+            try {
+                await updateDoc(doc(db, 'users', userToTag.uid), {
+                    userTag: deleteField()
+                });
+                closeTagModal();
+            } catch (err) {
+                alert("Failed to remove tag: " + err.message);
             }
         });
 

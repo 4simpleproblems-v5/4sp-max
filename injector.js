@@ -12,7 +12,6 @@
       '../url-changer.js',
       '../panic-key.js',
       '../navigation.js',
-      '../admin_keybinds.js',
       '../analytics.js'
     ];
 

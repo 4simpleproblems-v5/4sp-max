@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/injector.js"></script>
+    <script src="../navigation.js"></script>
+
+
 
     
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1D4F692C1Q"></script>
@@ -864,9 +866,10 @@
         // UPDATED: Use cdn.jsdelivr.net for GN-Math and handle content injection
         const GN_HTML_URL_BASE = "https://cdn.jsdelivr.net/npm/gn-math.github.io-main@latest/html-main";
         
-        const WORKER_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
-        const GAMES_BASE_URL = "https://dv-service-lfs.4simpleproblems.workers.dev/GAMES/";
-        const CARDS_DATA_URL = "../GAMES/cards-data.js";
+        const DV_SERVICE_LFS_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
+        const STRONGDOG_ROOT = "https://strongdog.com/";
+        const GAMES_BASE_URL = "https://strongdog.com/GAMES/";
+        const CARDS_DATA_URL = "./cards-data.js";
 
         const FAVORITES_KEY = 'gameHubFavorites_v3';
 
@@ -1097,19 +1100,21 @@
 
         // --- URL Helpers (Strongdog) ---
         // Modified to support injected URLs using WORKER_ROOT + directory logic
-        function getAdjustedUrls(imgSrc, page) {
-            if (page && page > 1) {
+        function getAdjustedUrls(game) {
+            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
+            if (game.page && game.page > 1) {
                 // ../strongdog2/img/... -> exists outside GAMES dir
-                return { adjustedImgSrc: `${WORKER_ROOT}strongdog${page}/img/${imgSrc}` };
+                return { adjustedImgSrc: `${root}strongdog${game.page}/img/${game.imgSrc}` };
             }
             // ./img -> assumed inside GAMES dir or wherever relative
-            return { adjustedImgSrc: `${GAMES_BASE_URL}img/${imgSrc}` }; 
+            return { adjustedImgSrc: `${root}GAMES/img/${game.imgSrc}` }; 
         }
         
-        function sd_getBaseURLForPage(page) {
+        function sd_getBaseURLForPage(game) {
+            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
             // Updated to point to WORKER_ROOT for numbered pages, GAMES_BASE_URL for default
-            if (page > 1) return `${WORKER_ROOT}strongdog${page}/`;
-            return `${WORKER_ROOT}GAMES/`; // Assumes default strongdog is at root/STRONGDOG? Or inside GAMES?
+            if (game.page > 1) return `${root}strongdog${game.page}/`;
+            return `${root}GAMES/`; // Assumes default strongdog is at root/STRONGDOG? Or inside GAMES?
             // Re-reading logic: "stuff like ../DOOM/ will stay in GAMES directory but strongdog# directories exit"
             // Let's assume default STRONGDOG is adjacent to strongdog2 etc. at root level based on prior naming conventions
         }
@@ -1306,7 +1311,7 @@
             if (game.id === 'other-balatro' && forceSmallCard) {
                 imgSrc = "../GAMES/others/balatro-3-2.png";
             } else if (isStrongdog) {
-                 imgSrc = getAdjustedUrls(game.imgSrc, game.page).adjustedImgSrc;
+                 imgSrc = getAdjustedUrls(game).adjustedImgSrc;
             } else if (game.category === 'Others' || game.category === 'Gameboy Games') {
                  imgSrc = resolveGameUrl(game.imgSrc);
             }
@@ -1332,7 +1337,7 @@
                 if (game.isDownload) {
                     window.open(game.url, '_blank');
                 } else if (isStrongdog) {
-                    const baseURL = sd_getBaseURLForPage(game.page);
+                    const baseURL = sd_getBaseURLForPage(game);
                     let adjustedHref = baseURL.endsWith("/") ? baseURL + game.href.replace(/^\.\//, "") : baseURL + "/" + game.href.replace(/^\.\//, "");
                     const embedPath = await sd_getEmbedPath(adjustedHref, game.href, game.page);
                     openZone({ name: game.name, url: embedPath, category: game.category, id: game.id });
@@ -1661,7 +1666,7 @@
                 let finalGameData = { ...game }; // clone
 
                 if (isStrongdog) {
-                    const { adjustedImgSrc } = getAdjustedUrls(game.imgSrc, game.page);
+                    const { adjustedImgSrc } = getAdjustedUrls(game);
                     imgSrc = adjustedImgSrc;
                 } else if (game.category === 'Others' || game.category === 'Gameboy Games') {
                     imgSrc = resolveGameUrl(game.imgSrc);
@@ -1709,7 +1714,7 @@
                 linkEl.addEventListener('click', async (e) => {
                     e.preventDefault();
                     if (isStrongdog) {
-                        const baseURL = sd_getBaseURLForPage(game.page);
+                        const baseURL = sd_getBaseURLForPage(game);
                         let adjustedHref = baseURL.endsWith("/") ? baseURL + game.href.replace(/^\.\//, "") : baseURL + "/" + game.href.replace(/^\.\//, "");
                         const embedPath = await sd_getEmbedPath(adjustedHref, game.href, game.page);
                         const strongdogGameData = { name: game.name, url: embedPath, category: game.category, id: game.id };
@@ -1729,49 +1734,12 @@
         // --- FETCHING DATA MANUALLY (NO MODULES) ---
         // This function fetches the JS file as text, transforms it to set a global variable, and evals it.
         // This bypasses module loading restrictions on file:// protocols.
-        async function fetchGameData() {
-            try {
-                // Fetch the file
-                const response = await fetch(CARDS_DATA_URL);
-                if (!response.ok) throw new Error('Failed to fetch game data');
-                let scriptText = await response.text();
-                
-                // Transform 'export default' to 'window.loadedGameData ='
-                // This assumes the file structure is simple "export default [...]"
-                if (scriptText.includes('export default')) {
-                    scriptText = scriptText.replace('export default', 'window.loadedGameData =');
-                }
-                
-                // Execute the script
-                // We use new Function instead of eval for slight isolation, though still unsafe for untrusted code
-                // (But we trust this source).
-                // However, new Function creates a local scope. We need global assignment.
-                // Standard eval or appending a script tag is better.
-                const scriptEl = document.createElement('script');
-                scriptEl.textContent = scriptText;
-                document.body.appendChild(scriptEl);
-                
-                // Wait a tick for execution
-                await new Promise(resolve => setTimeout(resolve, 0));
-                
-                if (window.loadedGameData) {
-                    return window.loadedGameData;
-                } else {
-                    console.warn("Script loaded but window.loadedGameData is undefined");
-                    return [];
-                }
-            } catch (e) {
-                console.error("Error manual loading games:", e);
-                return [];
-            }
-        }
-
-        // --- Init ---
         async function initializeApp() {
             // Load Game Data Manually
             let gamesData = [];
             try {
-                gamesData = await fetchGameData();
+                const module = await import(CARDS_DATA_URL);
+                gamesData = module.default;
             } catch (e) {
                 console.error("Could not load external games data", e);
             }

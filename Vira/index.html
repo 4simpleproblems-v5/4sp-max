@@ -34,7 +34,7 @@
         window.checkBare = async () => {
             try {
                 // Ensure BareMux is ready and set transport immediately
-                const connection = new BareMux.BareMuxConnection("/VORA/VERN_SYSTEM/baremux/worker.js", false);
+                const connection = new BareMux.BareMuxConnection("/VORA/VERN_SYSTEM/baremux/worker.js");
                 const wispUrl = "wss://wisp.lol/";
                 const transportPath = "/VORA/VERN_SYSTEM/libcurl/index.mjs";
                 

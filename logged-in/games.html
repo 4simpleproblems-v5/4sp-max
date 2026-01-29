@@ -13,6 +13,25 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../navigation.js"></script>
+    
+    <script src="/logged-in/uv/uv.bundle.js"></script>
+    <script src="/logged-in/uv/uv.config.js"></script>
+
+    <script>
+        // Register UV service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/logged-in/uv/sw.js', {
+                scope: '/logged-in/uv/service/'
+            })
+            .then(() => {
+                console.log('UV service worker registered.');
+            })
+            .catch(error => {
+                console.error('UV service worker registration failed:', error);
+            });
+        }
+    </script>
+
 
 
 
@@ -869,7 +888,8 @@
         const DV_SERVICE_LFS_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
         const STRONGDOG_ROOT = "https://strongdog.com/";
         const GAMES_BASE_URL = "https://strongdog.com/GAMES/";
-        const CARDS_DATA_URL = "./cards-data.js";
+        const CARDS_DATA_URL = "../GAMES/cards-data.js";
+        const WORKER_ROOT = window.location.origin + '/';
 
         const FAVORITES_KEY = 'gameHubFavorites_v3';
 

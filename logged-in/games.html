@@ -1201,20 +1201,23 @@
 
             // If it's a root-relative path, prepend the origin to make it a full absolute URL
             if (relativePath.startsWith('/')) {
+                // If it's something like /images/eaglercraft.png, use WORKER_ROOT as base.
+                // Otherwise, use window.location.origin as base for other root-relative paths.
+                if (relativePath.startsWith('/images/')) {
+                    return proxyUrl(`${WORKER_ROOT}${relativePath.substring(1)}`); // Remove leading '/' and use WORKER_ROOT
+                }
                 return proxyUrl(window.location.origin + relativePath);
             }
 
-            // Logic: 
-            // If path starts with ../ -> Go to WORKER_ROOT + path (stripping ../)
-            // If path starts with ../GAMES/ -> It will effectively be WORKER_ROOT/GAMES/ (which matches GAMES_BASE_URL)
-            // This allows us to access root folders like ../GTA-JSDOS/ while keeping ../GAMES/sm64 intact.
-            
-            if (relativePath === '../GAMES/others/balatro.png' || relativePath === '../GAMES/others/balatro-3-2.png') { // Specific exclusion for Balatro and its images
-                return relativePath;
-            }
             if (relativePath.startsWith('../')) {
                 const pathPart = relativePath.substring(3); // Remove '../'
                 return proxyUrl(`${WORKER_ROOT}${pathPart}`);
+            }
+            
+            // Handle paths starting with "images/" which are relative to the project root.
+            // This is a common pattern for othersGames in our setup.
+            if (relativePath.startsWith('images/')) {
+                return proxyUrl(`${WORKER_ROOT}${relativePath}`);
             }
             
             // If it doesn't start with ../, assume it's relative to GAMES base
@@ -1624,7 +1627,7 @@
                                 if (game.category === 'Others' || game.category === 'Gameboy Games') {
                                     vUrl = resolveGameUrl(v.url);
                                 }
-                                favoriteGames.push({ ...game, id: v.favoriteId, name: `${game.name} - ${v.name}`, url: vUrl, versions: undefined }); 
+                                favoriteGames.push({ ...game, id: v.favoriteId, name: `${game.name} - ${v.name}`, url: vUrl, imgSrc: game.imgSrc, versions: undefined }); 
                             }
                         }); 
                     }

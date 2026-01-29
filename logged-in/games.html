@@ -887,9 +887,9 @@
         
         const DV_SERVICE_LFS_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
         const STRONGDOG_ROOT = "https://strongdog.com/";
-        const GAMES_BASE_URL = "https://strongdog.com/GAMES/";
+        const GAMES_BASE_URL = `${DV_SERVICE_LFS_ROOT}GAMES/`; // Games served from the DV service
         const CARDS_DATA_URL = "../GAMES/cards-data.js";
-        const WORKER_ROOT = window.location.origin + '/';
+        const WORKER_ROOT = DV_SERVICE_LFS_ROOT; // Use DV_SERVICE_LFS_ROOT as the base for worker-rooted paths
 
         const FAVORITES_KEY = 'gameHubFavorites_v3';
 
@@ -1764,7 +1764,17 @@
                 console.error("Could not load external games data", e);
             }
             
-            const strongdogGames = gamesData.map(g => ({ ...g, category: 'StrongdogXP' }));
+            const strongdogGames = gamesData.map(g => {
+                const prefixedId = `sd-${g.id}`;
+                if (g.versions) {
+                    const prefixedVersions = g.versions.map(v => ({
+                        ...v,
+                        favoriteId: `${prefixedId}_${v.name.replace(/\s+/g, '-')}` // Ensure favoriteId is also unique
+                    }));
+                    return { ...g, id: prefixedId, category: 'StrongdogXP', versions: prefixedVersions };
+                }
+                return { ...g, id: prefixedId, category: 'StrongdogXP' };
+            });
             
             try {
                 const res = await fetch(GN_ZONES_URL);

@@ -704,7 +704,6 @@
         const categoryColors = {
             'StrongdogXP': 'text-strongdog-orange',
             'GN-Math': 'text-gn-math',
-            'Gameboy Games': 'text-gameboy',
             'Others': 'text-other-grey', 
         };
         
@@ -1049,7 +1048,7 @@
             card.dataset.gameId = game.id;
 
             // Resolve Image URL
-            const resolvedImgSrc = resolveGameUrl(game.imgSrc);
+            const resolvedImgSrc = game.id === 'other-balatro' ? game.imgSrc : resolveGameUrl(game.imgSrc);
 
             let gameButtonsHtml = '';
             let favoriteButtonHtml = '';
@@ -1136,10 +1135,10 @@
             // Resolve Image Src
             let imgSrc = game.imgSrc;
             if (game.id === 'other-balatro' && forceSmallCard) {
-                imgSrc = resolveGameUrl("../GAMES/others/balatro-3-2.png");
+                imgSrc = "../GAMES/others/balatro-3-2.png";
             } else if (isStrongdog) {
                  imgSrc = getAdjustedUrls(game).adjustedImgSrc;
-            } else if (game.category === 'Others' || game.category === 'Gameboy Games') {
+            } else if (game.category === 'Others') {
                  imgSrc = resolveGameUrl(game.imgSrc);
             }
 
@@ -1170,7 +1169,7 @@
                     openZone({ name: game.name, url: embedPath, category: game.category, id: game.id });
                 } else {
                     let gUrl = game.url;
-                    if (game.category === 'Others' || game.category === 'Gameboy Games') {
+                    if (game.category === 'Others') {
                         gUrl = resolveGameUrl(gUrl);
                     }
                     openZone({ ...game, url: gUrl });
@@ -1428,7 +1427,7 @@
                         game.versions.forEach(v => { 
                             if (favoriteIds.includes(String(v.favoriteId))) {
                                 let vUrl = v.url;
-                                if (game.category === 'Others' || game.category === 'Gameboy Games') {
+                                if (game.category === 'Others') {
                                     vUrl = resolveGameUrl(v.url);
                                 }
                                 favoriteGames.push({ ...game, id: v.favoriteId, name: `${game.name} - ${v.name}`, url: vUrl, imgSrc: game.imgSrc, versions: undefined }); 
@@ -1495,7 +1494,7 @@
                 if (isStrongdog) {
                     const { adjustedImgSrc } = getAdjustedUrls(game);
                     imgSrc = adjustedImgSrc;
-                } else if (game.category === 'Others' || game.category === 'Gameboy Games') {
+                } else if (game.category === 'Others') {
                     imgSrc = resolveGameUrl(game.imgSrc);
                     finalGameData.url = resolveGameUrl(game.url);
                 } else {
@@ -1614,7 +1613,7 @@
                 }
             });
 
-            categories = ['StrongdogXP', 'GN-Math', 'Gameboy Games', 'Others'].filter(cat => allGames.some(g => g.category === cat));
+            categories = ['StrongdogXP', 'GN-Math', 'Others'].filter(cat => allGames.some(g => g.category === cat));
 
             const { category: urlCat } = parseURL();
             if (urlCat) currentCategoryIndex = Math.max(0, categories.findIndex(c => c.replace(/\s+/g, '-').toLowerCase() === urlCat.toLowerCase()));

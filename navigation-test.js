@@ -13,7 +13,7 @@
  * 28. (MODIFIED) GLIDE GRADIENT EXPANSION: Scroll glide gradients now extend fully
  * to the edges of the tab container for seamless visual blending.
  * 29. (MODIFIED) SCRIPT INJECTION: Added injection logic for ban-enforcer.js,
- * url-changer.js, and panic-key.js.
+ * tab-disguiser.js, and panic-key.js.
  * 30. (MODIFIED) GLIDE BUTTON POSITIONING: Relocated glide buttons to sit immediately
  * next to the tab container edges, fixing the excessive spacing issue.
  */
@@ -169,7 +169,7 @@ let db;
     const injectUtilityScripts = async () => {
         const scriptsToLoad = [
             '../ban-enforcer.js',
-            '../url-changer.js',
+            '../tab-disguiser.js',
             '../panic-key.js'
         ];
         // Load scripts sequentially to respect potential dependencies

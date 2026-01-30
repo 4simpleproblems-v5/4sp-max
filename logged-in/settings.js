@@ -125,7 +125,7 @@
         const THEME_STORAGE_KEY = 'user-navbar-theme';
 
 
-        // Presets copied from url-changer.js
+        // Presets copied from tab-disguiser.js
         const urlChangerPresets = [
             { id: 'hac', name: 'HAC', title: 'Login', favicon: '../favicons/hac.png', category: 'websites' },
             { id: 'gmm', name: 'GMM', title: 'Get More Math!', favicon: '../favicons/gmm.png', category: 'websites' },

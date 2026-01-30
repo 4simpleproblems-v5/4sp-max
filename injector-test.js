@@ -8,7 +8,7 @@
     // 1. DEFINE YOUR SCRIPTS HERE
     // Update this array (and ONLY this array) to manage your application's scripts.
     const scriptsToLoad = [
-      '../url-changer.js',
+      '../tab-disguiser.js',
       '../panic-key.js',
       '../navigation-test.js', // Using the test navigation
       '../ban-enforcer.js',

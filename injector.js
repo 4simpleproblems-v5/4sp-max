@@ -13,7 +13,7 @@
     // Update this array (and ONLY this array) to manage your application's scripts.
     const scriptsToLoad = [
       '../ban-enforcer.js',
-      '../url-changer.js',
+      '../tab-disguiser.js',
       '../panic-key.js',
       '../analytics.js',
       '../navigation.js'

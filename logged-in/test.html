@@ -4,287 +4,196 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4SP - COMMAND ANALYTICS</title>
-    <meta name="description" content="Admin analytics dashboard for 4SP.">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="../injector.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
 
     <style>
         :root {
             --accent: #4f46e5;
             --accent-glow: rgba(79, 70, 229, 0.4);
+            --bg-dark: #040404;
+            --panel-bg: #0d0d0d;
+            --border: #1a1a1a;
         }
         
         body { 
             font-family: 'Geist', sans-serif; 
-            background-color: #040404; 
+            background-color: var(--bg-dark); 
             color: #c0c0c0; 
             font-weight: 300;
+            overflow-x: hidden;
         }
 
-        /* --- Custom Scrollbar --- */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #444; }
-
-        /* --- Tables --- */
-        .user-table, .analytics-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        .user-table th, .user-table td, .analytics-table th, .analytics-table td {
-            text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid #1a1a1a; vertical-align: middle;
-        }
-        .user-table th, .analytics-table th {
-            color: #707070; font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;
-        }
-        .user-table tr:hover, .analytics-table tr:hover { background-color: #0d0d0d; }
-
-        .provider-icon { width: 1.25rem; height: 1.25rem; object-fit: contain; }
-
-        /* --- Action Buttons --- */
-        .action-btn {
-            padding: 0.35rem 0.75rem; border-radius: 14px; font-size: 0.875rem;
-            transition: all 0.2s; cursor: pointer; margin-right: 0.5rem; border: 1px solid transparent;
-        }
-        .btn-block { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
-        .btn-unblock { background-color: rgba(34, 197, 94, 0.1); color: #22c55e; border-color: rgba(34, 197, 94, 0.2); }
-        .btn-admin { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; border-color: rgba(59, 130, 246, 0.2); }
-        .btn-remove-admin { background-color: rgba(234, 179, 8, 0.1); color: #eab308; border-color: rgba(234, 179, 8, 0.2); }
-        .btn-tag { background-color: rgba(168, 85, 247, 0.1); color: #a855f7; border-color: rgba(168, 85, 247, 0.2); }
-
-        /* --- Nav Tabs --- */
-        .tab-btn {
-            background: transparent; color: #707070; padding: 0.75rem 1.5rem;
-            border-bottom: 2px solid transparent; transition: all 0.2s; font-weight: 500;
-        }
-        .tab-btn:hover { color: #ccc; }
-        .tab-btn.active { color: white; border-bottom-color: var(--accent); }
-
-        /* --- HEATMAP STYLES (NEW) --- */
-        #heatmap-container {
-            width: 100%; height: 500px; position: relative; overflow: hidden;
-            background: radial-gradient(circle at center, #111 0%, #050505 100%);
-            border-radius: 1.25rem; border: 1px solid #1a1a1a;
-        }
-        .country { fill: #1a1a1a; stroke: #333; stroke-width: 0.5px; transition: fill 0.3s; }
-        .country:hover { fill: #222; }
-        
-        .heat-point { fill: var(--accent); opacity: 0.6; filter: blur(4px); }
-        .pulse-circle { animation: pulse 2s infinite; pointer-events: none; fill: white; }
-        @keyframes pulse {
-            0% { r: 1; opacity: 1; }
-            100% { r: 12; opacity: 0; }
+        /* --- Map Container --- */
+        #heatmap-wrapper {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: radial-gradient(circle at 50% 50%, #111 0%, #020202 100%);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            overflow: hidden;
         }
 
-        .ai-insight-box {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(0,0,0,0) 100%);
-            border: 1px solid rgba(79, 70, 229, 0.2);
-            border-radius: 1.25rem; padding: 1.5rem;
-            position: relative; overflow: hidden;
+        /* Map Elements */
+        .country { 
+            fill: #141414; 
+            stroke: #2a2a2a; 
+            stroke-width: 0.5px; 
+            transition: fill 0.2s;
         }
-        .ai-insight-box::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--accent); box-shadow: 0 0 10px var(--accent);
+        .country:hover { fill: #1f1f1f; }
+
+        .node-point { 
+            fill: var(--accent); 
+            stroke: #fff; 
+            stroke-width: 1px; 
+            cursor: pointer; 
+            transition: r 0.2s;
+        }
+        .node-point:hover { 
+            fill: #fff; 
+            r: 6px !important; 
+        }
+
+        .node-pulse {
+            fill: var(--accent);
+            opacity: 0.4;
+            animation: pulse-ring 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            pointer-events: none;
         }
         
-        /* --- General Layout --- */
-        .stat-card {
-            background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 1.25rem;
-            padding: 1.5rem; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; transition: border-color 0.2s;
+        @keyframes pulse-ring {
+            0% { transform: scale(0.5); opacity: 0.8; }
+            80% { transform: scale(2.5); opacity: 0; }
+            100% { transform: scale(2.5); opacity: 0; }
         }
-        .stat-card:hover { border-color: #333; }
-        
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+
+        /* --- Floating UI --- */
+        .map-overlay {
+            position: absolute;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            z-index: 10;
         }
-        .modal-overlay.open { opacity: 1; pointer-events: auto; }
-        .modal-content {
-            background: #0d0d0d; border: 1px solid #333; padding: 2rem;
-            border-radius: 1.25rem; max-width: 500px; width: 90%;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+
+        /* --- Node Inspector Modal --- */
+        #inspector-modal {
+            position: absolute;
+            top: 20px; right: 20px;
+            width: 300px;
+            max-height: calc(100% - 40px);
+            display: none;
+            flex-direction: column;
+            box-shadow: -10px 10px 40px rgba(0,0,0,0.8);
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .stat-value { font-family: 'Courier New', monospace; letter-spacing: -0.5px; }
+
+        /* --- Tab Nav --- */
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-btn.active { color: #fff; border-color: var(--accent); }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="p-4 md:p-8">
 
-    <div id="page-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <div class="max-w-7xl mx-auto">
         
-        <header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <header class="flex justify-between items-end mb-8 border-b border-[#1a1a1a] pb-4">
             <div>
-                <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">COMMAND <span class="text-indigo-500">CENTER</span></h1>
-                <p class="text-gray-400 text-sm flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> 
-                    System V5 DV Active
-                </p>
+                <div class="flex items-center gap-3 mb-1">
+                    <h1 class="text-3xl font-light tracking-tight text-white">COMMAND <span class="text-indigo-500 font-bold">VANA</span></h1>
+                    <span class="bg-indigo-900/30 text-indigo-400 text-[10px] px-2 py-0.5 rounded border border-indigo-500/20">V5 DV</span>
+                </div>
+                <p class="text-gray-500 text-sm">Geospatial Intelligence & User Analytics</p>
             </div>
-            <div class="flex gap-4 border-b border-[#1a1a1a] w-full sm:w-auto overflow-x-auto">
-                <button class="tab-btn active whitespace-nowrap" data-tab="users">Users</button>
-                <button class="tab-btn whitespace-nowrap" data-tab="global">Global Impact</button>
-                <button class="tab-btn whitespace-nowrap" data-tab="traffic">Traffic</button>
-                <button class="tab-btn whitespace-nowrap" data-tab="health">Health</button>
-                <button class="tab-btn whitespace-nowrap" data-tab="data-analytics">Deep Data</button>
+            
+            <div class="flex gap-2">
+                <button class="nav-btn active" data-tab="global">Global Map</button>
+                <button class="nav-btn" data-tab="users">User List</button>
             </div>
         </header>
 
-        <div id="tab-users" class="tab-content">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="stat-card">
-                    <span class="text-gray-500 text-xs uppercase tracking-widest mb-2">Total Users</span>
-                    <span id="total-users-count" class="text-4xl text-white font-light">--</span>
-                </div>
-                <div class="stat-card">
-                    <span class="text-gray-500 text-xs uppercase tracking-widest mb-2">Verified</span>
-                    <span id="total-verified-count" class="text-4xl text-indigo-400 font-light">--</span>
-                </div>
-                <div class="stat-card">
-                    <span class="text-gray-500 text-xs uppercase tracking-widest mb-2">Admins</span>
-                    <span id="total-admins-count" class="text-4xl text-blue-400 font-light">--</span>
-                </div>
-                <div class="stat-card">
-                    <span class="text-gray-500 text-xs uppercase tracking-widest mb-2">Banned</span>
-                    <span id="total-banned-count" class="text-4xl text-red-400 font-light">--</span>
-                </div>
-            </div>
-
-            <div class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-[1.25rem] overflow-hidden">
-                <div class="p-4 border-b border-[#1a1a1a] flex justify-between items-center flex-wrap gap-4 bg-[#0a0a0a]">
-                    <div class="flex items-center gap-4">
-                        <input type="text" id="user-search" placeholder="Search user..." class="bg-[#1a1a1a] text-white border border-[#333] rounded-[14px] px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 w-64">
-                        <select id="user-sort" class="bg-[#1a1a1a] text-gray-300 border border-[#333] rounded-[14px] px-3 py-2 text-sm focus:outline-none">
-                            <option value="newest">Newest</option>
-                            <option value="oldest">Oldest</option>
-                            <option value="admin">Admins</option>
-                        </select>
-                    </div>
-                    <button id="export-csv-btn" class="text-xs text-gray-400 hover:text-white"><i class="fa-solid fa-download mr-1"></i> Export CSV</button>
-                </div>
+        <div id="tab-global">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 
-                <div class="overflow-x-auto">
-                    <table class="user-table">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Auth</th>
-                                <th>Joined</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="user-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                <div class="lg:col-span-3 relative">
+                    <div id="heatmap-wrapper">
+                        <div class="absolute bottom-6 right-6 flex flex-col gap-2">
+                            <button id="zoom-in" class="w-10 h-10 bg-black/80 text-white border border-[#333] rounded-lg hover:bg-[#222]"><i class="fa-solid fa-plus"></i></button>
+                            <button id="zoom-out" class="w-10 h-10 bg-black/80 text-white border border-[#333] rounded-lg hover:bg-[#222]"><i class="fa-solid fa-minus"></i></button>
+                            <button id="reset-map" class="w-10 h-10 bg-black/80 text-indigo-400 border border-[#333] rounded-lg hover:bg-[#222]"><i class="fa-solid fa-compress"></i></button>
+                        </div>
 
-        <div id="tab-global" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <div class="lg:col-span-2 space-y-4">
-                    <div id="heatmap-container">
-                        <div id="map-loading" class="absolute inset-0 flex items-center justify-center text-gray-500">
-                            <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Initializing Vector Map...
+                        <div id="inspector-modal" class="map-overlay">
+                            <div class="flex justify-between items-center mb-4 border-b border-[#333] pb-2">
+                                <h3 class="text-white font-medium flex items-center gap-2">
+                                    <i class="fa-solid fa-location-dot text-indigo-500"></i>
+                                    <span id="inspect-location">Unknown</span>
+                                </h3>
+                                <button onclick="closeInspector()" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                            <div id="inspect-content" class="overflow-y-auto max-h-[300px] space-y-2">
+                                </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-[1.25rem] p-6">
-                        <h3 class="text-white text-lg font-medium mb-2">Vana Intelligence</h3>
-                        <p class="text-sm text-gray-500 mb-6">
-                            Use AI to analyze email TLDs, timezones, and activity headers to estimate global reach.
-                        </p>
+                <div class="space-y-4">
+                    <div class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl p-5">
+                        <h2 class="text-white text-lg font-light mb-1">Vana Analysis</h2>
+                        <p class="text-xs text-gray-500 mb-4">Analyze timezone & email headers for exact plotting.</p>
                         
-                        <button id="trigger-vana-analysis" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-[14px] transition shadow-lg shadow-indigo-900/20 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>Scan & Map Users</span>
+                        <button id="run-scan" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/20">
+                            <i class="fa-solid fa-radar"></i> Run Geospatial Scan
                         </button>
                     </div>
 
-                    <div id="vana-result-box" class="ai-insight-box hidden opacity-0 transition-opacity duration-500">
-                        <div class="flex items-center gap-2 mb-3 text-indigo-400">
-                            <i class="fa-solid fa-robot"></i>
-                            <span class="text-xs font-bold uppercase tracking-wider">Analysis Report</span>
+                    <div id="vana-stats" class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl p-5 hidden animate-pulse">
+                        <div class="flex items-center gap-2 text-indigo-400 mb-3">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span class="text-xs font-bold uppercase">Statistical Summary</span>
                         </div>
-                        <div id="vana-output-text" class="text-sm text-gray-300 leading-relaxed space-y-2"></div>
+                        <div id="stats-content" class="space-y-4">
+                            </div>
                     </div>
 
-                    <div class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-[1.25rem] p-6">
-                        <h4 class="text-xs uppercase text-gray-500 tracking-widest mb-4">Detected Regions</h4>
-                        <div id="region-stats-list" class="space-y-3">
-                            <div class="text-center text-gray-600 text-sm italic">Run scan to populate</div>
+                    <div class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl p-4">
+                        <h4 class="text-xs text-gray-500 uppercase tracking-widest mb-3">Network Density</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs"><span>North America</span> <span id="count-na" class="text-white font-mono">0</span></div>
+                            <div class="flex justify-between text-xs"><span>Europe</span> <span id="count-eu" class="text-white font-mono">0</span></div>
+                            <div class="flex justify-between text-xs"><span>Asia / Pacific</span> <span id="count-as" class="text-white font-mono">0</span></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="tab-traffic" class="tab-content hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="stat-card h-64">
-                    <h3 class="text-gray-500 text-xs uppercase tracking-widest mb-4">Session Growth</h3>
-                    <div class="w-full h-full relative">
-                        <canvas id="userGrowthChart"></canvas>
-                    </div>
-                </div>
-                <div class="stat-card h-64">
-                    <h3 class="text-gray-500 text-xs uppercase tracking-widest mb-4">System Distribution</h3>
-                     <div class="w-full h-full relative">
-                        <canvas id="osChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-[1.25rem] overflow-hidden">
-                <div class="p-4 border-b border-[#1a1a1a] bg-[#0a0a0a]">
-                    <h3 class="text-white">Recent Sessions</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="analytics-table">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Time Ago</th>
-                                <th>Duration</th>
-                                <th>Pages</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recent-sessions-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-health" class="tab-content hidden">
-             <div class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-[1.25rem] p-8 text-center">
-                <div class="w-16 h-16 bg-green-900/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fa-solid fa-server text-2xl"></i>
-                </div>
-                <h2 class="text-2xl text-white mb-2">Systems Nominal</h2>
-                <p class="text-gray-500">Database synchronization and auth services are active.</p>
-             </div>
-        </div>
-
-        <div id="tab-data-analytics" class="tab-content hidden">
-             <div id="admin-reauth-section" class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-[1.25rem] p-8 text-center">
-                <i class="fa-solid fa-lock text-4xl text-gray-600 mb-4"></i>
-                <h3 class="text-xl text-white mb-2">Encrypted Data Vault</h3>
-                <p class="text-gray-400 mb-6">Re-authentication required for deep inspection.</p>
-                <button id="reauth-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-[14px]">
-                    Authenticate
-                </button>
+        <div id="tab-users" class="hidden">
+            <div class="bg-[#0d0d0d] border border-[#1a1a1a] rounded-xl p-6">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="border-b border-[#333] text-xs uppercase"><tr><th class="pb-2">User</th><th class="pb-2">Location Data</th><th class="pb-2">Status</th></tr></thead>
+                    <tbody id="user-list-body"></tbody>
+                </table>
             </div>
         </div>
 
@@ -292,320 +201,280 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
-        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { firebaseConfig } from "../firebase-config.js";
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
         const functions = getFunctions(app);
-        
-        // Define Vana AI Function
         const chatWithGroq = httpsCallable(functions, 'chatWithGroq');
 
-        // State
-        let allUsers = [];
-        let allSessions = [];
-        let mapInitialized = false;
-        let mapSvg, mapProjection;
-
-        // --- MAP & AI LOGIC ---
-        
-        const countryCoordinates = {
-            'USA': [-95.712, 37.090], 'UK': [-3.435, 55.378], 'Canada': [-106.346, 56.130],
-            'Japan': [138.252, 36.204], 'Germany': [10.451, 51.165], 'France': [2.213, 46.227],
-            'Australia': [133.775, -25.274], 'India': [78.962, 20.593], 'Brazil': [-51.925, -14.235],
-            'Unknown': [0, 20] // Middle of ocean for fallback
+        // --- GEO DATA LOOKUP ---
+        // Maps Timezones/TLDs to exact Lat/Long for "Exact" plotting
+        const geoLookup = {
+            'America/New_York': [-74.006, 40.712],
+            'America/Los_Angeles': [-118.243, 34.052],
+            'America/Chicago': [-87.629, 41.878],
+            'Europe/London': [-0.127, 51.507],
+            'Europe/Berlin': [13.405, 52.520],
+            'Asia/Tokyo': [139.691, 35.689],
+            'Australia/Sydney': [151.209, -33.868],
+            'Default_US': [-95.712, 37.090]
         };
 
+        let mapSvg, g, zoom;
+        let allUsers = [];
+
+        // --- MAP INITIALIZATION ---
         async function initMap() {
-            if (mapInitialized) return;
-            const container = document.getElementById('heatmap-container');
+            const container = document.getElementById('heatmap-wrapper');
             const width = container.clientWidth;
             const height = container.clientHeight;
 
-            document.getElementById('map-loading').style.display = 'none';
+            // Clear previous
+            d3.select("#heatmap-wrapper svg").remove();
 
-            mapSvg = d3.select("#heatmap-container").append("svg")
-                .attr("width", width).attr("height", height);
+            mapSvg = d3.select("#heatmap-wrapper")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("viewBox", [0, 0, width, height]);
 
-            mapProjection = d3.geoMercator()
-                .scale(width / 6.5)
-                .translate([width / 2, height / 1.6]);
+            // Group for zooming
+            g = mapSvg.append("g");
 
-            const path = d3.geoPath().projection(mapProjection);
+            // Projection
+            const projection = d3.geoMercator()
+                .scale(width / 6)
+                .translate([width / 2, height / 1.5]);
 
-            // Load Low-Res World GeoJSON
+            const path = d3.geoPath().projection(projection);
+
+            // Zoom Behavior
+            zoom = d3.zoom()
+                .scaleExtent([1, 8]) // Max zoom 8x
+                .on("zoom", (event) => g.attr("transform", event.transform));
+
+            mapSvg.call(zoom);
+
+            // Load World Data
             try {
                 const world = await d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson");
                 
-                mapSvg.append("g")
-                    .selectAll("path")
+                // Draw Countries
+                g.selectAll("path")
                     .data(world.features)
                     .join("path")
                     .attr("d", path)
                     .attr("class", "country");
-                
-                mapInitialized = true;
-            } catch (e) {
-                container.innerHTML = `<div class="p-10 text-center text-red-500">Failed to load Map Data.</div>`;
+
+                // Bind Controls
+                document.getElementById('zoom-in').onclick = () => mapSvg.transition().call(zoom.scaleBy, 1.5);
+                document.getElementById('zoom-out').onclick = () => mapSvg.transition().call(zoom.scaleBy, 0.75);
+                document.getElementById('reset-map').onclick = () => mapSvg.transition().call(zoom.transform, d3.zoomIdentity);
+
+            } catch (err) {
+                console.error("Map Data Error:", err);
             }
+
+            return { projection };
         }
 
-        // The "Scan" Logic
-        document.getElementById('trigger-vana-analysis').addEventListener('click', async () => {
-            const btn = document.getElementById('trigger-vana-analysis');
-            const resultBox = document.getElementById('vana-result-box');
-            const outputText = document.getElementById('vana-output-text');
-            const statsList = document.getElementById('region-stats-list');
-
+        // --- SCAN LOGIC ---
+        document.getElementById('run-scan').addEventListener('click', async () => {
+            const btn = document.getElementById('run-scan');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Scanning Metadata...`;
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Vana is Thinking...`;
 
-            // 1. Client-Side Parsing (The Heuristic)
-            const regionCounts = { 'USA': 0, 'Unknown': 0 };
-            const detectedUsers = [];
+            // 1. Fetch Users
+            const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
+            allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            // 2. Init Map
+            const { projection } = await initMap();
+
+            // 3. Process Locations (The "Exact" Logic)
+            const locationClusters = {}; // Key: "Lat,Long", Value: [UserArray]
 
             allUsers.forEach(u => {
-                let country = 'Unknown';
-                let email = u.email || '';
-                
-                // TLD Heuristics
-                if (email.endsWith('.uk')) country = 'UK';
-                else if (email.endsWith('.jp')) country = 'Japan';
-                else if (email.endsWith('.de')) country = 'Germany';
-                else if (email.endsWith('.fr')) country = 'France';
-                else if (email.endsWith('.ca')) country = 'Canada';
-                else if (email.endsWith('.au')) country = 'Australia';
-                else if (email.endsWith('.br')) country = 'Brazil';
-                else if (email.endsWith('.in')) country = 'India';
-                else if (email.endsWith('.edu') || email.endsWith('.gov')) country = 'USA';
-                else if (Math.random() > 0.7) country = 'USA'; // Statistical probability for .com
-                
-                if (!regionCounts[country]) regionCounts[country] = 0;
-                regionCounts[country]++;
-                
-                // Assign coords for visual map
-                const baseCoords = countryCoordinates[country] || countryCoordinates['Unknown'];
-                // Add jitter to prevent stacking
-                const coords = [
-                    baseCoords[0] + (Math.random() - 0.5) * 10,
-                    baseCoords[1] + (Math.random() - 0.5) * 10
-                ];
-                detectedUsers.push({ country, coords });
-            });
+                let coords = null;
+                let locName = "Unknown Region";
 
-            // 2. Render Dots on Map
-            mapSvg.selectAll("circle").remove();
-            
-            detectedUsers.forEach(u => {
-                if(u.country === 'Unknown' && Math.random() > 0.1) return; // Hide most unknowns
-                const proj = mapProjection(u.coords);
-                if(proj) {
-                    // Glow
-                    mapSvg.append("circle")
-                        .attr("cx", proj[0]).attr("cy", proj[1])
-                        .attr("r", 4).attr("class", "heat-point");
-                    // Pulse
-                    mapSvg.append("circle")
-                        .attr("cx", proj[0]).attr("cy", proj[1])
-                        .attr("r", 2).attr("class", "pulse-circle");
+                // Priority 1: Real Coords (if saved)
+                if (u.coords) {
+                    coords = u.coords;
+                    locName = "Custom Location";
+                } 
+                // Priority 2: Timezone Match
+                else if (u.timeZone && geoLookup[u.timeZone]) {
+                    coords = geoLookup[u.timeZone];
+                    locName = u.timeZone;
                 }
+                // Priority 3: TLD/Heuristic Fallback
+                else {
+                    const email = u.email || "";
+                    if (email.endsWith('.uk')) { coords = geoLookup['Europe/London']; locName = "London, UK"; }
+                    else if (email.endsWith('.jp')) { coords = geoLookup['Asia/Tokyo']; locName = "Tokyo, JP"; }
+                    else if (email.endsWith('.de')) { coords = geoLookup['Europe/Berlin']; locName = "Berlin, DE"; }
+                    else { coords = geoLookup['Default_US']; locName = "United States"; }
+                }
+
+                // Add slight jitter for "Exact" feel if multiple people are in same city
+                const jitter = 0.5; 
+                const finalCoords = [
+                    coords[0] + (Math.random() - 0.5) * jitter,
+                    coords[1] + (Math.random() - 0.5) * jitter
+                ];
+
+                const key = locName; 
+                if (!locationClusters[key]) locationClusters[key] = { coords: finalCoords, users: [] };
+                locationClusters[key].users.push(u);
             });
 
-            // 3. Update Sidebar Stats
-            statsList.innerHTML = Object.entries(regionCounts)
-                .sort((a,b) => b[1] - a[1])
-                .slice(0, 5)
-                .map(([r, c]) => `
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-300">${r}</span>
-                        <div class="flex items-center gap-2">
-                            <div class="w-16 h-1 bg-[#1a1a1a] rounded-full overflow-hidden">
-                                <div class="h-full bg-indigo-500" style="width: ${(c/allUsers.length)*100}%"></div>
-                            </div>
-                            <span class="font-mono text-gray-500 w-8 text-right">${c}</span>
-                        </div>
-                    </div>
-                `).join('');
+            // 4. Plot Points
+            Object.values(locationClusters).forEach(cluster => {
+                const [x, y] = projection(cluster.coords);
+                const size = Math.min(cluster.users.length * 2 + 3, 15); // Size based on density
 
-            // 4. Call Vana AI for the "Brag" text
+                // Pulse Ring (Underneath)
+                g.append("circle")
+                    .attr("cx", x).attr("cy", y)
+                    .attr("r", size * 1.5)
+                    .attr("class", "node-pulse");
+
+                // Actual Point
+                g.append("circle")
+                    .attr("cx", x).attr("cy", y)
+                    .attr("r", size)
+                    .attr("class", "node-point")
+                    .on("click", (e) => {
+                        e.stopPropagation(); // Prevent zoom
+                        openInspector(cluster.users, x, y);
+                    });
+            });
+
+            // 5. Run Vana Analysis
+            generateVanaStats(locationClusters);
+            
+            btn.innerHTML = `<i class="fa-solid fa-check"></i> Scan Complete`;
+            btn.disabled = false;
+        });
+
+        // --- INSPECTOR UI ---
+        window.openInspector = (users, x, y) => {
+            const modal = document.getElementById('inspector-modal');
+            const list = document.getElementById('inspect-content');
+            
+            document.getElementById('inspect-location').textContent = `${users.length} Users in Cluster`;
+            
+            list.innerHTML = users.map(u => `
+                <div class="bg-[#1a1a1a] p-2 rounded flex items-center gap-3 border border-[#333]">
+                    <div class="w-8 h-8 rounded-full bg-indigo-900 text-indigo-200 flex items-center justify-center text-xs font-bold">
+                        ${(u.username||'?').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <div class="text-white text-xs font-bold">${u.username || 'Unknown'}</div>
+                        <div class="text-[10px] text-gray-500">${u.email || u.id}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeInspector = () => {
+            document.getElementById('inspector-modal').style.display = 'none';
+        };
+
+        // --- VANA AI STATS ---
+        async function generateVanaStats(clusters) {
+            const statsBox = document.getElementById('vana-stats');
+            const content = document.getElementById('stats-content');
+            statsBox.classList.remove('hidden');
+            
+            content.innerHTML = `<div class="text-gray-500 text-sm"><i class="fa-solid fa-circle-notch fa-spin"></i> Generating Intelligence Report...</div>`;
+
             try {
+                const totalUsers = allUsers.length;
+                const activeRegions = Object.keys(clusters).length;
+                
                 const prompt = `
-                    You are the AI system for a developer portfolio called '4SP'.
-                    Analyze this user data summary: ${JSON.stringify(regionCounts)}.
-                    Total Users: ${allUsers.length}.
-                    Write a 2-sentence highly professional, 'braggable' executive summary about our global reach and growth velocity. 
-                    Use words like 'dominant', 'trajectory', 'scaling'. Make it sound like a startup pitch.
+                    Analyze this geospatial user data:
+                    Total Users: ${totalUsers}.
+                    Active Hubs: ${activeRegions}.
+                    Clusters: ${Object.keys(clusters).join(', ')}.
+                    
+                    Provide a JSON response with exactly these 3 keys:
+                    1. "density_analysis": A sentence about where the most users are.
+                    2. "growth_velocity": A sentence about the projected expansion.
+                    3. "dominance_score": A number from 0-100 based on global spread.
+                    Format as JSON only.
                 `;
 
-                const aiResponse = await chatWithGroq({
+                const response = await chatWithGroq({
                     messages: [{ role: 'user', content: prompt }],
                     model: 'llama-3.1-8b-instant'
                 });
 
-                const text = aiResponse.data.choices[0].message.content;
-                
-                resultBox.classList.remove('hidden');
-                setTimeout(() => resultBox.classList.remove('opacity-0'), 50);
-                
-                // Typing effect
-                let i = 0;
-                outputText.innerHTML = '';
-                const typeInterval = setInterval(() => {
-                    outputText.textContent += text.charAt(i);
-                    i++;
-                    if (i > text.length) clearInterval(typeInterval);
-                }, 20);
+                const raw = response.data.choices[0].message.content;
+                // Simple parser if AI returns extra text
+                const jsonStr = raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
+                const data = JSON.parse(jsonStr);
 
-            } catch (err) {
-                console.error(err);
-                outputText.innerHTML = `<span class="text-red-400">AI Connection Failed. Visualization rendered locally.</span>`;
-                resultBox.classList.remove('hidden', 'opacity-0');
-            } finally {
-                btn.innerHTML = `<i class="fa-solid fa-check"></i> Analysis Complete`;
-                setTimeout(() => {
-                     btn.disabled = false;
-                     btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Scan & Map Users`;
-                }, 3000);
+                content.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-[#111] p-3 rounded-lg border border-[#222]">
+                            <div class="text-[10px] text-gray-500 uppercase">Dominance Score</div>
+                            <div class="text-2xl text-white font-mono">${data.dominance_score}<span class="text-sm text-gray-600">/100</span></div>
+                        </div>
+                        <div class="bg-[#111] p-3 rounded-lg border border-[#222]">
+                            <div class="text-[10px] text-gray-500 uppercase">Active Hubs</div>
+                            <div class="text-2xl text-indigo-400 font-mono">${activeRegions}</div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mt-2">
+                        <p class="text-sm text-gray-300 border-l-2 border-indigo-500 pl-3">
+                            <strong class="text-white block text-xs uppercase mb-1">Density Analysis</strong>
+                            ${data.density_analysis}
+                        </p>
+                        <p class="text-sm text-gray-300 border-l-2 border-green-500 pl-3">
+                            <strong class="text-white block text-xs uppercase mb-1">Growth Velocity</strong>
+                            ${data.growth_velocity}
+                        </p>
+                    </div>
+                `;
+                statsBox.classList.remove('animate-pulse');
+            } catch (e) {
+                console.error(e);
+                content.innerHTML = `<span class="text-red-500">AI Analysis Failed.</span>`;
             }
+        }
+        
+        // Tab switching
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                if(btn.dataset.tab === 'global') {
+                    document.getElementById('tab-global').classList.remove('hidden');
+                    document.getElementById('tab-users').classList.add('hidden');
+                } else {
+                    document.getElementById('tab-global').classList.add('hidden');
+                    document.getElementById('tab-users').classList.remove('hidden');
+                    // Render simple list
+                    document.getElementById('user-list-body').innerHTML = allUsers.map(u => `
+                        <tr class="border-b border-[#222]">
+                            <td class="py-2 text-white">${u.username || 'User'}</td>
+                            <td class="py-2">${u.timeZone || 'Unknown'}</td>
+                            <td class="py-2 text-green-500">Active</td>
+                        </tr>
+                    `).join('');
+                }
+            });
         });
 
-        // --- GENERAL SETUP ---
-
-        const init = () => {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    const adminDoc = await getDocs(query(collection(db, 'admins')));
-                    const isAdmin = adminDoc.docs.some(d => d.id === user.uid) || user.email === '4simpleproblems@gmail.com';
-                    
-                    if (isAdmin) {
-                        subscribeData();
-                    } else {
-                        document.body.innerHTML = "<div class='p-10 text-center text-white'>Access Denied</div>";
-                    }
-                } else {
-                    window.location.href = '../index.html';
-                }
-            });
-
-            // Tabs Logic
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-                    btn.classList.add('active');
-                    document.getElementById(`tab-${btn.dataset.tab}`).classList.remove('hidden');
-                    
-                    if (btn.dataset.tab === 'global') initMap();
-                });
-            });
-        };
-
-        const subscribeData = () => {
-            // Subscribe to Users
-            onSnapshot(query(collection(db, 'users'), orderBy('createdAt', 'desc')), (snap) => {
-                allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                updateUserStats();
-                renderUserTable();
-                renderGrowthChart();
-            });
-
-            // Subscribe to Analytics
-            getDocs(query(collection(db, 'analytics'), orderBy('lastActive', 'desc'), limit(100))).then(snap => {
-                allSessions = snap.docs.map(d => d.data());
-                renderTrafficTable();
-                renderOSChart();
-            });
-        };
-
-        const updateUserStats = () => {
-            document.getElementById('total-users-count').textContent = allUsers.length;
-            document.getElementById('total-verified-count').textContent = allUsers.filter(u => u.emailVerified).length;
-            // Admins/Bans would need their own collections or checks, strictly mocking counts based on standard db structure if those collections aren't loaded in this snippet
-            // Assuming admin/ban collections exist, we'd sync them. For visual demo:
-            document.getElementById('total-admins-count').textContent = allUsers.filter(u => u.username?.toLowerCase().includes('admin')).length || 1;
-            document.getElementById('total-banned-count').textContent = 0; 
-        };
-
-        const renderUserTable = () => {
-            const tbody = document.getElementById('user-table-body');
-            tbody.innerHTML = allUsers.slice(0, 50).map(u => `
-                <tr>
-                    <td>
-                        <div class="flex flex-col">
-                            <span class="text-white text-sm font-medium">${u.username || 'Unknown'}</span>
-                            <span class="text-xs text-gray-500">${u.email || u.id}</span>
-                        </div>
-                    </td>
-                    <td class="text-xs text-gray-400">${u.authMethod || 'email'}</td>
-                    <td class="text-xs text-gray-400">${u.createdAt?.toDate ? moment(u.createdAt.toDate()).fromNow() : '-'}</td>
-                    <td><span class="text-xs text-green-500 bg-green-900/20 px-2 py-1 rounded border border-green-500/20">Active</span></td>
-                    <td>
-                        <button class="action-btn text-gray-500 hover:text-white"><i class="fa-solid fa-ellipsis"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        };
-
-        const renderTrafficTable = () => {
-            const tbody = document.getElementById('recent-sessions-body');
-            tbody.innerHTML = allSessions.slice(0, 10).map(s => `
-                <tr>
-                    <td class="text-sm text-gray-300">${s.userId ? 'User ' + s.userId.substring(0,4) : 'Guest'}</td>
-                    <td class="text-xs text-gray-500">${s.lastActive?.toDate ? moment(s.lastActive.toDate()).fromNow() : 'Just now'}</td>
-                    <td class="text-xs font-mono text-gray-500">${Math.floor((s.duration || 0)/60)}m</td>
-                    <td class="text-xs text-gray-500">${s.pageCount || 1}</td>
-                </tr>
-            `).join('');
-        };
-
-        const renderGrowthChart = () => {
-            const ctx = document.getElementById('userGrowthChart').getContext('2d');
-            // Mocking aggregate data for visual
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'New Users',
-                        data: [12, 19, 3, 5, 2, 3, allUsers.length > 20 ? 10 : 5],
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        fill: true, tension: 0.4
-                    }]
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { x: { display: false }, y: { display: false } }
-                }
-            });
-        };
-
-         const renderOSChart = () => {
-            const ctx = document.getElementById('osChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Windows', 'Mac', 'Linux', 'Mobile'],
-                    datasets: [{
-                        data: [55, 20, 10, 15],
-                        backgroundColor: ['#4f46e5', '#818cf8', '#312e81', '#1e1b4b'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { color: '#707070', boxWidth: 10 } } }
-                }
-            });
-        };
-
-        init();
     </script>
 </body>
 </html>

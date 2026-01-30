@@ -1010,7 +1010,7 @@
                 // If it's something like /images/eaglercraft.png, use WORKER_ROOT as base.
                 // Otherwise, use window.location.origin as base for other root-relative paths.
                 if (relativePath.startsWith('/images/')) {
-                    return proxyUrl(`${WORKER_ROOT}${relativePath.substring(1)}`); // Remove leading '/' and use WORKER_ROOT
+                    return proxyUrl(`${GAMES_BASE_URL}${relativePath.substring(1)}`); // Remove leading '/' and use WORKER_ROOT
                 }
                 return proxyUrl(window.location.origin + relativePath);
             }
@@ -1023,7 +1023,7 @@
             // Handle paths starting with "images/" which are relative to the project root.
             // This is a common pattern for othersGames in our setup.
             if (relativePath.startsWith('images/')) {
-                return proxyUrl(`${WORKER_ROOT}${relativePath}`);
+                return proxyUrl(`${GAMES_BASE_URL}${relativePath}`);
             }
             
             // If it doesn't start with ../, assume it's relative to GAMES base

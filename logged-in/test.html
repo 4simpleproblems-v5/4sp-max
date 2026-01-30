@@ -1136,7 +1136,7 @@
             // Resolve Image Src
             let imgSrc = game.imgSrc;
             if (game.id === 'other-balatro' && forceSmallCard) {
-                imgSrc = "../GAMES/others/balatro-3-2.png";
+                imgSrc = resolveGameUrl("../GAMES/others/balatro-3-2.png");
             } else if (isStrongdog) {
                  imgSrc = getAdjustedUrls(game).adjustedImgSrc;
             } else if (game.category === 'Others' || game.category === 'Gameboy Games') {

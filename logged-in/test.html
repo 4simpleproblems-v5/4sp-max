@@ -925,8 +925,7 @@
         // --- URL Helpers (Strongdog) ---
         // Modified to support injected URLs using WORKER_ROOT + directory logic
         function getAdjustedUrls(game) {
-            // FIX: Force root to DV_SERVICE_LFS_ROOT to pull from worker
-            let root = DV_SERVICE_LFS_ROOT; 
+            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
 
             if (game.page && game.page > 1) {
                 // ../strongdog2/img/... -> exists outside GAMES dir
@@ -937,8 +936,7 @@
         }
         
         function sd_getBaseURLForPage(game) {
-            // FIX: Force root to DV_SERVICE_LFS_ROOT to pull from worker
-            let root = DV_SERVICE_LFS_ROOT;
+            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
 
             // Updated to point to WORKER_ROOT for numbered pages, GAMES_BASE_URL for default
             if (game.page > 1) return `${root}strongdog${game.page}/`;

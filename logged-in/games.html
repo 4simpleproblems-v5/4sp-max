@@ -686,12 +686,17 @@
     <script>
         // --- Configuration & Globals ---
         
-        const GN_ZONES_URL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
-        const GN_COVER_URL_BASE = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
-        
-        // UPDATED: Use cdn.jsdelivr.net for GN-Math and handle content injection
-        const GN_HTML_URL_BASE = "https://cdn.jsdelivr.net/npm/gn-math.github.io-main@latest/html-main";
-        
+        // Copied directly from index.html for exact matching
+        const zonesurls = [
+            "https://cdn.jsdelivr.net/%67%68/%67%6e%2d%6d%61%74%68/%61%73%73%65%74%73@%6d%61%69%6e/%7a%6f%6e%65%73%2e%6a%73%6f%6e",
+            "https://cdn.jsdelivr.net/gh/gn-math/assets@latest/zones.json",
+            "https://cdn.jsdelivr.net/gh/gn-math/assets@master/zones.json",
+            "https://cdn.jsdelivr.net/gh/gn-math/assets/zones.json"
+        ];
+        let zonesURL = zonesurls[Math.floor(Math.random() * zonesurls.length)];
+        const coverURL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+        const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+
         const DV_SERVICE_LFS_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
         const STRONGDOG_ROOT = "https://strongdog.com/";
         const GAMES_BASE_URL = `${DV_SERVICE_LFS_ROOT}GAMES/`; // Games served from the DV service
@@ -1586,9 +1591,62 @@
             });
             
             try {
-                const res = await fetch(GN_ZONES_URL);
-                const gnMathRaw = await res.json();
-                const gnMathGames = gnMathRaw.map(g => ({ id: `gn-${g.id}`, name: g.name, imgSrc: g.cover.replace("{COVER_URL}", GN_COVER_URL_BASE), category: 'GN-Math', url: g.url.replace("{HTML_URL}", GN_HTML_URL_BASE) }));
+                // --- NEW GN-MATH FETCHING LOGIC (PORTED FROM INDEX.HTML) ---
+                let sharesponse;
+                let shajson;
+                let sha;
+                try {
+                    sharesponse = await fetch("https://api.github.com/repos/gn-math/assets/commits?t="+Date.now());
+                } catch (error) {}
+                if (sharesponse && sharesponse.status === 200) {
+                    try {
+                        shajson = await sharesponse.json();
+                        sha = shajson[0]['sha'];
+                        if (sha) {
+                            zonesURL = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
+                        }
+                    } catch (error) {
+                        try {
+                            let secondarysharesponse = await fetch("https://raw.githubusercontent.com/gn-math/xml/refs/heads/main/sha.txt?t="+Date.now());
+                            if (secondarysharesponse && secondarysharesponse.status === 200) {
+                                sha = (await secondarysharesponse.text()).trim();
+                                if (sha) {
+                                    zonesURL = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
+                                }
+                            }
+                        } catch(error) {}
+                    }
+                }
+
+                // Fetch data for popularity (not actively used for sort here, but part of the original logic)
+                const popularityData = {};
+                try {
+                    const response = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period=year");
+                    const data = await response.json();
+                    data.forEach(file => {
+                        const idMatch = file.name.match(/\/(\d+)\.html$/);
+                        if (idMatch) {
+                            const id = parseInt(idMatch[1]);
+                            popularityData[id] = file.hits.total;
+                        }
+                    });
+                } catch (error) {
+                    popularityData[0] = 0;
+                }
+
+                const response = await fetch(zonesURL+"?t="+Date.now());
+                const gnMathRaw = await response.json();
+                
+                // Map to local structure using dynamic replacements
+                const gnMathGames = gnMathRaw.map(g => ({ 
+                    id: `gn-${g.id}`, 
+                    name: g.name, 
+                    imgSrc: g.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL), 
+                    category: 'GN-Math', 
+                    url: g.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL),
+                    popularity: popularityData[g.id] || 0
+                }));
+                
                 allGames = [...strongdogGames, ...gnMathGames, ...othersGames];
             } catch (error) { 
                 console.warn("Failed to load GN-Math, falling back to others.", error);

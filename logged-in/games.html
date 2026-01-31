@@ -1585,50 +1585,14 @@
                 return { ...g, id: prefixedId, category: 'StrongdogXP' };
             });
             
-            // --- Dynamically determine GN-Math URLs based on latest SHA ---
-            let gnMathZonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
-            let gnMathCoverURLBase = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
-            let gnMathHtmlURLBase = "https://cdn.jsdelivr.net/npm/gn-math.github.io-main@latest/html-main";
-
             try {
-                let sharesponse;
-                let sha;
-                try {
-                    sharesponse = await fetch("https://api.github.com/repos/gn-math/assets/commits?t=" + Date.now());
-                } catch (error) { }
-
-                if (sharesponse && sharesponse.status === 200) {
-                    try {
-                        const shajson = await sharesponse.json();
-                        sha = shajson[0]['sha'];
-                        if (sha) {
-                            gnMathZonesURL = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
-                            gnMathCoverURLBase = `https://cdn.jsdelivr.net/gh/gn-math/covers@${sha}`;
-                            gnMathHtmlURLBase = `https://cdn.jsdelivr.net/npm/gn-math.github.io-main@${sha}/html-main`; // Adjusted for npm like in snippet
-                        }
-                    } catch (error) {
-                        try {
-                            // Fallback to secondary SHA source if primary fails
-                            const secondarysharesponse = await fetch("https://raw.githubusercontent.com/gn-math/xml/refs/heads/main/sha.txt?t=" + Date.now());
-                            if (secondarysharesponse && secondarysharesponse.status === 200) {
-                                sha = (await secondarysharesponse.text()).trim();
-                                if (sha) {
-                                    gnMathZonesURL = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
-                                    gnMathCoverURLBase = `https://cdn.jsdelivr.net/gh/gn-math/covers@${sha}`;
-                                    gnMathHtmlURLBase = `https://cdn.jsdelivr.net/npm/gn-math.github.io-main@${sha}/html-main`;
-                                }
-                            }
-                        } catch (error) { }
-                    }
-                }
-
-                const res = await fetch(gnMathZonesURL);
+                const res = await fetch(GN_ZONES_URL);
                 const gnMathRaw = await res.json();
-                const gnMathGames = gnMathRaw.map(g => ({ id: `gn-${g.id}`, name: g.name, imgSrc: g.cover.replace("{COVER_URL}", gnMathCoverURLBase), category: 'GN-Math', url: g.url.replace("{HTML_URL}", gnMathHtmlURLBase) }));
+                const gnMathGames = gnMathRaw.map(g => ({ id: `gn-${g.id}`, name: g.name, imgSrc: g.cover.replace("{COVER_URL}", GN_COVER_URL_BASE), category: 'GN-Math', url: g.url.replace("{HTML_URL}", GN_HTML_URL_BASE) }));
                 allGames = [...strongdogGames, ...gnMathGames, ...othersGames];
-            } catch (error) {
+            } catch (error) { 
                 console.warn("Failed to load GN-Math, falling back to others.", error);
-                allGames = [...strongdogGames, ...othersGames];
+                allGames = [...strongdogGames, ...othersGames]; 
             }
 
             allGames = allGames.filter(g => !['bitlife', 'soundboard'].some(term => g.name.toLowerCase().includes(term)));

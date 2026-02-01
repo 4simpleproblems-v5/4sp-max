@@ -486,6 +486,25 @@
             });
         };
 
+        // --- NEW: Helper function added here ---
+        const checkAdminStatus = async (uid) => {
+            if (!uid) return false;
+            try {
+                const docSnap = await getDoc(doc(db, "admins", uid));
+                return docSnap.exists();
+            } catch (error) {
+                console.error("Error checking admin status:", error);
+                return false;
+            }
+        };
+
+        const renderAnalyticsView = () => {
+            loadUserData();
+            loadTrafficData();
+            // Start integrity check in background
+            setTimeout(runIntegrityCheck, 2000);
+        };
+
         const loadUserData = async () => {
             try {
                 const adminsSnap = await getDocs(collection(db, 'admins'));

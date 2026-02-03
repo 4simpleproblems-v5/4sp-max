@@ -1347,21 +1347,41 @@
                             }
                         };
                     } else {
-                        // For embedded content fetching
-                        const response = await fetch(`${game.url}?t=${Date.now()}`);
-                        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-                        const html = await response.text();
-
+                        // This block is for GN-Math and Eaglercraft (and possibly others not covered by isStandardURLGame)
                         if (game.category === 'GN-Math') {
-                            const blob = new Blob([html], { type: 'text/html' });
-                            const url = URL.createObjectURL(blob);
-                            zoneFrame.src = url;
+                            // For GN-Math, directly proxy the URL and set it as iframe src
+                            let proxiedGnMathUrl = game.url;
+                            if (window.Ultraviolet && window.__uv$config) {
+                                try {
+                                    proxiedGnMathUrl = window.location.origin + window.__uv$config.prefix + window.__uv$config.encodeUrl(game.url);
+                                } catch(e) {
+                                    console.error("Encoding failed for GN-Math game", e);
+                                    // Fallback to non-proxied URL if encoding fails
+                                    proxiedGnMathUrl = game.url;
+                                }
+                            } else if (window.Ultraviolet && Ultraviolet.codec && Ultraviolet.codec.xor) {
+                                proxiedGnMathUrl = window.location.origin + "/GAMES/uv/service/" + Ultraviolet.codec.xor.encode(game.url);
+                            }
+                            zoneFrame.src = proxiedGnMathUrl;
                             zoneFrame.onload = () => {
-                                URL.revokeObjectURL(url);
-                                zoneFrame.contentWindow.focus();
-                                zoneFrame.focus();
+                                // Focus logic from before
+                                let focusAttempts = 0;
+                                const forceFocusInterval = setInterval(() => {
+                                    if (zoneFrame.contentWindow) {
+                                        zoneFrame.contentWindow.focus();
+                                        zoneFrame.focus();
+                                    }
+                                    focusAttempts++;
+                                    if (focusAttempts > 20) clearInterval(forceFocusInterval);
+                                }, 100);
+                                zoneFrame.contentWindow.addEventListener('click', () => {
+                                    zoneFrame.contentWindow.focus();
+                                });
                             };
-                        } else {
+                        } else { // This is for Eaglercraft, which requires content injection
+                            const response = await fetch(`${game.url}?t=${Date.now()}`);
+                            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                            const html = await response.text();
                             const doc = zoneFrame.contentWindow.document;
                             doc.open();
                             doc.write(html);

@@ -1317,7 +1317,7 @@
             // --- REVISED LOGIC FOR LOADING GAMES WITH RETRY ---
             // GN-Math uses content injection. StrongdogXP and Others use standard loading.
             // EXCEPTION: Eaglercraft uses injection to ensure keyboard focus/input works correctly as a "local" file.
-            const isStandardURLGame = (game.category === 'Others' && !isEagler) || game.category === 'StrongdogXP';
+            const isStandardURLGame = game.category === 'GN-Math' || (game.category === 'Others' && !isEagler) || game.category === 'StrongdogXP';
             
             const attemptLoad = async (retriesLeft) => {
                 try {

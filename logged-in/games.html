@@ -1317,7 +1317,7 @@
             // --- REVISED LOGIC FOR LOADING GAMES WITH RETRY ---
             // GN-Math uses content injection. StrongdogXP and Others use standard loading.
             // EXCEPTION: Eaglercraft uses injection to ensure keyboard focus/input works correctly as a "local" file.
-            const isStandardURLGame = game.category === 'GN-Math' || (game.category === 'Others' && !isEagler) || game.category === 'StrongdogXP';
+            const isStandardURLGame = (game.category === 'Others' && !isEagler) || game.category === 'StrongdogXP';
             
             const attemptLoad = async (retriesLeft) => {
                 try {
@@ -1351,27 +1351,38 @@
                         const response = await fetch(`${game.url}?t=${Date.now()}`);
                         if (!response.ok) throw new Error(`HTTP error ${response.status}`);
                         const html = await response.text();
-                        const doc = zoneFrame.contentWindow.document;
-                        doc.open();
-                        doc.write(html);
-                        doc.close();
-                        
-                        // Aggressively force focus for injected games (Eaglercraft needs this)
-                        // We try multiple times because the game engine takes a moment to mount the canvas
-                        let focusAttempts = 0;
-                        const forceFocusInterval = setInterval(() => {
-                            if (zoneFrame.contentWindow) {
+
+                        if (game.category === 'GN-Math') {
+                            const blob = new Blob([html], { type: 'text/html' });
+                            const url = URL.createObjectURL(blob);
+                            zoneFrame.src = url;
+                            zoneFrame.onload = () => {
+                                URL.revokeObjectURL(url);
                                 zoneFrame.contentWindow.focus();
                                 zoneFrame.focus();
-                            }
-                            focusAttempts++;
-                            if (focusAttempts > 20) clearInterval(forceFocusInterval); // Stop after ~2 seconds
-                        }, 100);
-                        
-                        // Also ensure clicking the frame area works if the interval misses it
-                        zoneFrame.contentWindow.addEventListener('click', () => {
-                            zoneFrame.contentWindow.focus();
-                        });
+                            };
+                        } else {
+                            const doc = zoneFrame.contentWindow.document;
+                            doc.open();
+                            doc.write(html);
+                            doc.close();
+                            
+                            // Aggressively force focus for injected games (Eaglercraft needs this)
+                            let focusAttempts = 0;
+                            const forceFocusInterval = setInterval(() => {
+                                if (zoneFrame.contentWindow) {
+                                    zoneFrame.contentWindow.focus();
+                                    zoneFrame.focus();
+                                }
+                                focusAttempts++;
+                                if (focusAttempts > 20) clearInterval(forceFocusInterval); // Stop after ~2 seconds
+                            }, 100);
+                            
+                            // Also ensure clicking the frame area works if the interval misses it
+                            zoneFrame.contentWindow.addEventListener('click', () => {
+                                zoneFrame.contentWindow.focus();
+                            });
+                        }
                     }
 
                     // Reveal the viewer fully after content load starts

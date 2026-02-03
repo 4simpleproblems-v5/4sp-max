@@ -1363,21 +1363,7 @@
                                 proxiedGnMathUrl = window.location.origin + "/GAMES/uv/service/" + Ultraviolet.codec.xor.encode(game.url);
                             }
                             zoneFrame.src = proxiedGnMathUrl;
-                            zoneFrame.onload = () => {
-                                // Focus logic from before
-                                let focusAttempts = 0;
-                                const forceFocusInterval = setInterval(() => {
-                                    if (zoneFrame.contentWindow) {
-                                        zoneFrame.contentWindow.focus();
-                                        zoneFrame.focus();
-                                    }
-                                    focusAttempts++;
-                                    if (focusAttempts > 20) clearInterval(forceFocusInterval);
-                                }, 100);
-                                zoneFrame.contentWindow.addEventListener('click', () => {
-                                    zoneFrame.contentWindow.focus();
-                                });
-                            };
+                            // NOTE: The onload handler was removed to prevent cross-origin errors when trying to access the contentWindow.
                         } else { // This is for Eaglercraft, which requires content injection
                             const response = await fetch(`${game.url}?t=${Date.now()}`);
                             if (!response.ok) throw new Error(`HTTP error ${response.status}`);

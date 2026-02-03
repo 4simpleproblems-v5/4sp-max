@@ -12,29 +12,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="../navigation.js"></script>
-    <script src="../panic-key.js"></script>
-    <script src="../tab-disguiser.js"></script>
+    <script src="/injector.js"></script>
 
-    
+    <!-- VERN Proxy Scripts -->
     <script src="/logged-in/uv/uv.bundle.js"></script>
+    <script src="/logged-in/uv/uv.client.js"></script>
     <script src="/logged-in/uv/uv.config.js"></script>
-
-    <script>
-        // Register UV service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/logged-in/uv/sw.js', {
-                scope: '/logged-in/uv/service/'
-            })
-            .then(() => {
-                console.log('UV service worker registered.');
-            })
-            .catch(error => {
-                console.error('UV service worker registration failed:', error);
-            });
-        }
-    </script>
-
+    <script src="/logged-in/baremux/index.js"></script>
+    
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1D4F692C1Q"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -564,6 +549,198 @@
             cursor: default;
             color: #555;
         }
+
+        /* --- Fullscreen Credits Styles --- */
+        #creditsModal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: #000000;
+            display: none; /* Flex when active */
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #creditsModal.active { display: flex; opacity: 1; }
+
+        .credits-scroll-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none; /* Hide scrollbar for immersion */
+        }
+        .credits-scroll-container::-webkit-scrollbar { display: none; }
+
+        .credit-section {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .credit-content-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 6rem;
+            max-width: 1600px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .credit-text-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .credit-title {
+            font-size: 5rem;
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(to right, #fff, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.2s;
+        }
+
+        .credit-desc {
+            font-size: 1.5rem;
+            color: #d1d5db;
+            line-height: 1.6;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.4s;
+        }
+
+        .credit-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpFade 0.8s ease-out forwards 0.6s;
+        }
+
+        .credit-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .credit-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* Specialized Brand Colors */
+        .btn-github:hover { border-color: #a78bfa; color: #a78bfa; background: rgba(167, 139, 250, 0.1); }
+        .btn-discord:hover { border-color: #5865F2; color: #5865F2; background: rgba(88, 101, 242, 0.1); }
+
+        .credit-img-col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.4s;
+        }
+        .credit-logo {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1/1;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 50px rgba(0,0,0,0.6));
+        }
+
+        @keyframes slideUpFade {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #closeCreditsFixed {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 10000;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid #333;
+            color: #fff;
+            width: 2.5rem; /* Smaller width */
+            height: 2.5rem; /* Smaller height */
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #closeCreditsFixed i {
+            font-size: 1rem; /* Smaller icon */
+        }
+        #closeCreditsFixed:hover {
+            filter: brightness(1.2);
+            background: rgba(20, 20, 20, 0.8);
+            border-color: #555;
+        }
+
+        .credits-nav-bar {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            gap: 1rem;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 2rem; /* More rounded (pill shape) */
+            border: 1px solid #333;
+        }
+        .credits-nav-btn {
+            background: transparent;
+            border: none;
+            color: #d1d5db;
+            width: 2.5rem; /* Smaller width */
+            height: 2.5rem; /* Smaller height */
+            border-radius: 1rem; /* More rounded */
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem; /* Smaller icon */
+        }
+        .credits-nav-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .credits-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+            color: #555;
+        }
     </style>
 </head>
 
@@ -576,8 +753,8 @@
         
         <div class="mx-auto my-8 p-4 sm:p-6 w-full max-w-3xl relative">
             <p class="bg-card-dark text-white p-5 rounded-2xl shadow-lg border border-brand-border text-center">
-                <strong class="text-sm sm:text-base">Update: Proxied StrongdogXP Games</strong><br>
-                <span class="text-xs sm:text-sm text-gray-400">Update: GN-Math games are no longer blocked on most school networks, now loading from a widely used file source. For StrongdogXP games, instead of entirely relying on 4SP's sources, we're now proxying games fetched directly from the Strongdog website for a wider and more consistent selection.</span>
+                <strong class="text-sm sm:text-base">Update: Game Collection Fixed</strong><br>
+                <span class="text-xs sm:text-sm text-gray-400">Update: GN-Math games are no longer blocked on most school networks. The games now load from a widely used file source instead of the old one, which many filters like Securly blocked by default, so everything should work normally now. Also, I have fixed a major bug where 895 games were missing from the StrongdogXP category, which have been added back.</span>
             </p>
         </div>
         
@@ -632,13 +809,13 @@
                 <button id="closeBtnZone" title="Close"><i class="fas fa-times"></i></button>
              </div>
         </div>
-        <iframe id="zoneFrame" title="Game Content" sandbox="allow-scripts allow-forms allow-pointer-lock"></iframe>
+        <iframe id="zoneFrame" title="Game Content" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"></iframe>
     </div>
 
     <div id="creditsModal">
         <button id="closeCreditsFixed"><i class="fas fa-times text-2xl"></i></button>
         <div id="creditsScrollContainer" class="credits-scroll-container">
-            
+            <!-- Sections injected via JS -->
         </div>
         <div class="credits-nav-bar">
             <button id="creditsPrevBtn" class="credits-nav-btn"><i class="fas fa-chevron-up"></i></button>
@@ -686,22 +863,53 @@
     <script>
         // --- Configuration & Globals ---
         
-        // Copied directly from index.html for exact matching
-        const zonesurls = [
-            "https://cdn.jsdelivr.net/%67%68/%67%6e%2d%6d%61%74%68/%61%73%73%65%74%73@%6d%61%69%6e/%7a%6f%6e%65%73%2e%6a%73%6f%6e",
-            "https://cdn.jsdelivr.net/gh/gn-math/assets@latest/zones.json",
-            "https://cdn.jsdelivr.net/gh/gn-math/assets@master/zones.json",
-            "https://cdn.jsdelivr.net/gh/gn-math/assets/zones.json"
-        ];
-        let zonesURL = zonesurls[Math.floor(Math.random() * zonesurls.length)];
-        const coverURL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
-        const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+        const UV_CONFIG = {
+            prefix: '/logged-in/uv/service/',
+            encodeUrl: (url) => {
+                if (!url) return url;
+                if (window.Ultraviolet && window.Ultraviolet.codec && window.Ultraviolet.codec.xor) {
+                    return window.Ultraviolet.codec.xor.encode(url);
+                }
+                // Fallback XOR
+                let t = "";
+                for (let r = 0; r < url.length; r++) {
+                    t += r % 2 ? String.fromCharCode(url.charCodeAt(r) ^ 2) : url[r];
+                }
+                return encodeURIComponent(t);
+            }
+        };
 
-        const DV_SERVICE_LFS_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
-        const STRONGDOG_ROOT = "https://strongdog.com/";
-        const GAMES_BASE_URL = `${DV_SERVICE_LFS_ROOT}GAMES/`; // Games served from the DV service
-        const CARDS_DATA_URL = "../GAMES/cards-data.js";
-        const WORKER_ROOT = DV_SERVICE_LFS_ROOT; // Use DV_SERVICE_LFS_ROOT as the base for worker-rooted paths
+        /**
+         * Proxies a URL through the VERN (Ultraviolet) system to bypass CORS.
+         */
+        function proxyUrl(url) {
+            if (!url) return url;
+            const origin = window.location.origin;
+
+            // Don't double proxy
+            if (url.includes(UV_CONFIG.prefix)) return url;
+
+            // Exclude GN-Math (jsdelivr) from proxying as it has native CORS support
+            // and we use content injection for it anyway.
+            if (url.includes('cdn.jsdelivr.net')) return url;
+
+            // Proxy external URLs, especially the dv-service-lfs worker
+            if (url.startsWith('http') && !url.startsWith(origin)) {
+                return origin + UV_CONFIG.prefix + UV_CONFIG.encodeUrl(url);
+            }
+            
+            return url;
+        }
+
+        const GN_ZONES_URL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
+        const GN_COVER_URL_BASE = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+        
+        // UPDATED: Use cdn.jsdelivr.net for GN-Math and handle content injection
+        const GN_HTML_URL_BASE = "https://cdn.jsdelivr.net/npm/gn-math.github.io-main@latest/html-main";
+        
+        const WORKER_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
+        const GAMES_BASE_URL = "https://dv-service-lfs.4simpleproblems.workers.dev/GAMES/";
+        const CARDS_DATA_URL = "https://dv-service-lfs.4simpleproblems.workers.dev/GAMES/cards-data.js";
 
         const FAVORITES_KEY = 'gameHubFavorites_v3';
 
@@ -712,6 +920,7 @@
         const categoryColors = {
             'StrongdogXP': 'text-strongdog-orange',
             'GN-Math': 'text-gn-math',
+            'Gameboy Games': 'text-gameboy',
             'Others': 'text-other-grey', 
         };
         
@@ -931,23 +1140,21 @@
 
         // --- URL Helpers (Strongdog) ---
         // Modified to support injected URLs using WORKER_ROOT + directory logic
-        function getAdjustedUrls(game) {
-            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
-
-            if (game.page && game.page > 1) {
+        function getAdjustedUrls(imgSrc, page) {
+            if (page && page > 1) {
                 // ../strongdog2/img/... -> exists outside GAMES dir
-                return { adjustedImgSrc: `${root}strongdog${game.page}/img/${game.imgSrc}` };
+                return { adjustedImgSrc: `${WORKER_ROOT}strongdog${page}/img/${imgSrc}` };
             }
             // ./img -> assumed inside GAMES dir or wherever relative
-            return { adjustedImgSrc: `${root}GAMES/img/${game.imgSrc}` }; 
+            return { adjustedImgSrc: `${GAMES_BASE_URL}img/${imgSrc}` }; 
         }
         
-        function sd_getBaseURLForPage(game) {
-            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
-
+        function sd_getBaseURLForPage(page) {
             // Updated to point to WORKER_ROOT for numbered pages, GAMES_BASE_URL for default
-            if (game.page > 1) return `${root}strongdog${game.page}/`;
-            return `${root}GAMES/`; 
+            if (page > 1) return `${WORKER_ROOT}strongdog${page}/`;
+            return `${WORKER_ROOT}GAMES/`; // Assumes default strongdog is at root/STRONGDOG? Or inside GAMES?
+            // Re-reading logic: "stuff like ../DOOM/ will stay in GAMES directory but strongdog# directories exit"
+            // Let's assume default STRONGDOG is adjacent to strongdog2 etc. at root level based on prior naming conventions
         }
         
         async function sd_getEmbedPath(adjustedHref, originalHref, page) {
@@ -955,7 +1162,7 @@
             if (!cleanHref.endsWith("/")) cleanHref += "/";
             const pathsToTry = [cleanHref + "game/index.html", cleanHref + "game/base.html", cleanHref + "gamereal/index.html", cleanHref + "gamereal/base.html", cleanHref + "index.html", cleanHref + "base.html", ];
             try {
-                const response = await fetch(adjustedHref);
+                const response = await fetch(proxyUrl(adjustedHref));
                 if (response.ok) {
                     const text = await response.text();
                     const match = text.match(/embedGame\((['"])(.*?)\1,\s*(['"])(.*?)\3\)/);
@@ -971,75 +1178,40 @@
             return adjustedHref;
         }
         async function sd_fileExists(url) {
-            try { const response = await fetch(url, { method: "HEAD" }); return response.ok; } catch { return false; }
-        }
-
-        function proxyUrl(url) {
-            if (!url) return url;
-            const origin = window.location.origin;
-            if (url.startsWith(origin)) return url;
-            
-            // PERFORMANCE: Direct loading for safe CORS domains
-            // Workers and jsDelivr support CORS and are usually faster than proxying
-            if ((url.includes('workers.dev') && !url.includes('gvc.html')) || url.includes('cdn.jsdelivr.net')) {
-                return url;
-            }
-
-            // Ensure UV is ready for encoding
-            if (window.Ultraviolet && window.__uv$config) {
-                try {
-                    return origin + window.__uv$config.prefix + window.__uv$config.encodeUrl(url);
-                } catch(e) {
-                    console.error("Encoding failed", e);
-                }
-            }
-            
-            // Fallback during early boot
-            if (window.Ultraviolet && Ultraviolet.codec && Ultraviolet.codec.xor) {
-                return origin + "/GAMES/uv/service/" + Ultraviolet.codec.xor.encode(url);
-            }
-            
-            return url;
+            try { const response = await fetch(proxyUrl(url), { method: "HEAD" }); return response.ok; } catch { return false; }
         }
 
         function resolveGameUrl(relativePath) {
             if (!relativePath) return "";
             
-            // If it's already an absolute URL return it
+            let url = relativePath;
+            // If it's already an absolute URL, proxy it if needed
             if (relativePath.startsWith('http') || relativePath.startsWith('//')) {
                 return proxyUrl(relativePath);
             }
 
             // If it's a root-relative path, prepend the origin to make it a full absolute URL
             if (relativePath.startsWith('/')) {
-                // If it's something like /images/eaglercraft.png, use WORKER_ROOT as base.
-                // Otherwise, use window.location.origin as base for other root-relative paths.
-                if (relativePath.startsWith('/images/')) {
-                    return proxyUrl(`${GAMES_BASE_URL}${relativePath.substring(1)}`); // Remove leading '/' and use WORKER_ROOT
-                }
-                return proxyUrl(window.location.origin + relativePath);
-            }
-
-            if (relativePath.startsWith('../')) {
+                url = window.location.origin + relativePath;
+            } else if (relativePath.startsWith('../')) {
+                // Logic: 
+                // If path starts with ../ -> Go to WORKER_ROOT + path (stripping ../)
+                // If path starts with ../GAMES/ -> It will effectively be WORKER_ROOT/GAMES/ (which matches GAMES_BASE_URL)
                 const pathPart = relativePath.substring(3); // Remove '../'
-                return proxyUrl(`${WORKER_ROOT}${pathPart}`);
+                url = `${WORKER_ROOT}${pathPart}`;
+            } else {
+                // If it doesn't start with ../, assume it's relative to GAMES base
+                url = `${GAMES_BASE_URL}${relativePath.replace(/^\.\//, '')}`;
             }
             
-            // Handle paths starting with "images/" which are relative to the project root.
-            // This is a common pattern for othersGames in our setup.
-            if (relativePath.startsWith('images/')) {
-                return proxyUrl(`${GAMES_BASE_URL}${relativePath}`);
-            }
-            
-            // If it doesn't start with ../, assume it's relative to GAMES base
-            return proxyUrl(`${GAMES_BASE_URL}${relativePath.replace(/^\.\//, '')}`);
+            return proxyUrl(url);
         }
 
         // --- Game Data (Others) ---
         // We keep the original relative paths here so the resolver logic above can handle them dynamically
         const othersGames = [
-            { id: "other-eaglercraft", name: "Eaglercraft", imgSrc: "images/eaglercraft.png", description: "The classic survival and building game with authentic block-based physics and multiplayer support, accessible directly in the browser.", category: "Others", versions: [ { name: "1.12.2", url: "../EAGLERCRAFT/eaglercraft-1.12.2.html", favoriteId: "other-eaglercraft_1.12.2" }, { name: "1.12.2 WASM", url: "../EAGLERCRAFT/eaglercraft-1.12.2-wasm.html", favoriteId: "other-eaglercraft_wasm", wasm: true } ] },
-            { id: "other-balatro", name: "Balatro", imgSrc: "../GAMES/others/balatro.png", description: "Balatro is a poker-themed deck-building roguelike video game.", category: "Others", url: "https://drive.google.com/uc?export=download&id=1EiwjvWTq3M9_Q1CPyd1g1zNZITzRa9mA", isDownload: true },
+            { id: "other-eaglercraft", name: "Eaglercraft", imgSrc: "images/eaglercraft.png", description: "The classic survival and building game with authentic block-based physics and multiplayer support, accessible directly in the browser.", category: "Others", versions: [ { name: "Release 1.12.2", url: "../EAGLERCRAFT/eaglercraft-1.12.2.html", favoriteId: "other-eaglercraft_1.12.2" }, { name: "Release 1.12.2 WASM", url: "../EAGLERCRAFT/eaglercraft-1.12.2-wasm.html", favoriteId: "other-eaglercraft_wasm", wasm: true } ] },
+            { id: "other-gvc", name: "GTA: Vice City", imgSrc: "images/gvc.png", favImgSrc: "images/gvc-3-2.png", description: "Experience the 80s in Vice City. Build your criminal empire in this neon-soaked open world masterpiece.", category: "Others", url: "others/gvc.html" },
             { id: "other-gta", name: "Grand Theft Auto", imgSrc: "images/gta.png", description: "The original top-down classic. Cause chaos, complete missions, or just go for a drive in three iconic cities.", category: "Others", versions: [ { name: "Carnage3D", url: "../CARNAGE3D/web/carnage3D.html", favoriteId: "other-gta_carnage3d" }, { name: "Grand Theft Auto (JS-DOS)", url: "../GTA-JSDOS/index.html", favoriteId: "other-gta_jsdos" } ] },
             { id: "other-simcity", name: "Sim City", imgSrc: "images/simcity2000.png", description: "The original city-building classics. Design, build, and manage the city of your dreams in either the original Sim City or the detailed Sim City 2000.", category: "Others", versions: [ { name: "Sim City", url: "../SIM-CITY/index.html", favoriteId: "other-simcity_1" }, { name: "Sim City 2000", url: "../SIM-CITY-2/index.html", favoriteId: "other-simcity_2000" } ] },
             { id: "other-doom", name: "DOOM", imgSrc: "images/doom.png", description: "The legendary first-person shooter that pioneered the genre, focusing on blasting through hordes of demons in a timeless, adrenaline-fueled classic.", category: "Others", url: "../DOOM/index.html" },
@@ -1055,8 +1227,8 @@
             card.className = 'other-zone-item bg-card-dark rounded-2xl border border-brand-border col-span-full shadow-lg'; 
             card.dataset.gameId = game.id;
 
-            // Resolve Image URL
-            const resolvedImgSrc = game.id === 'other-balatro' ? game.imgSrc : resolveGameUrl(game.imgSrc);
+            // Resolve Image URL and proxy it
+            const resolvedImgSrc = proxyUrl(resolveGameUrl(game.imgSrc));
 
             let gameButtonsHtml = '';
             let favoriteButtonHtml = '';
@@ -1075,22 +1247,18 @@
                 }
                 favoriteButtonHtml = `<div class="relative"><button class="btn-card-action fav-action version-favorite-btn ${isAnyFavorite ? 'favorited' : ''}" title="Favorite a version"><i class="fa-solid fa-star fa-solid-star transition-colors"></i><i class="fa-regular fa-star fa-regular-star transition-colors"></i></button><div class="eagler-dropdown">${game.versions.map(v => `<a href="#" class="eagler-dropdown-link favorite-link" data-favorite-id="${v.favoriteId}">${v.name}</a>`).join('')}</div></div>`;
             } else {
-                if (game.isDownload) {
-                    gameButtonsHtml = `<a class="btn-card-action download-action" href="${game.url}" target="_blank" title="Download Game"><i class="fa-solid fa-download transition-colors"></i></a>`;
-                } else {
-                    const gUrl = resolveGameUrl(game.url);
-                    gameButtonsHtml = `<button class="btn-card-action play-action" data-url="${gUrl}" title="Play Game"><i class="fa-solid fa-play transition-colors"></i></button>`;
-                }
+                const gUrl = resolveGameUrl(game.url);
+                gameButtonsHtml = `<button class="btn-card-action play-action" data-url="${gUrl}" title="Play Game"><i class="fa-solid fa-play transition-colors"></i></button>`;
                 favoriteButtonHtml = `<button class="btn-card-action fav-action ${isAnyFavorite ? 'favorited' : ''}" title="${isAnyFavorite ? 'Remove from Favorites' : 'Add to Favorites'}"><i class="fa-solid fa-star fa-solid-star transition-colors"></i><i class="fa-regular fa-star fa-regular-star transition-colors"></i></button>`;
             }
 
             card.innerHTML = `
                 <div class="relative w-full h-full cursor-pointer group" style="min-height: 250px;">
-                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="${resolvedImgSrc}" alt="${game.name}" class="w-full h-full object-cover absolute inset-0 rounded-2xl">
+                    <img data-src="${resolvedImgSrc}" alt="${game.name}" loading="lazy" decoding="async" class="w-full h-full object-cover absolute inset-0 rounded-2xl">
                     <div class="image-overlay absolute inset-0 transition-colors duration-200"></div>
                     <div class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between rounded-2xl">
                         <div class="flex items-start justify-between w-full">
-                            <h3 class="text-4xl font-bold text-white truncate drop-shadow-lg group-hover:max-w-[calc(100%-1rem)] transition-all duration-700 ease-[cubic-bezier(0.45,0,0.55,1)]" title="${game.name}">${game.name}</h3>
+                            <h3 class="text-4xl font-bold text-white truncate drop-shadow-lg" style="max-width: 80%;" title="${game.name}">${game.name}</h3>
                             <div class="flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-2xl p-1.5">
                                 ${gameButtonsHtml}
                                 ${favoriteButtonHtml}
@@ -1102,23 +1270,12 @@
             `;
             
             if (!game.versions) { 
-                if (game.isDownload) {
-                     card.querySelector('.group').addEventListener('click', (e) => { e.preventDefault(); window.open(game.url, '_blank'); });
-                } else {
-                     card.querySelector('.group').addEventListener('click', () => {
-                          const gUrl = resolveGameUrl(game.url);
-                          openZone({...game, url: gUrl}); 
-                     }); 
-                }
+                card.querySelector('.group').addEventListener('click', () => {
+                     const gUrl = resolveGameUrl(game.url);
+                     openZone({...game, url: gUrl}); 
+                }); 
             }
-            card.querySelectorAll('.play-action, .download-action').forEach(btn => btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (btn.classList.contains('download-action')) {
-                    window.open(btn.href, '_blank');
-                } else {
-                    openZone({ ...game, name: btn.dataset.versionName ? `${game.name} - ${btn.dataset.versionName}` : game.name, url: btn.dataset.url });
-                }
-            }));
+            card.querySelectorAll('.play-action').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openZone({ ...game, name: btn.dataset.versionName ? `${game.name} - ${btn.dataset.versionName}` : game.name, url: btn.dataset.url }); }));
             
             const versionBtn = card.querySelector('.version-btn');
             if (versionBtn) { versionBtn.addEventListener('click', (e) => { e.stopPropagation(); document.querySelectorAll('.eagler-dropdown.show').forEach(d => d.classList.remove('show')); versionBtn.nextElementSibling.classList.toggle('show'); }); }
@@ -1141,14 +1298,14 @@
             const isStrongdog = game.category === 'StrongdogXP';
             
             // Resolve Image Src
-            let imgSrc = game.imgSrc;
-            if (game.id === 'other-balatro' && forceSmallCard) {
-                imgSrc = "../GAMES/others/balatro-3-2.png";
-            } else if (isStrongdog) {
-                 imgSrc = getAdjustedUrls(game).adjustedImgSrc;
-            } else if (game.category === 'Others') {
-                 imgSrc = resolveGameUrl(game.imgSrc);
+            let imgSrc = (forceSmallCard && game.favImgSrc) ? game.favImgSrc : game.imgSrc;
+            if (isStrongdog) {
+                 imgSrc = getAdjustedUrls(imgSrc, game.page).adjustedImgSrc;
+            } else if (game.category === 'Others' || game.category === 'Gameboy Games') {
+                 imgSrc = resolveGameUrl(imgSrc);
             }
+
+            imgSrc = proxyUrl(imgSrc);
 
             const isFavorite = getFavorites().map(String).includes(String(game.id));
 
@@ -1157,10 +1314,10 @@
             card.dataset.gameId = game.id;
             card.innerHTML = `
                 <div class="relative w-full cursor-pointer group">
-                    <div class="aspect-w-3 aspect-h-2"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="${imgSrc}" alt="${game.name}" class="w-full h-full object-cover"></div>
-                    <h3 class="absolute top-2 right-2 z-10 max-w-[80%] group-hover:max-w-[calc(100%-1rem)] transition-all duration-700 ease-[cubic-bezier(0.45,0,0.55,1)] bg-black/60 backdrop-blur-md rounded-xl px-3 py-1.5 text-white truncate text-sm font-semibold shadow-lg" title="${game.name}">${game.name}</h3>
+                    <div class="aspect-w-3 aspect-h-2"><img data-src="${imgSrc}" alt="${game.name}" class="w-full h-full object-cover"></div>
+                    <h3 class="absolute top-2 right-2 z-10 max-w-[80%] bg-black/60 backdrop-blur-md rounded-xl px-3 py-1.5 text-white truncate text-sm font-semibold shadow-lg" title="${game.name}">${game.name}</h3>
                     <div class="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-2xl p-1.5 flex items-center gap-1.5 shadow-lg">
-                        ${game.isDownload ? `<a class="btn-card-action download-action" href="${game.url}" target="_blank" title="Download Game"><i class="fa-solid fa-download transition-colors"></i></a>` : `<button class="btn-card-action play-action" title="Play Game"><i class="fa-solid fa-play transition-colors"></i></button>`}
+                        <button class="btn-card-action play-action" title="Play Game"><i class="fa-solid fa-play transition-colors"></i></button>
                         <button class="btn-card-action fav-action ${isFavorite ? 'favorited' : ''}" title="${isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}"><i class="fa-solid fa-star fa-solid-star transition-colors"></i><i class="fa-regular fa-star fa-regular-star transition-colors"></i></button>
                     </div>
                 </div>
@@ -1168,29 +1325,23 @@
             
             const handlePlay = async (e) => {
                 e.stopPropagation();
-                if (game.isDownload) {
-                    window.open(game.url, '_blank');
-                } else if (isStrongdog) {
-                    const baseURL = sd_getBaseURLForPage(game);
+                if (isStrongdog) {
+                    const baseURL = sd_getBaseURLForPage(game.page);
                     let adjustedHref = baseURL.endsWith("/") ? baseURL + game.href.replace(/^\.\//, "") : baseURL + "/" + game.href.replace(/^\.\//, "");
                     const embedPath = await sd_getEmbedPath(adjustedHref, game.href, game.page);
                     openZone({ name: game.name, url: embedPath, category: game.category, id: game.id });
                 } else {
+                    // For GN-Math, url is absolute (handled in init). For Others/Gameboy, we might need to resolve
                     let gUrl = game.url;
-                    if (game.category === 'Others') {
-                        gUrl = resolveGameUrl(gUrl);
+                    if (game.category === 'Others' || game.category === 'Gameboy Games') {
+                        gUrl = resolveGameUrl(game.url);
                     }
                     openZone({ ...game, url: gUrl });
                 }
             };
 
-            if (game.isDownload) {
-                 card.querySelector('.group').addEventListener('click', (e) => { e.preventDefault(); window.open(game.url, '_blank'); });
-                 card.querySelector('.download-action').addEventListener('click', (e) => { e.stopPropagation(); window.open(e.currentTarget.href, '_blank'); });
-            } else {
-                 card.querySelector('.group').addEventListener('click', handlePlay);
-                 card.querySelector('.play-action').addEventListener('click', handlePlay);
-            }
+            card.querySelector('.group').addEventListener('click', handlePlay);
+            card.querySelector('.play-action').addEventListener('click', handlePlay);
             card.querySelector('.fav-action').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(game.id); });
             imageObserver.observe(card.querySelector('img'));
             return card;
@@ -1199,7 +1350,7 @@
         // --- Helper for Download ---
         async function downloadResource(url, filename) {
             try {
-                const r = await fetch(url);
+                const r = await fetch(proxyUrl(url));
                 if (!r.ok) throw new Error("Fetch failed");
                 const b = await r.blob();
                 const a = document.createElement("a");
@@ -1311,23 +1462,27 @@
             // Fixed Allow attribute syntax to prevent warnings and enable features properly
             // Removed allowfullscreen as "allow='fullscreen'" takes precedence
             zoneFrame.setAttribute('allow', 'autoplay; fullscreen; pointer-lock; clipboard-write');
-            const sandboxRules = 'allow-scripts allow-forms allow-pointer-lock';
+            const sandboxRules = 'allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups';
             zoneFrame.setAttribute('sandbox', sandboxRules);
 
             // --- REVISED LOGIC FOR LOADING GAMES WITH RETRY ---
             // GN-Math uses content injection. StrongdogXP and Others use standard loading.
             // EXCEPTION: Eaglercraft uses injection to ensure keyboard focus/input works correctly as a "local" file.
-            const isStandardURLGame = (game.category === 'Others' && !isEagler) || game.category === 'StrongdogXP';
+            const isInjectedGame = isEagler;
+            const isStandardURLGame = (game.category === 'Others' && !isInjectedGame) || game.category === 'StrongdogXP';
             
+            // Ensure the game URL is proxied if it's from the workers.dev domain
+            const finalGameUrl = proxyUrl(game.url);
+
             const attemptLoad = async (retriesLeft) => {
                 try {
                     // Pre-check URL validity
-                    const check = await fetch(game.url, { method: 'HEAD' });
+                    const check = await fetch(finalGameUrl, { method: 'HEAD' });
                     if (!check.ok) throw new Error(`HTTP ${check.status}`);
                     
                     // If successful, set src
                     if (isStandardURLGame) {
-                        zoneFrame.src = game.url;
+                        zoneFrame.src = finalGameUrl;
                         // Prevent showing raw directory listing if it resolves to a folder
                         zoneFrame.onload = () => {
                             try {
@@ -1347,48 +1502,31 @@
                             }
                         };
                     } else {
-                        // This block is for GN-Math and Eaglercraft (and possibly others not covered by isStandardURLGame)
-                        if (game.category === 'GN-Math') {
-                            // For GN-Math, directly proxy the URL and set it as iframe src
-                            let proxiedGnMathUrl = game.url;
-                            if (window.Ultraviolet && window.__uv$config) {
-                                try {
-                                    proxiedGnMathUrl = window.location.origin + window.__uv$config.prefix + window.__uv$config.encodeUrl(game.url);
-                                } catch(e) {
-                                    console.error("Encoding failed for GN-Math game", e);
-                                    // Fallback to non-proxied URL if encoding fails
-                                    proxiedGnMathUrl = game.url;
-                                }
-                            } else if (window.Ultraviolet && Ultraviolet.codec && Ultraviolet.codec.xor) {
-                                proxiedGnMathUrl = window.location.origin + "/GAMES/uv/service/" + Ultraviolet.codec.xor.encode(game.url);
-                            }
-                            zoneFrame.src = proxiedGnMathUrl;
-                            // NOTE: The onload handler was removed to prevent cross-origin errors when trying to access the contentWindow.
-                        } else { // This is for Eaglercraft, which requires content injection
-                            const response = await fetch(`${game.url}?t=${Date.now()}`);
-                            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-                            const html = await response.text();
-                            const doc = zoneFrame.contentWindow.document;
-                            doc.open();
-                            doc.write(html);
-                            doc.close();
-                            
-                            // Aggressively force focus for injected games (Eaglercraft needs this)
-                            let focusAttempts = 0;
-                            const forceFocusInterval = setInterval(() => {
-                                if (zoneFrame.contentWindow) {
-                                    zoneFrame.contentWindow.focus();
-                                    zoneFrame.focus();
-                                }
-                                focusAttempts++;
-                                if (focusAttempts > 20) clearInterval(forceFocusInterval); // Stop after ~2 seconds
-                            }, 100);
-                            
-                            // Also ensure clicking the frame area works if the interval misses it
-                            zoneFrame.contentWindow.addEventListener('click', () => {
+                        // For embedded content fetching
+                        const response = await fetch(`${finalGameUrl}${finalGameUrl.includes('?') ? '&' : '?'}t=${Date.now()}`);
+                        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                        const html = await response.text();
+                        const doc = zoneFrame.contentWindow.document;
+                        doc.open();
+                        doc.write(html);
+                        doc.close();
+                        
+                        // Aggressively force focus for injected games (Eaglercraft needs this)
+                        // We try multiple times because the game engine takes a moment to mount the canvas
+                        let focusAttempts = 0;
+                        const forceFocusInterval = setInterval(() => {
+                            if (zoneFrame.contentWindow) {
                                 zoneFrame.contentWindow.focus();
-                            });
-                        }
+                                zoneFrame.focus();
+                            }
+                            focusAttempts++;
+                            if (focusAttempts > 20) clearInterval(forceFocusInterval); // Stop after ~2 seconds
+                        }, 100);
+                        
+                        // Also ensure clicking the frame area works if the interval misses it
+                        zoneFrame.contentWindow.addEventListener('click', () => {
+                            zoneFrame.contentWindow.focus();
+                        });
                     }
 
                     // Reveal the viewer fully after content load starts
@@ -1399,14 +1537,14 @@
                 } catch (e) {
                     console.warn(`Load failed for ${game.name}. Retries left: ${retriesLeft}`, e);
                     if (retriesLeft > 0) {
-                        setTimeout(() => attemptLoad(retriesLeft - 1), 0);
+                        setTimeout(() => attemptLoad(retriesLeft - 1), 1000); // Retry after 1s
                     } else {
                         show404("The game files could not be loaded after multiple attempts.");
                     }
                 }
             };
 
-            attemptLoad(49); // Try 50 times total (1 initial + 49 retries)
+            attemptLoad(2); // Try 3 times total (1 initial + 2 retries)
         }
 
         function closeZoneViewer() {
@@ -1452,10 +1590,10 @@
                         game.versions.forEach(v => { 
                             if (favoriteIds.includes(String(v.favoriteId))) {
                                 let vUrl = v.url;
-                                if (game.category === 'Others') {
+                                if (game.category === 'Others' || game.category === 'Gameboy Games') {
                                     vUrl = resolveGameUrl(v.url);
                                 }
-                                favoriteGames.push({ ...game, id: v.favoriteId, name: `${game.name} - ${v.name}`, url: vUrl, imgSrc: game.imgSrc, versions: undefined }); 
+                                favoriteGames.push({ ...game, id: v.favoriteId, name: `${game.name} - ${v.name}`, url: vUrl, versions: undefined }); 
                             }
                         }); 
                     }
@@ -1517,13 +1655,14 @@
                 let finalGameData = { ...game }; // clone
 
                 if (isStrongdog) {
-                    const { adjustedImgSrc } = getAdjustedUrls(game);
-                    imgSrc = adjustedImgSrc;
-                } else if (game.category === 'Others') {
+                    const { adjustedImgSrc } = getAdjustedUrls(game.imgSrc, game.page);
+                    imgSrc = proxyUrl(adjustedImgSrc);
+                } else if (game.category === 'Others' || game.category === 'Gameboy Games') {
                     imgSrc = resolveGameUrl(game.imgSrc);
                     finalGameData.url = resolveGameUrl(game.url);
                 } else {
-                    imgSrc = game.imgSrc;
+                    imgSrc = proxyUrl(game.imgSrc);
+                    finalGameData.url = proxyUrl(game.url);
                 }
                 
                 const linkEl = document.createElement("a");
@@ -1565,7 +1704,7 @@
                 linkEl.addEventListener('click', async (e) => {
                     e.preventDefault();
                     if (isStrongdog) {
-                        const baseURL = sd_getBaseURLForPage(game);
+                        const baseURL = sd_getBaseURLForPage(game.page);
                         let adjustedHref = baseURL.endsWith("/") ? baseURL + game.href.replace(/^\.\//, "") : baseURL + "/" + game.href.replace(/^\.\//, "");
                         const embedPath = await sd_getEmbedPath(adjustedHref, game.href, game.page);
                         const strongdogGameData = { name: game.name, url: embedPath, category: game.category, id: game.id };
@@ -1585,85 +1724,84 @@
         // --- FETCHING DATA MANUALLY (NO MODULES) ---
         // This function fetches the JS file as text, transforms it to set a global variable, and evals it.
         // This bypasses module loading restrictions on file:// protocols.
+        async function fetchGameData() {
+            try {
+                // Fetch the file via proxy to avoid CORS
+                const response = await fetch(proxyUrl(CARDS_DATA_URL));
+                if (!response.ok) throw new Error('Failed to fetch game data');
+                let scriptText = await response.text();
+                
+                // Transform 'export default' to 'window.loadedGameData ='
+                // This assumes the file structure is simple "export default [...]"
+                if (scriptText.includes('export default')) {
+                    scriptText = scriptText.replace('export default', 'window.loadedGameData =');
+                }
+                
+                // Execute the script
+                // We use new Function instead of eval for slight isolation, though still unsafe for untrusted code
+                // (But we trust this source).
+                // However, new Function creates a local scope. We need global assignment.
+                // Standard eval or appending a script tag is better.
+                const scriptEl = document.createElement('script');
+                scriptEl.textContent = scriptText;
+                document.body.appendChild(scriptEl);
+                
+                // Wait a tick for execution
+                await new Promise(resolve => setTimeout(resolve, 0));
+                
+                if (window.loadedGameData) {
+                    return window.loadedGameData;
+                } else {
+                    console.warn("Script loaded but window.loadedGameData is undefined");
+                    return [];
+                }
+            } catch (e) {
+                console.error("Error manual loading games:", e);
+                return [];
+            }
+        }
+
+        // --- Init ---
         async function initializeApp() {
+            // Register VERN Service Worker
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/logged-in/sw.js', { scope: '/logged-in/' });
+                    console.log("VERN SW Registered", registration);
+                    
+                    // Reload if controller changes (SW activated)
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (!navigator.serviceWorker.controller) return;
+                        console.log("SW Activated, reloading for proxy...");
+                        window.location.reload();
+                    });
+
+                    // BareMux Init
+                    const conn = new BareMux.BareMuxConnection(window.location.origin + '/logged-in/baremux/worker.js');
+                    await conn.setTransport('/logged-in/libcurl/index.mjs', [
+                        { websocket: 'wss://wisp.rhw.one/' },
+                        { websocket: 'wss://wisp.mercurywork.shop/' }
+                    ]);
+                    console.log("BareMux Transport Set");
+                } catch(e) { 
+                    console.error("SW/BareMux Init Error:", e); 
+                }
+            }
+
             // Load Game Data Manually
             let gamesData = [];
             try {
-                const module = await import(CARDS_DATA_URL);
-                gamesData = module.default;
+                gamesData = await fetchGameData();
             } catch (e) {
                 console.error("Could not load external games data", e);
             }
             
-            const strongdogGames = gamesData.map(g => {
-                const prefixedId = `sd-${g.id}`;
-                if (g.versions) {
-                    const prefixedVersions = g.versions.map(v => ({
-                        ...v,
-                        favoriteId: `${prefixedId}_${v.name.replace(/\s+/g, '-')}` // Ensure favoriteId is also unique
-                    }));
-                    return { ...g, id: prefixedId, category: 'StrongdogXP', versions: prefixedVersions };
-                }
-                return { ...g, id: prefixedId, category: 'StrongdogXP' };
-            });
+            const strongdogGames = gamesData.map(g => ({ ...g, category: 'StrongdogXP' }));
             
             try {
-                // --- NEW GN-MATH FETCHING LOGIC (PORTED FROM INDEX.HTML) ---
-                let sharesponse;
-                let shajson;
-                let sha;
-                try {
-                    sharesponse = await fetch("https://api.github.com/repos/gn-math/assets/commits?t="+Date.now());
-                } catch (error) {}
-                if (sharesponse && sharesponse.status === 200) {
-                    try {
-                        shajson = await sharesponse.json();
-                        sha = shajson[0]['sha'];
-                        if (sha) {
-                            zonesURL = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
-                        }
-                    } catch (error) {
-                        try {
-                            let secondarysharesponse = await fetch("https://raw.githubusercontent.com/gn-math/xml/refs/heads/main/sha.txt?t="+Date.now());
-                            if (secondarysharesponse && secondarysharesponse.status === 200) {
-                                sha = (await secondarysharesponse.text()).trim();
-                                if (sha) {
-                                    zonesURL = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
-                                }
-                            }
-                        } catch(error) {}
-                    }
-                }
-
-                // Fetch data for popularity (not actively used for sort here, but part of the original logic)
-                const popularityData = {};
-                try {
-                    const response = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period=year");
-                    const data = await response.json();
-                    data.forEach(file => {
-                        const idMatch = file.name.match(/\/(\d+)\.html$/);
-                        if (idMatch) {
-                            const id = parseInt(idMatch[1]);
-                            popularityData[id] = file.hits.total;
-                        }
-                    });
-                } catch (error) {
-                    popularityData[0] = 0;
-                }
-
-                const response = await fetch(zonesURL+"?t="+Date.now());
-                const gnMathRaw = await response.json();
-                
-                // Map to local structure using dynamic replacements
-                const gnMathGames = gnMathRaw.map(g => ({ 
-                    id: `gn-${g.id}`, 
-                    name: g.name, 
-                    imgSrc: g.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL), 
-                    category: 'GN-Math', 
-                    url: g.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL),
-                    popularity: popularityData[g.id] || 0
-                }));
-                
+                const res = await fetch(proxyUrl(GN_ZONES_URL));
+                const gnMathRaw = await res.json();
+                const gnMathGames = gnMathRaw.map(g => ({ id: `gn-${g.id}`, name: g.name, imgSrc: g.cover.replace("{COVER_URL}", GN_COVER_URL_BASE), category: 'GN-Math', url: g.url.replace("{HTML_URL}", GN_HTML_URL_BASE) }));
                 allGames = [...strongdogGames, ...gnMathGames, ...othersGames];
             } catch (error) { 
                 console.warn("Failed to load GN-Math, falling back to others.", error);
@@ -1691,7 +1829,7 @@
                 }
             });
 
-            categories = ['StrongdogXP', 'GN-Math', 'Others'].filter(cat => allGames.some(g => g.category === cat));
+            categories = ['StrongdogXP', 'GN-Math', 'Gameboy Games', 'Others'].filter(cat => allGames.some(g => g.category === cat));
 
             const { category: urlCat } = parseURL();
             if (urlCat) currentCategoryIndex = Math.max(0, categories.findIndex(c => c.replace(/\s+/g, '-').toLowerCase() === urlCat.toLowerCase()));
@@ -1828,4 +1966,3 @@
     </script>
 </body>
 </html>
-<!-- Made with ❤️ from 4SP -->

@@ -632,7 +632,7 @@
                 <button id="closeBtnZone" title="Close"><i class="fas fa-times"></i></button>
              </div>
         </div>
-        <iframe id="zoneFrame" title="Game Content" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"></iframe>
+        <iframe id="zoneFrame" title="Game Content" sandbox="allow-scripts allow-forms allow-pointer-lock"></iframe>
     </div>
 
     <div id="creditsModal">
@@ -1311,7 +1311,7 @@
             // Fixed Allow attribute syntax to prevent warnings and enable features properly
             // Removed allowfullscreen as "allow='fullscreen'" takes precedence
             zoneFrame.setAttribute('allow', 'autoplay; fullscreen; pointer-lock; clipboard-write');
-            const sandboxRules = 'allow-scripts allow-same-origin allow-forms allow-pointer-lock';
+            const sandboxRules = 'allow-scripts allow-forms allow-pointer-lock';
             zoneFrame.setAttribute('sandbox', sandboxRules);
 
             // --- REVISED LOGIC FOR LOADING GAMES WITH RETRY ---
@@ -1382,14 +1382,14 @@
                 } catch (e) {
                     console.warn(`Load failed for ${game.name}. Retries left: ${retriesLeft}`, e);
                     if (retriesLeft > 0) {
-                        setTimeout(() => attemptLoad(retriesLeft - 1), 1000); // Retry after 1s
+                        setTimeout(() => attemptLoad(retriesLeft - 1), 0);
                     } else {
                         show404("The game files could not be loaded after multiple attempts.");
                     }
                 }
             };
 
-            attemptLoad(2); // Try 3 times total (1 initial + 2 retries)
+            attemptLoad(49); // Try 50 times total (1 initial + 49 retries)
         }
 
         function closeZoneViewer() {
@@ -1811,3 +1811,4 @@
     </script>
 </body>
 </html>
+<!-- Made with ❤️ from 4SP -->

@@ -329,13 +329,16 @@
             border: 1px solid #333;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             width: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
         .unified-chart-placeholder { 
             position: relative; 
-            height: 350px; 
+            height: 350px; /* Fixed Height to prevent 0-height collapse */
             width: 100%;
             padding: 10px;
+            box-sizing: border-box;
         }
 
         /* File Creation Card */
@@ -872,19 +875,19 @@ print("Hello World")
             let html = text.replace(/<SEARCH>.*?<\/SEARCH>/gi, '');
             
             // 1. EXTRACT CHARTS BEFORE MARKDOWN PARSING
-            // We replace the chart block with a unique placeholder so marked.js doesn't mangle the JSON
+            // Uses an alphanumeric token (CHARTBLOCK) that Markdown will NOT mess up
             const charts = [];
             html = html.replace(/```chart\n([\s\S]*?)```/g, (match, json) => {
                 charts.push(json);
-                return `__CHART_PLACEHOLDER_${charts.length - 1}__`;
+                return `CHARTBLOCK${charts.length - 1}ENDCHARTBLOCK`;
             });
 
             // 2. PARSE MARKDOWN
             html = marked.parse(html);
 
             // 3. RESTORE CHARTS
-            // We use encodeURIComponent to ensure the JSON is safe inside the HTML attribute
-            html = html.replace(/__CHART_PLACEHOLDER_(\d+)__/g, (match, index) => {
+            // Replaces the generic token with the actual HTML structure
+            html = html.replace(/CHARTBLOCK(\d+)ENDCHARTBLOCK/g, (match, index) => {
                 const json = charts[index];
                 const safeJson = encodeURIComponent(json);
                 return `<div class="chart-block-wrapper">

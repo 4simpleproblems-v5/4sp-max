@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../navigation.js"></script>
 
@@ -281,25 +283,63 @@
         .bubble ul, .bubble ol { margin: 10px 0; padding-left: 20px; list-style-position: outside; }
         .bubble li { margin-bottom: 5px; list-style: disc; }
 
+        /* Table Styling & Overflow */
+        .bubble table {
+            display: block;        
+            width: 100%;
+            overflow-x: auto;      
+            border-collapse: collapse;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-style: hidden;  
+            box-shadow: 0 0 0 1px #333;
+        }
+        .bubble thead { background-color: rgba(79, 70, 229, 0.2); }
+        .bubble th, .bubble td {
+            padding: 10px 15px;
+            text-align: left;
+            border: 1px solid #333;
+            min-width: 100px;
+            word-wrap: break-word;
+        }
+        .bubble th {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Math (KaTeX) Overflow */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            max-width: 100%;
+            padding: 1rem 0;
+            margin: 0.5rem 0;
+        }
+
+        /* Custom Scrollbar */
+        .bubble table::-webkit-scrollbar, .katex-display::-webkit-scrollbar { height: 6px; }
+        .bubble table::-webkit-scrollbar-track, .katex-display::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        .bubble table::-webkit-scrollbar-thumb, .katex-display::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
         /* Code/Chart Block Wrapper */
         .code-block-wrapper, .chart-block-wrapper {
             background-color: #000000; border-radius: 14px; margin: 15px 0;
             overflow: hidden; border: 1px solid #333;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        .code-block-header, .chart-block-header {
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 6px 12px; background-color: rgba(0,0,0,0.2);
-            border-bottom: 1px solid #333;
-        }
-        .code-metadata, .chart-metadata { font-size: 0.8em; color: #aaa; font-family: monospace; }
         
-        /* Charts */
-        .unified-chart-placeholder { min-height: 300px; padding: 15px; display: flex; flex-direction: column; background: #000; }
-        .chart-canvas { width: 100%; height: 250px; }
-        .chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding-top: 10px; border-top: 1px solid #222; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8em; color: #ccc; }
-        .legend-color { width: 10px; height: 10px; border-radius: 2px; }
+        /* Charts (Updated for Chart.js) */
+        .unified-chart-placeholder { 
+            position: relative; /* Essential for Chart.js */
+            height: 350px;      /* Fixed Height */
+            width: 100%;
+            padding: 15px; 
+            background: #000; 
+        }
+        .chart-canvas { width: 100% !important; height: 100% !important; }
 
         /* File Creation Card */
         .gemini-file-creation-card {
@@ -388,7 +428,7 @@
         }
         .char-counter.limit { color: #ef4444; }
 
-        /* Tier Badge (Model Switch Notification) */
+        /* Tier Badge */
         .tier-badge {
             width: 100%; text-align: center; margin: 15px 0;
             display: flex; align-items: center; justify-content: center;
@@ -426,61 +466,6 @@
             background: #1a1a1a;
             transform: scale(1.1);
             border-color: #ef4444;
-        }
-
-        /* --- ADDED / UPDATED CSS FOR TABLES AND MATH --- */
-
-        /* 1. Fix Table Styling & Overflow */
-        .bubble table {
-            display: block;        /* Necessary for overflow to work on tables */
-            width: 100%;
-            overflow-x: auto;      /* Enables horizontal scroll */
-            border-collapse: collapse;
-            margin: 15px 0;
-            border-radius: 8px;
-            border-style: hidden;  /* Hides outer border glitches */
-            box-shadow: 0 0 0 1px #333; /* Clean border */
-        }
-
-        .bubble thead {
-            background-color: rgba(79, 70, 229, 0.2); /* Accent header background */
-        }
-
-        .bubble th, .bubble td {
-            padding: 10px 15px;
-            text-align: left;
-            border: 1px solid #333;
-            min-width: 100px;      /* Prevents columns from getting too squished */
-            word-wrap: break-word;
-        }
-
-        .bubble th {
-            font-weight: 600;
-            color: #fff;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* 2. Fix KaTeX (Math) Overflow */
-        .katex-display {
-            overflow-x: auto;      /* Scroll for block math equations */
-            overflow-y: hidden;
-            max-width: 100%;
-            padding: 1rem 0;
-            margin: 0.5rem 0;
-        }
-        
-        /* Optional: Custom scrollbar for the tables/math to look cleaner */
-        .bubble table::-webkit-scrollbar, .katex-display::-webkit-scrollbar {
-            height: 6px;
-        }
-        .bubble table::-webkit-scrollbar-track, .katex-display::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .bubble table::-webkit-scrollbar-thumb, .katex-display::-webkit-scrollbar-thumb {
-            background: #444;
-            border-radius: 3px;
         }
     </style>
 </head>
@@ -559,7 +544,6 @@
 
     <script>
         // --- CONFIGURATION ---
-        // Model IDs
         const MODELS = {
             FAST: 'llama-3.1-8b-instant',
             SMART: 'llama-3.3-70b-versatile',
@@ -671,11 +655,10 @@ print("Hello World")
 
         conversationHistory.push({ role: "system", content: SYSTEM_PROMPT });
 
-        // --- DROPDOWN LOGIC (Navigation.js Style) ---
+        // --- DROPDOWN LOGIC ---
         const modelToggle = document.getElementById('model-toggle');
         const modelMenu = document.getElementById('model-menu');
 
-        // Helper to close with animation
         function closeMenuWithAnimation() {
             modelMenu.classList.remove('open');
             modelMenu.classList.add('closing');
@@ -685,11 +668,9 @@ print("Hello World")
             }, { once: true });
         }
 
-        // Toggle Listener
         if (modelToggle && modelMenu) {
             modelToggle.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent bubbling to document
-                
+                e.stopPropagation(); 
                 if (modelMenu.classList.contains('open')) {
                     closeMenuWithAnimation();
                 } else {
@@ -700,17 +681,14 @@ print("Hello World")
             });
         }
 
-        // Document Click Listener (Outside Click)
         document.addEventListener('click', (e) => {
             if (modelMenu && modelMenu.classList.contains('open')) {
-                // If click is NOT inside menu AND NOT on toggle button
                 if (!modelMenu.contains(e.target) && !modelToggle.contains(e.target)) {
                     closeMenuWithAnimation();
                 }
             }
         });
 
-        // Update Selection Logic
         window.setModel = (modelId, displayName, element) => {
             if (currentModel !== modelId) {
                 currentModel = modelId;
@@ -723,11 +701,8 @@ print("Hello World")
 
         // --- INPUT HANDLING ---
         function handleInput(el) {
-            // Auto-grow
             el.style.height = 'auto';
             el.style.height = el.scrollHeight + 'px';
-            
-            // Character Counter
             const count = el.value.length;
             const counterEl = document.getElementById('char-counter');
             counterEl.textContent = `${count} / ${MAX_CHARS}`;
@@ -782,17 +757,13 @@ print("Hello World")
             sendBtn.disabled = true;
 
             try {
-                // Wait for the window.chatWithGroq function to be available (from module script)
                 if (!window.chatWithGroq) throw new Error("Firebase not initialized yet. Please wait.");
 
-                // 1. First Attempt
                 let response = await callCloudFunction(currentModel);
 
-                // 2. Carousel Logic
+                // Rate Limit Handling
                 if (response.error && response.code === 'resource-exhausted') {
                     let nextModel = null;
-                    
-                    // Carousel Order Logic
                     if (currentModel === MODELS.FAST) nextModel = MODELS.SMART;
                     else if (currentModel === MODELS.SMART) nextModel = MODELS.FAST;
                     else if (currentModel === MODELS.GPT) nextModel = MODELS.SMART;
@@ -800,41 +771,28 @@ print("Hello World")
                     if (nextModel) {
                         aiBubble.remove();
                         addSystemBadge(`Rate Limit on ${MODEL_NAMES[currentModel]}. Switching to ${MODEL_NAMES[nextModel]}...`);
-                        
                         currentModel = nextModel;
                         updateHeaderUI(currentModel);
-                        
                         aiBubble = addMessageToUI('ai', '<i class="fa-solid fa-circle-notch fa-spin"></i> Retrying...', true);
-                        
                         response = await callCloudFunction(currentModel);
-
-                        // 3. Third Step (GPT -> Smart -> Fast)
+                        
                         if (response.error && response.code === 'resource-exhausted' && currentModel === MODELS.SMART) {
                             nextModel = MODELS.FAST;
-                            
                             aiBubble.remove();
                             addSystemBadge(`Rate Limit on Smart. Switching to ${MODEL_NAMES[nextModel]}...`);
-                            
                             currentModel = nextModel;
                             updateHeaderUI(currentModel);
-                            
                             aiBubble = addMessageToUI('ai', '<i class="fa-solid fa-circle-notch fa-spin"></i> Retrying...', true);
-                            
                             response = await callCloudFunction(currentModel);
                         }
                     }
                 }
 
-                // 4. Final Check
                 if (response.error) {
-                    if (response.code === 'resource-exhausted') {
-                        throw new Error("Rate limit reached. Please wait 1 minute before trying again.");
-                    } else {
-                        throw new Error(response.message || "Unknown error");
-                    }
+                    if (response.code === 'resource-exhausted') throw new Error("Rate limit reached. Please wait 1 minute.");
+                    else throw new Error(response.message || "Unknown error");
                 }
 
-                // Success
                 let aiText = response.data.choices[0].message.content;
 
                 // --- SEARCH LOOP ---
@@ -847,7 +805,6 @@ print("Hello World")
                     conversationHistory.push({ role: "assistant", content: aiText });
                     conversationHistory.push({ role: "system", content: `Search Results: ${searchResults}` });
                     
-                    // Call AI again with search results
                     response = await callCloudFunction(currentModel);
                     if (response.error) throw new Error(response.message || "Error after search");
                     aiText = response.data.choices[0].message.content;
@@ -867,7 +824,6 @@ print("Hello World")
             }
         }
 
-        // Wrapper to handle Firebase errors cleanly
         async function callCloudFunction(model) {
             try {
                 const result = await window.chatWithGroq({
@@ -889,10 +845,8 @@ print("Hello World")
             const display = document.getElementById('current-model-display');
             display.innerHTML = `<i class="fa-solid ${icon} mr-2"></i>${currentModelName}`;
             
-            // Update menu active state
             document.querySelectorAll('.auth-menu-link').forEach(btn => {
                 btn.classList.remove('active');
-                // Use data-model attribute instead of text content matching to allow distinct Llama models
                 if(btn.getAttribute('data-model') === modelId) btn.classList.add('active'); 
             });
         }
@@ -921,12 +875,11 @@ print("Hello World")
         function parseAIResponse(text) {
             let html = text.replace(/<SEARCH>.*?<\/SEARCH>/gi, '');
             
-            // Charts
+            // Charts (Standardized for Chart.js)
             html = html.replace(/```chart\n([\s\S]*?)```/g, (match, json) => {
                 return `<div class="chart-block-wrapper">
                     <div class="unified-chart-placeholder" data-chart-data='${escapeHTML(json)}'>
                         <canvas class="chart-canvas"></canvas>
-                        <div class="chart-legend"></div>
                     </div>
                 </div>`;
             });
@@ -949,127 +902,91 @@ print("Hello World")
             return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}[m]));
         }
 
-        // UPDATED renderKaTeX function
         function renderKaTeX(c) {
             if(typeof katex === 'undefined') return;
 
-            // Helper to decode HTML entities (e.g. &lt; -> <) which marked.js might have escaped
             const decodeHTML = (html) => {
                 const txt = document.createElement("textarea");
                 txt.innerHTML = html;
                 return txt.value;
             };
 
-            // 1. Render Block Math: $$ ... $$
             c.innerHTML = c.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g, (match, tex) => {
                 try {
-                    // Decode HTML entities inside the math block before passing to KaTeX
                     const cleanTex = decodeHTML(tex); 
                     return katex.renderToString(cleanTex, { 
                         displayMode: true, 
-                        throwOnError: false, // Prevents crashing on bad syntax
-                        output: 'html'       // Ensures HTML output
+                        throwOnError: false, 
+                        output: 'html'       
                     });
-                } catch (e) { 
-                    console.error("KaTeX Block Error:", e);
-                    return match; // Return original text on hard failure
-                }
+                } catch (e) { return match; }
             });
 
-            // 2. Render Inline Math: $ ... $ 
-            // We use a regex that avoids matching $ within standard text/prices if possible
             c.innerHTML = c.innerHTML.replace(/\$([^\$\n<]+)\$/g, (match, tex) => {
                 try {
                     const cleanTex = decodeHTML(tex);
-                    return katex.renderToString(cleanTex, { 
-                        displayMode: false, 
-                        throwOnError: false 
-                    });
+                    return katex.renderToString(cleanTex, { displayMode: false, throwOnError: false });
                 } catch (e) { return match; }
             });
         }
 
+        // --- UPDATED CHART ENGINE (USES Chart.js) ---
         function renderUnifiedCharts(c) {
             c.querySelectorAll('.unified-chart-placeholder').forEach(p => {
-                try {
-                    renderChartJSClone(p.querySelector('canvas'), JSON.parse(p.dataset.chartData), p.nextElementSibling);
-                } catch(e){ p.innerHTML='Error'; }
-            });
-        }
-
-        // Simplified Chart Engine
-        function renderChartJSClone(canvas, config, legend) {
-            const ctx = canvas.getContext('2d');
-            const dpr = window.devicePixelRatio||1;
-            const rect = canvas.getBoundingClientRect();
-            
-            // Handle hidden or 0-size canvas
-            if (rect.width === 0 || rect.height === 0) {
-                // Retry a few times if layout is pending? For now just return.
-                return; 
-            }
-
-            canvas.width = rect.width*dpr;
-            canvas.height = rect.height*dpr;
-            ctx.scale(dpr,dpr);
-            
-            // Fill background
-            ctx.fillStyle = '#111'; // Dark gray background for chart area
-            ctx.fillRect(0,0, rect.width, rect.height);
-
-            const { type, data } = config;
-            const P = {t:20,r:20,b:40,l:40};
-            const W=rect.width-P.l-P.r, H=rect.height-P.t-P.b;
-            const colors = ['#4f46e5','#ef4444','#10b981','#f59e0b'];
-
-            if(legend) legend.innerHTML = data.datasets.map((d,i)=>`<div class="legend-item"><span class="legend-color" style="background:${d.borderColor||colors[i]}"></span>${d.label}</div>`).join('');
-            
-            let min=Infinity, max=-Infinity;
-            data.datasets.forEach(d=>d.data.forEach(v=>{
-                const y=typeof v==='object'?v.y:v;
-                min=Math.min(min,y); max=Math.max(max,y);
-            }));
-            if(min===Infinity){min=0;max=10;}
-            const rng = max-min||1;
-            
-            const mapY = v => P.t + H - ((v-min)/rng)*H;
-            const mapX = (i,n) => P.l + (i*(W/(n-1||1)));
-
-            // Grid / Axes - Lighter color for visibility
-            ctx.strokeStyle='#444'; 
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(P.l,P.t); ctx.lineTo(P.l,P.t+H); ctx.lineTo(P.l+W,P.t+H);
-            ctx.stroke(); 
-
-            data.datasets.forEach((d,di)=>{
-                ctx.strokeStyle=ctx.fillStyle=d.borderColor||colors[di%4];
-                ctx.lineWidth=2;
-
-                if(type==='line'||type==='scatter'){
-                    ctx.beginPath();
-                    const pts = d.data.map((v,i)=>({x:mapX(i,d.data.length), y:mapY(typeof v==='object'?v.y:v)}));
-
-                    if(type==='line'){
-                        if(d.tension && pts.length>2) {
-                            ctx.moveTo(pts[0].x,pts[0].y);
-                            for(let i=0;i<pts.length-1;i++){
-                                const mx=(pts[i].x+pts[i+1].x)/2;
-                                ctx.bezierCurveTo(mx,pts[i].y,mx,pts[i+1].y,pts[i+1].x,pts[i+1].y);
-                            }
-                        } else {
-                            pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
-                        }
-                        ctx.stroke();
-                    }
-                    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,6.28);ctx.fill();});
-                }
+                if(p.dataset.chartInitialized) return;
                 
-                if(type==='bar'){
-                    const bw=(W/d.data.length)*0.6;
-                    d.data.forEach((v,i)=>{
-                        ctx.fillRect(mapX(i,d.data.length)-bw/2, mapY(v), bw, (P.t+H)-mapY(v));
-                    });
+                const canvas = p.querySelector('canvas');
+                if(!canvas) return;
+
+                try {
+                    const inputJson = JSON.parse(p.dataset.chartData);
+                    
+                    // Dark Mode Styling for Chart.js
+                    const defaults = {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#9ca3af', font: { family: 'Geist' } } },
+                            tooltip: {
+                                backgroundColor: 'rgba(0,0,0,0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#ccc',
+                                borderColor: '#333',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: '#333' },
+                                ticks: { color: '#6b7280', font: { family: 'Geist' } }
+                            },
+                            y: {
+                                grid: { color: '#333' },
+                                ticks: { color: '#6b7280', font: { family: 'Geist' } }
+                            }
+                        },
+                        elements: {
+                            line: { borderWidth: 2 },
+                            point: { radius: 3, hitRadius: 10 }
+                        }
+                    };
+
+                    const config = {
+                        type: inputJson.type,
+                        data: inputJson.data,
+                        options: { ...defaults, ...inputJson.options }
+                    };
+
+                    new Chart(canvas, config);
+                    p.dataset.chartInitialized = "true";
+
+                } catch(e) {
+                    console.error("Chart JS Error:", e);
+                    p.innerHTML = `<div style="color:#ef4444; padding:10px;">Error loading chart: ${e.message}</div>`;
                 }
             });
         }

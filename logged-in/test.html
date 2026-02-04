@@ -161,7 +161,6 @@
             border: 1px solid var(--menu-border);
             border-radius: 1.25rem; 
             padding: 0.75rem; 
-            /* DEFAULT CLOSED STATE (Hidden) */
             display: none; 
             flex-direction: column; gap: 0.5rem; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
@@ -179,20 +178,17 @@
             100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
         }
 
-        /* Open State */
         .auth-menu-container.open { 
             display: flex !important; 
             animation: menu-pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* Closing State (Animation Running) */
         .auth-menu-container.closing {
             display: flex !important;
             animation: menu-pop-out 0.3s ease-in forwards;
             pointer-events: none;
         }
 
-        /* Fully Closed State */
         .auth-menu-container.closed { 
             opacity: 0; 
             pointer-events: none; 
@@ -250,7 +246,7 @@
         
         .avatar {
             width: 36px; height: 36px;
-            border-radius: 14px; /* Standardized radius */
+            border-radius: 14px; 
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
             font-size: 0.9rem;
@@ -259,10 +255,10 @@
         .avatar.user { background: #222; border: 1px solid #333; color: #ccc; }
 
         .bubble {
-            background: #000000; /* Deep black bubbles */
+            background: #000000; 
             border: 1px solid #333;
             padding: 1rem 1.5rem;
-            border-radius: 1.25rem; /* Standardized container radius */
+            border-radius: 1.25rem; 
             font-size: 0.95rem;
             line-height: 1.6;
             color: #e5e7eb;
@@ -283,7 +279,7 @@
         .bubble ul, .bubble ol { margin: 10px 0; padding-left: 20px; list-style-position: outside; }
         .bubble li { margin-bottom: 5px; list-style: disc; }
 
-        /* Table Styling & Overflow */
+        /* Table Styling */
         .bubble table {
             display: block;        
             width: 100%;
@@ -324,22 +320,23 @@
         .bubble table::-webkit-scrollbar-track, .katex-display::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
         .bubble table::-webkit-scrollbar-thumb, .katex-display::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 
-        /* Code/Chart Block Wrapper */
-        .code-block-wrapper, .chart-block-wrapper {
-            background-color: #000000; border-radius: 14px; margin: 15px 0;
-            overflow: hidden; border: 1px solid #333;
+        /* Chart Block Wrapper */
+        .chart-block-wrapper {
+            background-color: #000000; 
+            border-radius: 14px; 
+            margin: 15px 0;
+            overflow: hidden; 
+            border: 1px solid #333;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            width: 100%;
         }
         
-        /* Charts (Updated for Chart.js) */
         .unified-chart-placeholder { 
-            position: relative; /* Essential for Chart.js */
-            height: 350px;      /* Fixed Height */
+            position: relative; 
+            height: 350px; 
             width: 100%;
-            padding: 15px; 
-            background: #000; 
+            padding: 10px;
         }
-        .chart-canvas { width: 100% !important; height: 100% !important; }
 
         /* File Creation Card */
         .gemini-file-creation-card {
@@ -567,7 +564,6 @@
         async function searchWeb(query) {
             const baseUrl = "https://api.duckduckgo.com/?q=" + encodeURIComponent(query) + "&format=json";
             
-            // Construct absolute prefix to ensure SW interception
             let prefix = (self.__uv$config && self.__uv$config.prefix) || "/logged-in/uv/service/";
             if (prefix.startsWith('/')) {
                 prefix = window.location.origin + prefix;
@@ -875,10 +871,24 @@ print("Hello World")
         function parseAIResponse(text) {
             let html = text.replace(/<SEARCH>.*?<\/SEARCH>/gi, '');
             
-            // Charts (Standardized for Chart.js)
+            // 1. EXTRACT CHARTS BEFORE MARKDOWN PARSING
+            // We replace the chart block with a unique placeholder so marked.js doesn't mangle the JSON
+            const charts = [];
             html = html.replace(/```chart\n([\s\S]*?)```/g, (match, json) => {
+                charts.push(json);
+                return `__CHART_PLACEHOLDER_${charts.length - 1}__`;
+            });
+
+            // 2. PARSE MARKDOWN
+            html = marked.parse(html);
+
+            // 3. RESTORE CHARTS
+            // We use encodeURIComponent to ensure the JSON is safe inside the HTML attribute
+            html = html.replace(/__CHART_PLACEHOLDER_(\d+)__/g, (match, index) => {
+                const json = charts[index];
+                const safeJson = encodeURIComponent(json);
                 return `<div class="chart-block-wrapper">
-                    <div class="unified-chart-placeholder" data-chart-data='${escapeHTML(json)}'>
+                    <div class="unified-chart-placeholder" data-chart-data="${safeJson}">
                         <canvas class="chart-canvas"></canvas>
                     </div>
                 </div>`;
@@ -895,11 +905,7 @@ print("Hello World")
                 </div>`;
             });
             
-            return marked.parse(html);
-        }
-
-        function escapeHTML(str) {
-            return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}[m]));
+            return html;
         }
 
         function renderKaTeX(c) {
@@ -930,7 +936,7 @@ print("Hello World")
             });
         }
 
-        // --- UPDATED CHART ENGINE (USES Chart.js) ---
+        // --- UPDATED CHART ENGINE (Robust) ---
         function renderUnifiedCharts(c) {
             c.querySelectorAll('.unified-chart-placeholder').forEach(p => {
                 if(p.dataset.chartInitialized) return;
@@ -939,9 +945,11 @@ print("Hello World")
                 if(!canvas) return;
 
                 try {
-                    const inputJson = JSON.parse(p.dataset.chartData);
+                    // DECODE THE DATA
+                    const rawJson = decodeURIComponent(p.dataset.chartData);
+                    const inputJson = JSON.parse(rawJson);
                     
-                    // Dark Mode Styling for Chart.js
+                    // Defaults
                     const defaults = {
                         responsive: true,
                         maintainAspectRatio: false,
@@ -986,7 +994,10 @@ print("Hello World")
 
                 } catch(e) {
                     console.error("Chart JS Error:", e);
-                    p.innerHTML = `<div style="color:#ef4444; padding:10px;">Error loading chart: ${e.message}</div>`;
+                    // PRINT ERROR TO UI so we can see what went wrong
+                    p.innerHTML = `<div style="color:#ef4444; padding:20px; font-family:monospace; font-size:0.8rem;">
+                        <strong>Chart Error:</strong><br>${e.message}
+                    </div>`;
                 }
             });
         }

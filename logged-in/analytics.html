@@ -238,14 +238,20 @@
             </div>
 
             <div class="chart-container mb-6">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                     <h3 class="text-white text-lg">User Growth</h3>
-                    <select id="chart-period" class="bg-[#1a1a1a] text-gray-300 border border-[#333] rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500">
-                        <option value="week">Past Week</option>
-                        <option value="month" selected>Past Month</option>
-                        <option value="year">Past Year</option>
-                        <option value="all">Since First User</option>
-                    </select>
+                    <div class="flex gap-3">
+                        <select id="chart-datatype" class="bg-[#1a1a1a] text-gray-300 border border-[#333] rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500">
+                            <option value="new" selected>New Users</option>
+                            <option value="total">Total Users</option>
+                        </select>
+                        <select id="chart-period" class="bg-[#1a1a1a] text-gray-300 border border-[#333] rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500">
+                            <option value="week">Past Week</option>
+                            <option value="month" selected>Past Month</option>
+                            <option value="year">Past Year</option>
+                            <option value="all">Since First User</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="relative h-full w-full" style="height: 220px;">
                     <canvas id="userGrowthChart"></canvas>
@@ -458,7 +464,6 @@
 
                     <div id="user-inspect-view" class="hidden animate-in fade-in duration-300">
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <!-- Profile Sidebar -->
                             <div class="lg:col-span-1 space-y-6">
                                 <div class="bg-[#080808] border border-[#1a1a1a] rounded-[1.25rem] p-6 text-center">
                                     <div id="inspect-pfp-preview" class="w-32 h-32 mx-auto mb-4 rounded-[1.25rem] border border-[#333] overflow-hidden"></div>
@@ -502,7 +507,6 @@
                                 </div>
                             </div>
 
-                            <!-- Main Data Area -->
                             <div class="lg:col-span-2 space-y-6">
                                 <div class="bg-[#080808] border border-[#1a1a1a] rounded-[1.25rem] overflow-hidden">
                                     <div class="p-4 border-b border-[#1a1a1a] bg-[#0a0a0a] flex justify-between items-center">
@@ -568,10 +572,8 @@
                     </div>
                     <svg id="messenger-svg" class="w-full h-full"></svg>
                     
-                    <!-- Tooltip -->
                     <div id="graph-tooltip" class="absolute pointer-events-none bg-[#111] border border-[#333] p-3 rounded-[14px] shadow-2xl opacity-0 transition-opacity z-50 min-w-[200px]"></div>
 
-                    <!-- Static Stats Overlay -->
                     <div class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md border border-[#333] p-3 rounded-[14px] text-[10px] text-gray-400 pointer-events-none z-20">
                         <div id="graph-stats" class="font-mono mb-2">Nodes: -- | Edges: --</div>
                         <div class="flex flex-col gap-1">
@@ -581,7 +583,6 @@
                         </div>
                     </div>
 
-                    <!-- Nickname Panel -->
                     <div id="nickname-panel" class="absolute top-4 right-4 w-64 bg-[#0d0d0d]/90 backdrop-blur-lg border border-[#333] rounded-[1.25rem] shadow-2xl hidden z-30 overflow-hidden flex flex-col max-h-[80%]">
                         <div class="p-3 border-b border-[#333] flex justify-between items-center bg-[#111]">
                             <h4 class="text-xs font-bold text-white uppercase tracking-wider">Known Nicknames</h4>
@@ -2268,103 +2269,87 @@
         const renderChart = (users) => {
             const ctx = document.getElementById('userGrowthChart').getContext('2d');
             const period = document.getElementById('chart-period').value;
+            const mode = document.getElementById('chart-datatype').value; // 'new' or 'total'
 
             const now = moment();
             let startDate;
-            let unit;
 
-            // Sort users by date first for 'all' logic
-            const sortedUsers = [...users].sort((a, b) => {
-                const dA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date();
-                const dB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date();
-                return dA - dB;
-            });
-
+            // 1. Determine Start Date
             if (period === 'week') {
-                startDate = moment().subtract(7, 'days');
-                unit = 'day';
+                startDate = moment().subtract(7, 'days').startOf('day');
             } else if (period === 'month') {
-                startDate = moment().subtract(1, 'month');
-                unit = 'day';
+                startDate = moment().subtract(1, 'month').startOf('day');
             } else if (period === 'year') {
-                startDate = moment().subtract(1, 'year');
-                unit = 'month';
+                startDate = moment().subtract(1, 'year').startOf('day');
             } else if (period === 'all') {
-                if (sortedUsers.length > 0 && sortedUsers[0].createdAt) {
-                    const firstDate = sortedUsers[0].createdAt.toDate ? sortedUsers[0].createdAt.toDate() : new Date(sortedUsers[0].createdAt);
-                    startDate = moment(firstDate).startOf('day');
-                } else {
-                    startDate = moment().subtract(1, 'month');
-                }
-
-                // Determine unit based on timespan
-                const diffMonths = moment().diff(startDate, 'months');
-                if (diffMonths > 24) unit = 'year';
-                else if (diffMonths > 2) unit = 'month';
-                else unit = 'day';
+                // Find oldest user
+                let oldest = now;
+                users.forEach(u => {
+                    if (u.createdAt) {
+                        const d = u.createdAt.toDate ? moment(u.createdAt.toDate()) : moment(u.createdAt);
+                        if (d.isBefore(oldest)) oldest = d;
+                    }
+                });
+                startDate = oldest.clone().startOf('day');
             }
 
-            const groups = {};
-            // Generate labels based on unit
-            if (unit === 'year') {
-                // Group by Year
-                const startYear = startDate.year();
-                const endYear = now.year();
-                for (let y = startYear; y <= endYear; y++) {
-                    groups[y.toString()] = 0;
-                }
-            } else if (unit === 'month') {
-                // Group by Month (YYYY-MM)
-                let current = startDate.clone().startOf('month');
-                while (current.isBefore(now) || current.isSame(now, 'month')) {
-                    groups[current.format('YYYY-MM')] = 0;
-                    current.add(1, 'month');
-                }
-            } else {
-                // Group by Day (YYYY-MM-DD)
-                let current = startDate.clone().startOf('day');
-                while (current.isBefore(now) || current.isSame(now, 'day')) {
-                    groups[current.format('YYYY-MM-DD')] = 0;
-                    current.add(1, 'day');
-                }
+            // 2. Prepare Data Buckets (Daily)
+            // We create a map for every day from startDate to now to ensure continuity (0s where needed)
+            const dailyData = new Map();
+            let currentDay = startDate.clone();
+
+            while (currentDay.isSameOrBefore(now, 'day')) {
+                dailyData.set(currentDay.format('YYYY-MM-DD'), 0);
+                currentDay.add(1, 'day');
             }
+
+            // 3. Populate Buckets with NEW user counts
+            // Also calculate initial offset for 'Total' mode
+            let countBeforeStart = 0;
 
             users.forEach(u => {
                 if (!u.createdAt) return;
                 const d = u.createdAt.toDate ? moment(u.createdAt.toDate()) : moment(u.createdAt);
                 
-                if (d.isAfter(startDate) || d.isSame(startDate)) {
-                    let key;
-                    if (unit === 'year') key = d.format('YYYY');
-                    else if (unit === 'month') key = d.format('YYYY-MM');
-                    else key = d.format('YYYY-MM-DD');
-
-                    if (groups[key] !== undefined) groups[key]++;
+                if (d.isBefore(startDate)) {
+                    countBeforeStart++;
+                } else {
+                    const key = d.format('YYYY-MM-DD');
+                    if (dailyData.has(key)) {
+                        dailyData.set(key, dailyData.get(key) + 1);
+                    }
                 }
             });
 
-            const labels = Object.keys(groups).sort();
-            const data = labels.map(l => groups[l]);
+            // 4. Convert to Arrays for Chart.js
+            const labels = Array.from(dailyData.keys());
+            let data = Array.from(dailyData.values());
+
+            // 5. If Mode is TOTAL, calculate cumulative sum
+            if (mode === 'total') {
+                let runningTotal = countBeforeStart;
+                data = data.map(count => {
+                    runningTotal += count;
+                    return runningTotal;
+                });
+            }
 
             if (chartInstance) chartInstance.destroy();
-
-            // Format tooltip/axis based on unit
-            let tooltipFormat = 'MMM DD';
-            if (unit === 'month') tooltipFormat = 'MMM YYYY';
-            if (unit === 'year') tooltipFormat = 'YYYY';
 
             chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'New Users',
+                        label: mode === 'total' ? 'Total Users' : 'New Users',
                         data: data,
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.4,
+                        tension: 0.1, // Less tension to make spikes visible
+                        pointRadius: data.length > 60 ? 0 : 3, // Hide points if too many days
+                        pointHoverRadius: 5,
                         pointBackgroundColor: '#040404',
                         pointBorderColor: '#3b82f6',
                         pointBorderWidth: 2
@@ -2381,11 +2366,15 @@
                         x: {
                             type: 'time',
                             time: {
-                                unit: unit,
-                                tooltipFormat: tooltipFormat
+                                unit: 'day', // Always aggregate by day logic
+                                tooltipFormat: 'MMM DD, YYYY'
                             },
                             grid: { color: '#1a1a1a' },
-                            ticks: { color: '#707070' }
+                            ticks: { 
+                                color: '#707070',
+                                autoSkip: true,
+                                maxTicksLimit: 12 // Prevent overcrowding on X-axis
+                            }
                         },
                         y: {
                             beginAtZero: true,
@@ -2436,6 +2425,7 @@
         };
 
         document.getElementById('chart-period').addEventListener('change', () => renderChart(allUsers));
+        document.getElementById('chart-datatype').addEventListener('change', () => renderChart(allUsers));
 
         init();
     </script>

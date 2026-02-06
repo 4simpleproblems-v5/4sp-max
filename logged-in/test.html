@@ -3,1007 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP - VANA</title>
+    <title>4SP - VELIUM</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="../navigation.js"></script>
-
-    <script src="/logged-in/uv/uv.bundle.js"></script>
-    <script src="/logged-in/uv/uv.config.js"></script>
-    <script src="/logged-in/baremux/index.js"></script>
-    <script>
-        (async () => {
-            if ('serviceWorker' in navigator) {
-                try {
-                    const reg = await navigator.serviceWorker.register('/logged-in/sw.js', { scope: '/logged-in/' });
-                    
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        if (navigator.serviceWorker.controller) {
-                            console.log("SW active, reloading...");
-                            window.location.reload();
-                        }
-                    });
-                } catch(e) { console.error("SW Init Error:", e); }
-            }
-            try {
-                const conn = new BareMux.BareMuxConnection('/logged-in/baremux/worker.js');
-                await conn.setTransport('/logged-in/libcurl/index.mjs', [
-                    { websocket: 'wss://wisp.rhw.one/' },
-                    { websocket: 'wss://wisp.mercurywork.shop/' }
-                ]);
-            } catch(e) { console.error("BareMux Init Error:", e); }
-        })();
-    </script>
-
-    <script>
-        if(window.console && console.warn) {
-            const originalWarn = console.warn;
-            console.warn = function(...args) {
-                if(args[0] && args[0].includes('cdn.tailwindcss.com')) return;
-                originalWarn.apply(console, args);
-            };
-        }
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { accent: '#4f46e5' },
-                    fontFamily: { sans: ['Geist', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
-        
-        // Import Config from external file
-        import { firebaseConfig } from "../firebase-config.js";
-
-        const app = initializeApp(firebaseConfig);
-        const functions = getFunctions(app); // Defaults to us-central1
-        
-        // Make the function available globally
-        window.chatWithGroq = httpsCallable(functions, 'chatWithGroq');
-    </script>
+    <script src="../injector.js"></script>
 
     <style>
-        :root {
-            --bg-color: #000000;
-            --toolbar-bg: #000000;
-            --item-border: #333;
-            --accent: #4f46e5;
-            --text-main: #e5e7eb;
-            --text-muted: #9ca3af;
-            
-            --menu-bg: #000000;
-            --menu-border: #333;
-            --menu-text: #d1d5db;
-            --menu-item-hover-bg: rgba(79, 70, 229, 0.1);
-            --menu-item-hover-text: #ffffff;
-            --menu-item-hover-border: #4f46e5;
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #18181b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
-        body { 
-            font-family: 'Geist', sans-serif; 
-            background-color: var(--bg-color); 
-            color: var(--text-main); 
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            background-color: #09090b; /* Zinc-950 */
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
-            font-weight: 300;
         }
 
-        /* --- Header Styles --- */
-        header {
-            background-color: var(--toolbar-bg);
-            border-bottom: 1px solid var(--item-border);
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 1.5rem;
-            flex-shrink: 0;
-            z-index: 50;
-        }
-
-        .brand {
-            font-size: 1.5rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .brand i { color: var(--accent); }
-
-        /* --- Dropdown Styles --- */
-        .auth-controls-wrapper { position: relative; }
-
-        .auth-toggle {
-            border: 1px solid var(--item-border);
-            border-radius: 14px;
-            padding: 0.5rem 1rem;
-            background: #000;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s ease;
-            font-size: 0.875rem;
-            min-width: 180px;
-            justify-content: space-between;
-        }
-        .auth-toggle:hover {
-            border-color: var(--text-muted);
-            color: #fff;
-        }
-
-        .auth-menu-container {
-            position: absolute; right: 0; top: 55px; width: 16rem;
-            background: var(--menu-bg);
-            border: 1px solid var(--menu-border);
-            border-radius: 1.25rem; 
-            padding: 0.75rem; 
-            display: none; 
-            flex-direction: column; gap: 0.5rem; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            transform-origin: top right; z-index: 10000;
-        }
-
-        @keyframes menu-pop-in {
-            0% { opacity: 0; transform: translateY(-10px) scale(0.95); }
-            70% { transform: translateY(2px) scale(1.01); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        @keyframes menu-pop-out {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
-        }
-
-        .auth-menu-container.open { 
-            display: flex !important; 
-            animation: menu-pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .auth-menu-container.closing {
-            display: flex !important;
-            animation: menu-pop-out 0.3s ease-in forwards;
+        /* Fullscreen Player Styles */
+        #fullscreen-player {
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.4s ease;
+            transform: translateY(100%);
+            opacity: 0;
             pointer-events: none;
         }
 
-        .auth-menu-container.closed { 
-            opacity: 0; 
-            pointer-events: none; 
-            transform: translateY(-10px) scale(0.95); 
-            display: none !important; 
+        #fullscreen-player.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        .auth-menu-link { 
-            display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; 
-            padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--menu-text); 
-            background: rgba(79, 70, 229, 0.05); 
-            border-radius: 14px; 
-            transition: all 0.2s ease; cursor: pointer;
-            border: 1px solid transparent;
-        }
-        .auth-menu-link:hover { 
-            background-color: var(--menu-item-hover-bg); 
-            border-color: var(--menu-item-hover-border);
-            color: var(--menu-item-hover-text);
-            transform: translateY(-2px) scale(1.02);
-        }
-        .auth-menu-link.active {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: rgba(79, 70, 229, 0.1);
-        }
-
-        /* --- Chat Area --- */
-        #chat-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            max-width: 900px;
-            margin: 0 auto;
-            width: 100%;
-            scroll-behavior: smooth;
-            padding-bottom: 4rem; 
-        }
-        
-        #chat-container::-webkit-scrollbar { display: none; }
-
-        .message {
-            display: flex;
-            gap: 1rem;
-            opacity: 0;
-            animation: fadeIn 0.3s forwards;
-            max-width: 100%;
-        }
-        @keyframes fadeIn { to { opacity: 1; } }
-
-        .message.user { flex-direction: row-reverse; }
-        
-        .avatar {
-            width: 36px; height: 36px;
-            border-radius: 14px; 
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            font-size: 0.9rem;
-        }
-        .avatar.ai { background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%); color: white; }
-        .avatar.user { background: #222; border: 1px solid #333; color: #ccc; }
-
-        .bubble {
-            background: #000000; 
-            border: 1px solid #333;
-            padding: 1rem 1.5rem;
-            border-radius: 1.25rem; 
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #e5e7eb;
-            max-width: 85%;
-            overflow-wrap: break-word;
-        }
-        .message.user .bubble {
-            background: rgba(79, 70, 229, 0.1);
-            border-color: rgba(79, 70, 229, 0.3);
-            color: #fff;
-        }
-
-        /* --- Rich Content Styles --- */
-        .bubble pre { background: #000; padding: 10px; border-radius: 8px; overflow-x: auto; margin-top: 10px; border: 1px solid #333; }
-        .bubble code { font-family: 'Courier New', monospace; font-size: 0.9em; color: #a5b4fc; }
-        .bubble p { margin-bottom: 0.5rem; }
-        .bubble p:last-child { margin-bottom: 0; }
-        .bubble ul, .bubble ol { margin: 10px 0; padding-left: 20px; list-style-position: outside; }
-        .bubble li { margin-bottom: 5px; list-style: disc; }
-
-        /* Table Styling */
-        .bubble table {
-            display: block;        
-            width: 100%;
-            overflow-x: auto;      
-            border-collapse: collapse;
-            margin: 15px 0;
-            border-radius: 8px;
-            border-style: hidden;  
-            box-shadow: 0 0 0 1px #333;
-        }
-        .bubble thead { background-color: rgba(79, 70, 229, 0.2); }
-        .bubble th, .bubble td {
-            padding: 10px 15px;
-            text-align: left;
-            border: 1px solid #333;
-            min-width: 100px;
-            word-wrap: break-word;
-        }
-        .bubble th {
-            font-weight: 600;
-            color: #fff;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Math (KaTeX) Overflow */
-        .katex-display {
-            overflow-x: auto;
-            overflow-y: hidden;
-            max-width: 100%;
-            padding: 1rem 0;
-            margin: 0.5rem 0;
-        }
-
-        /* Custom Scrollbar */
-        .bubble table::-webkit-scrollbar, .katex-display::-webkit-scrollbar { height: 6px; }
-        .bubble table::-webkit-scrollbar-track, .katex-display::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
-        .bubble table::-webkit-scrollbar-thumb, .katex-display::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-
-        /* Chart Block Wrapper */
-        .chart-block-wrapper {
-            background-color: #000000; 
-            border-radius: 14px; 
-            margin: 15px 0;
-            overflow: hidden; 
-            border: 1px solid #333;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .unified-chart-placeholder { 
-            position: relative; 
-            height: 350px; /* Fixed Height to prevent 0-height collapse */
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        /* File Creation Card */
-        .gemini-file-creation-card {
-            background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(52, 168, 83, 0.05));
-            border: 1px solid rgba(66, 133, 244, 0.2);
-            border-radius: 14px; padding: 12px; width: 220px; margin-top: 10px;
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .file-header { display: flex; justify-content: space-between; align-items: center; }
-        .file-name { font-size: 0.9rem; color: #fff; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-creation-download-btn {
-            background: var(--accent); color: white; border-radius: 6px; width: 24px; height: 24px;
-            display: flex; align-items: center; justify-content: center; text-decoration: none;
-        }
-
-        /* --- Input Area --- */
-        .input-wrapper { 
-            padding: 1.5rem; 
-            max-width: 900px; 
-            margin: 0 auto; 
-            width: 100%; 
-            position: relative; 
-        }
-
-        .input-box {
-            background: #000000;
-            border: 1px solid #333;
-            border-radius: 26px;
-            padding: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
-            transition: border-color 0.2s;
-            position: relative;
-        }
-        .input-box:focus-within { border-color: var(--accent); }
-
-        textarea {
-            background: transparent; 
-            border: none; 
-            color: white;
-            padding: 0; 
-            margin: 0;
-            width: 100%; 
-            outline: none; 
-            resize: none !important;
-            font-family: 'Geist', sans-serif; 
-            font-size: 1rem;
-            line-height: 1.5;
-            height: 24px;
-            max-height: 150px;
-            flex-grow: 1;
-        }
-
-        /* Send Button */
-        .send-btn {
-            height: 38px; width: 38px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 14px; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
-            background: #1e1b4b; /* Dark Purple */
-            border: 1px solid var(--accent); /* Purple Outline */
-            color: #fff;
-        }
-        .send-btn:hover {
-            background: var(--accent);
-            color: #ffffff; 
-            border-color: #fff;
-            box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
-        }
-        .send-btn:disabled {
-            opacity: 0.5; cursor: not-allowed;
-            background: #1e1b4b !important; /* Keep purple */
-            border-color: var(--accent) !important;
-        }
-
-        /* Character Counter */
-        .char-counter {
+        /* Dynamic Background Blur */
+        .glass-bg {
             position: absolute;
-            bottom: -22px;
-            right: 20px;
-            font-size: 0.75rem;
-            color: #555;
-            font-family: monospace;
-            transition: color 0.2s;
-        }
-        .char-counter.limit { color: #ef4444; }
-
-        /* Tier Badge */
-        .tier-badge {
-            width: 100%; text-align: center; margin: 15px 0;
-            display: flex; align-items: center; justify-content: center;
-            animation: fadeIn 0.4s ease;
-        }
-        .tier-badge span {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #888;
-            font-size: 0.75em;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-family: 'Geist', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            inset: 0;
+            z-index: 0;
+            background-size: cover;
+            background-position: center;
+            filter: blur(80px) saturate(180%) brightness(0.6);
+            transform: scale(1.2); /* Prevent white edges from blur */
+            transition: background-image 0.5s ease;
         }
 
-        /* Delete Button */
-        #clear-chat-btn {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 45px; height: 45px;
-            background: #000000;
-            border: 1px solid #333;
-            color: #ef4444; /* Red */
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            transition: all 0.2s ease;
-            z-index: 100;
+        /* Album Art Shadow */
+        .art-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
         }
-        #clear-chat-btn:hover {
-            background: #1a1a1a;
-            transform: scale(1.1);
-            border-color: #ef4444;
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #fff;
+            margin-top: -4px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
         }
     </style>
 </head>
-<body>
+<body class="flex flex-col">
 
-    <header>
-        <div class="brand">
-            <i class="fa-solid fa-robot"></i>
-            <span>VANA</span>
+    <div id="app-content" class="flex-grow flex flex-col h-full hidden relative z-10">
+        
+        <header class="h-16 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/80 backdrop-blur-md z-20">
+            <div class="flex items-center gap-4">
+                <h1 class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Velium</h1>
+                <div class="relative group">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"></i>
+                    <input type="text" placeholder="Search songs..." class="bg-zinc-800 text-sm rounded-full pl-10 pr-4 py-2 w-64 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all">
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="openCreatePlaylistModal()" class="text-sm bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full transition-colors">
+                    <i class="fa-solid fa-plus mr-2"></i>New Playlist
+                </button>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600"></div>
+            </div>
+        </header>
+
+        <main class="flex-grow flex overflow-hidden">
+            <aside class="w-64 bg-zinc-900/50 border-r border-zinc-800 flex flex-col p-4">
+                <div class="text-xs font-semibold text-zinc-500 mb-4 uppercase tracking-wider">Library</div>
+                <nav class="space-y-1">
+                    <a href="#" class="block px-3 py-2 rounded-md bg-zinc-800 text-white text-sm font-medium"><i class="fa-solid fa-music mr-3 text-purple-400"></i>Songs</a>
+                    <a href="#" class="block px-3 py-2 rounded-md hover:bg-zinc-800/50 text-zinc-400 text-sm font-medium transition-colors"><i class="fa-solid fa-heart mr-3"></i>Favorites</a>
+                </nav>
+
+                <div class="mt-8 text-xs font-semibold text-zinc-500 mb-4 uppercase tracking-wider flex justify-between items-center">
+                    <span>Playlists</span>
+                    <i class="fa-solid fa-plus hover:text-white cursor-pointer" onclick="openCreatePlaylistModal()"></i>
+                </div>
+                <div id="playlist-list" class="space-y-1 overflow-y-auto flex-grow">
+                    <div class="text-zinc-600 text-sm italic px-3">No playlists yet</div>
+                </div>
+            </aside>
+
+            <div class="flex-grow overflow-y-auto p-8 bg-zinc-950">
+                <h2 class="text-2xl font-bold mb-6">All Songs</h2>
+                <div id="song-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    </div>
+            </div>
+        </main>
+
+        <div id="mini-player" class="h-20 bg-zinc-900 border-t border-zinc-800 flex items-center px-4 justify-between z-30 relative">
+            <div class="flex items-center gap-4 w-1/3">
+                <div class="relative group cursor-pointer" onclick="toggleFullscreenPlayer()">
+                    <img id="mini-cover" src="https://via.placeholder.com/60" class="w-14 h-14 rounded-md object-cover shadow-lg group-hover:brightness-75 transition-all">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fa-solid fa-expand text-white drop-shadow-md"></i>
+                    </div>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <span id="mini-title" class="text-sm font-semibold text-white truncate">Not Playing</span>
+                    <span id="mini-artist" class="text-xs text-zinc-400 truncate">Select a song</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center w-1/3 gap-1">
+                <div class="flex items-center gap-6">
+                    <button class="text-zinc-400 hover:text-white"><i class="fa-solid fa-backward-step text-lg"></i></button>
+                    <button id="mini-play-btn" class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                    <button class="text-zinc-400 hover:text-white"><i class="fa-solid fa-forward-step text-lg"></i></button>
+                </div>
+                <div class="w-full max-w-md flex items-center gap-2 text-xs text-zinc-500 font-mono">
+                    <span>0:00</span>
+                    <div class="h-1 flex-grow bg-zinc-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-white w-0"></div>
+                    </div>
+                    <span>0:00</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end w-1/3 gap-4">
+                <i class="fa-solid fa-volume-high text-zinc-400 text-sm"></i>
+                <div class="w-24 h-1 bg-zinc-700 rounded-full">
+                    <div class="w-2/3 h-full bg-zinc-400 rounded-full"></div>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="auth-controls-wrapper" id="dropdown-wrapper">
-            <button id="model-toggle" class="auth-toggle" type="button">
-                <span id="current-model-display"><i class="fa-solid fa-bolt mr-2"></i>Llama 3.1 8B (Fast)</span>
+    <div id="fullscreen-player" class="fixed inset-0 z-50 flex flex-col text-white">
+        <div id="fs-bg" class="glass-bg"></div>
+        <div class="absolute inset-0 bg-black/30 z-0"></div> <div class="relative z-10 flex justify-between items-center p-8 mt-4">
+            <button onclick="toggleFullscreenPlayer()" class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-colors">
                 <i class="fa-solid fa-chevron-down"></i>
             </button>
-            <div id="model-menu" class="auth-menu-container closed">
-                <div class="text-xs text-gray-500 uppercase font-bold px-3 py-2">Select Model</div>
-                
-                <button class="auth-menu-link active" data-model="llama-3.1-8b-instant" onclick="setModel('llama-3.1-8b-instant', 'Llama 3.1 8B (Fast)', this)">
-                    <i class="fa-solid fa-bolt w-4"></i>
-                    <div>
-                        <div class="font-medium">Llama 3.1 8B</div>
-                        <div class="text-xs text-gray-500">Fastest response</div>
-                    </div>
-                </button>
-
-                <button class="auth-menu-link" data-model="llama-3.3-70b-versatile" onclick="setModel('llama-3.3-70b-versatile', 'Llama 3.3 70B (Smart)', this)">
-                    <i class="fa-solid fa-brain w-4"></i>
-                    <div>
-                        <div class="font-medium">Llama 3.3 70B</div>
-                        <div class="text-xs text-gray-500">Highest intelligence</div>
-                    </div>
-                </button>
-
-                <button class="auth-menu-link" data-model="openai/gpt-oss-120b" onclick="setModel('openai/gpt-oss-120b', 'GPT-OSS 120B', this)">
-                    <i class="fa-solid fa-code-branch w-4"></i>
-                    <div>
-                        <div class="font-medium">GPT-OSS 120B</div>
-                        <div class="text-xs text-gray-500">Open source powerhouse</div>
-                    </div>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <div id="chat-container">
-        <div class="message ai">
-            <div class="avatar ai"><i class="fa-solid fa-v"></i></div>
-            <div class="bubble">
-                <p>Hello! I am Vana.</p>
-                <p>I can help you with analysis, coding, math, and visualizing data.</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="input-wrapper">
-        <div class="input-box">
-            <textarea 
-                id="user-input" 
-                placeholder="Type a message to Vana..." 
-                rows="1" 
-                maxlength="5000"
-                oninput="handleInput(this)"></textarea>
-            
-            <button id="send-btn" class="send-btn" onclick="sendMessage()" title="Send Message">
-                <i class="fa-solid fa-paper-plane"></i>
+            <div class="text-xs font-bold tracking-widest text-white/70 uppercase">Now Playing</div>
+            <button class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-colors">
+                <i class="fa-solid fa-ellipsis"></i>
             </button>
-            <div id="char-counter" class="char-counter">0 / 5000</div>
+        </div>
+
+        <div class="relative z-10 flex-grow flex flex-col items-center justify-center px-8">
+            <img id="fs-cover" src="" class="w-[80vw] max-w-sm aspect-square object-cover rounded-xl art-shadow mb-12 transform hover:scale-[1.02] transition-transform duration-500">
+            
+            <div class="w-full max-w-lg">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 id="fs-title" class="text-3xl font-bold mb-1 drop-shadow-md">Song Title</h2>
+                        <h3 id="fs-artist" class="text-xl text-white/80 drop-shadow-md">Artist Name</h3>
+                    </div>
+                    <button class="text-white/60 hover:text-white"><i class="fa-regular fa-heart text-2xl"></i></button>
+                </div>
+
+                <div class="mb-8 group">
+                    <input type="range" min="0" max="100" value="30" class="w-full h-1 cursor-pointer">
+                    <div class="flex justify-between text-xs font-medium text-white/60 mt-2 font-mono">
+                        <span>1:12</span>
+                        <span>3:45</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center gap-12">
+                    <button class="text-white/70 hover:text-white transition-colors"><i class="fa-solid fa-backward-step text-3xl"></i></button>
+                    <button id="fs-play-btn" class="w-20 h-20 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-play text-3xl ml-1"></i>
+                    </button>
+                    <button class="text-white/70 hover:text-white transition-colors"><i class="fa-solid fa-forward-step text-3xl"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-10 p-8 flex justify-between items-center max-w-lg mx-auto w-full">
+            <i class="fa-solid fa-quote-right text-white/50 hover:text-white cursor-pointer"></i>
+            <i class="fa-solid fa-list text-white/50 hover:text-white cursor-pointer"></i>
         </div>
     </div>
 
-    <button id="clear-chat-btn" onclick="clearChat()" title="Clear Conversation">
-        <i class="fa-solid fa-trash"></i>
-    </button>
+    <div id="create-playlist-modal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-zinc-900 border border-zinc-700 p-6 rounded-xl w-full max-w-md shadow-2xl">
+            <h2 class="text-xl font-bold mb-4">Create Playlist</h2>
+            <p id="pending-song-msg" class="text-xs text-purple-400 mb-4 hidden"><i class="fa-solid fa-circle-info mr-1"></i> Selected song will be added automatically</p>
+            <input type="text" id="new-playlist-name" placeholder="Playlist Name" class="w-full bg-zinc-800 border border-zinc-700 rounded-md p-3 mb-4 text-white focus:outline-none focus:border-purple-500">
+            <div class="flex justify-end gap-3">
+                <button onclick="closeCreatePlaylistModal()" class="px-4 py-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">Cancel</button>
+                <button onclick="confirmCreatePlaylist()" class="px-4 py-2 rounded-md bg-purple-600 hover:bg-purple-500 text-white font-medium transition-colors">Create</button>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        // --- CONFIGURATION ---
-        const MODELS = {
-            FAST: 'llama-3.1-8b-instant',
-            SMART: 'llama-3.3-70b-versatile',
-            GPT: 'openai/gpt-oss-120b'
-        };
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { firebaseConfig } from "../firebase-config.js";
+        import { checkAdminStatus } from "../utils.js";
 
-        const MODEL_NAMES = {
-            [MODELS.FAST]: 'Llama 3.1 8B (Fast)',
-            [MODELS.SMART]: 'Llama 3.3 70B (Smart)',
-            [MODELS.GPT]: 'GPT-OSS 120B'
-        };
+        // Mock Data since we removed the iframe connection
+        const songs = [
+            { id: 1, title: "Come Over", artist: "12AM", cover: "https://i.scdn.co/image/ab67616d0000b273d4060855260846271c607755", duration: "1:55" },
+            { id: 2, title: "Midnight City", artist: "M83", cover: "https://i.scdn.co/image/ab67616d0000b273187c9dcc21798394e3c983f4", duration: "4:03" },
+            { id: 3, title: "Starboy", artist: "The Weeknd", cover: "https://i.scdn.co/image/ab67616d0000b2734718e28d24527d9774d194c8", duration: "3:50" },
+            { id: 4, title: "Neon Lights", artist: "Synthwave", cover: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop", duration: "2:45" }
+        ];
+
+        // State
+        let playlists = [];
+        let currentSong = null;
+        let pendingPlaylistSong = null; // Stores song waiting for playlist creation
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         
-        let currentModel = MODELS.FAST;
-        let currentModelName = MODEL_NAMES[MODELS.FAST];
-        const MAX_CHARS = 5000;
-        
-        // --- STATE ---
-        let conversationHistory = [];
+        const appContent = document.getElementById('app-content');
 
-        // --- SEARCH ---
-        async function searchWeb(query) {
-            const baseUrl = "https://api.duckduckgo.com/?q=" + encodeURIComponent(query) + "&format=json";
-            
-            let prefix = (self.__uv$config && self.__uv$config.prefix) || "/logged-in/uv/service/";
-            if (prefix.startsWith('/')) {
-                prefix = window.location.origin + prefix;
-            }
-            
-            const proxiedUrl = prefix + Ultraviolet.codec.xor.encode(baseUrl);
-            
-            try {
-                const response = await fetch(proxiedUrl);
-                if (!response.ok) throw new Error(`Proxy Error: ${response.status} (${response.statusText})`);
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // RESTORED: Original loader call
+                if (window.showLoader) window.showLoader("Velium");
                 
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                     const text = await response.text();
-                     if (text.trim().startsWith("<")) throw new Error("Invalid response from proxy (likely blocked or 404)");
-                     try { return JSON.parse(text); } catch(e) { throw new Error("Invalid JSON response"); }
-                }
-
-                const data = await response.json();
-                
-                let result = `Search Results for "${query}":\n\n`;
-                if (data.AbstractText) {
-                    result += `Abstract: ${data.AbstractText}\nSource: ${data.AbstractSource}\nURL: ${data.AbstractURL}\n\n`;
-                }
-                
-                if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-                    result += "Related Topics:\n";
-                    data.RelatedTopics.slice(0, 5).forEach(topic => {
-                        if (topic.Text) {
-                            result += `- ${topic.Text} (${topic.FirstURL})\n`;
-                        } else if (topic.Topics) {
-                            topic.Topics.slice(0, 3).forEach(subTopic => {
-                                result += `- ${subTopic.Text} (${subTopic.FirstURL})\n`;
-                            });
-                        }
-                    });
-                }
-                
-                if (!data.AbstractText && (!data.RelatedTopics || data.RelatedTopics.length === 0)) {
-                    result += "No detailed results found, but the search was successfully executed via DuckDuckGo API.";
-                }
-                
-                return result;
-            } catch (error) {
-                console.error("Search Error:", error, "URL:", proxiedUrl);
-                return `Error performing search: ${error.message} (URL: ${proxiedUrl})`;
-            }
-        }
-
-        // --- SYSTEM PROMPT ---
-        const SYSTEM_PROMPT = `
-You are Vana, a highly capable AI assistant.
-
-**Capabilities:**
-1. **Math**: Use LaTeX for equations. Inline: $...$, Block: $$...$$.
-2. **Coding**: Provide code blocks with language specifiers.
-3. **Files**: If the user asks for a file, use the <CREATE_FILE> tag.
-4. **Charts**: To visualize data, use a \`\`\`chart\`\`\` block with the JSON schema below.
-6.  **Web Search**: If you need real-time information, latest news, or details you are unsure of, use the <SEARCH>query</SEARCH> tag. I will perform the search and provide you with results to help you answer.
-
-**JSON Schema for Charts:**
-\`\`\`json
-{
-  "type": "line" | "bar" | "scatter",
-  "data": {
-    "labels": ["X1", "X2"],
-    "datasets": [
-      {
-        "label": "Series Name",
-        "data": [10, 20],
-        "borderColor": "#4f46e5",
-        "tension": 0.4 
-      }
-    ]
-  }
-}
-\`\`\`
-For curved lines (functions), set "tension": 0.4. For straight lines, set 0.
-
-**File Creation Syntax:**
-<CREATE_FILE FILENAME="script.py" MIMETYPE="text/x-python">
-print("Hello World")
-</CREATE_FILE>
-`;
-
-        conversationHistory.push({ role: "system", content: SYSTEM_PROMPT });
-
-        // --- DROPDOWN LOGIC ---
-        const modelToggle = document.getElementById('model-toggle');
-        const modelMenu = document.getElementById('model-menu');
-
-        function closeMenuWithAnimation() {
-            modelMenu.classList.remove('open');
-            modelMenu.classList.add('closing');
-            modelMenu.addEventListener('animationend', () => {
-                modelMenu.classList.remove('closing');
-                modelMenu.classList.add('closed');
-            }, { once: true });
-        }
-
-        if (modelToggle && modelMenu) {
-            modelToggle.addEventListener('click', (e) => {
-                e.stopPropagation(); 
-                if (modelMenu.classList.contains('open')) {
-                    closeMenuWithAnimation();
+                const isAdmin = await checkAdminStatus(user.uid);
+                if (isAdmin) {
+                    // RESTORED: Original loader hide call
+                    if (window.hideLoader) window.hideLoader();
+                    
+                    appContent.classList.remove('hidden'); // Show new UI
+                    appContent.style.display = 'flex';
+                    renderSongs();
                 } else {
-                    modelMenu.classList.remove('closed');
-                    modelMenu.classList.remove('closing');
-                    modelMenu.classList.add('open');
+                    window.location.href = '../logged-in/dashboard.html';
                 }
-            });
-        }
-
-        document.addEventListener('click', (e) => {
-            if (modelMenu && modelMenu.classList.contains('open')) {
-                if (!modelMenu.contains(e.target) && !modelToggle.contains(e.target)) {
-                    closeMenuWithAnimation();
-                }
+            } else {
+                window.location.href = '../authentication.html';
             }
         });
 
-        window.setModel = (modelId, displayName, element) => {
-            if (currentModel !== modelId) {
-                currentModel = modelId;
-                currentModelName = displayName;
-                updateHeaderUI(modelId);
-                addSystemBadge(`Switched to ${displayName}`);
-            }
-            closeMenuWithAnimation();
-        };
-
-        // --- INPUT HANDLING ---
-        function handleInput(el) {
-            el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
-            const count = el.value.length;
-            const counterEl = document.getElementById('char-counter');
-            counterEl.textContent = `${count} / ${MAX_CHARS}`;
-            if(count >= MAX_CHARS) counterEl.classList.add('limit');
-            else counterEl.classList.remove('limit');
-        }
-
-        // --- CHAT LOGIC ---
-        const chatContainer = document.getElementById('chat-container');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        function clearChat() {
-            if(!confirm("Are you sure you want to clear the conversation?")) return;
-            chatContainer.innerHTML = '';
-            conversationHistory = [{ role: "system", content: SYSTEM_PROMPT }];
-            
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message ai';
-            msgDiv.innerHTML = `<div class="avatar ai"><i class="fa-solid fa-v"></i></div><div class="bubble"><p>Conversation cleared. Ready for new input.</p></div>`;
-            chatContainer.appendChild(msgDiv);
-        }
-
-        function addSystemBadge(text) {
-            const badge = document.createElement('div');
-            badge.className = 'tier-badge';
-            badge.innerHTML = `<span>${text}</span>`;
-            chatContainer.appendChild(badge);
-            scrollToBottom();
-        }
-
-        // --- MAIN SEND LOGIC ---
-        async function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            addMessageToUI('user', text);
-            conversationHistory.push({ role: "user", content: text });
-
-            userInput.value = '';
-            userInput.style.height = '24px';
-            document.getElementById('char-counter').textContent = `0 / ${MAX_CHARS}`;
-
-            let aiBubble = addMessageToUI('ai', '<i class="fa-solid fa-circle-notch fa-spin"></i> Thinking...', true);
-            sendBtn.disabled = true;
-
-            try {
-                if (!window.chatWithGroq) throw new Error("Firebase not initialized yet. Please wait.");
-
-                let response = await callCloudFunction(currentModel);
-
-                // Rate Limit Handling
-                if (response.error && response.code === 'resource-exhausted') {
-                    let nextModel = null;
-                    if (currentModel === MODELS.FAST) nextModel = MODELS.SMART;
-                    else if (currentModel === MODELS.SMART) nextModel = MODELS.FAST;
-                    else if (currentModel === MODELS.GPT) nextModel = MODELS.SMART;
-
-                    if (nextModel) {
-                        aiBubble.remove();
-                        addSystemBadge(`Rate Limit on ${MODEL_NAMES[currentModel]}. Switching to ${MODEL_NAMES[nextModel]}...`);
-                        currentModel = nextModel;
-                        updateHeaderUI(currentModel);
-                        aiBubble = addMessageToUI('ai', '<i class="fa-solid fa-circle-notch fa-spin"></i> Retrying...', true);
-                        response = await callCloudFunction(currentModel);
-                        
-                        if (response.error && response.code === 'resource-exhausted' && currentModel === MODELS.SMART) {
-                            nextModel = MODELS.FAST;
-                            aiBubble.remove();
-                            addSystemBadge(`Rate Limit on Smart. Switching to ${MODEL_NAMES[nextModel]}...`);
-                            currentModel = nextModel;
-                            updateHeaderUI(currentModel);
-                            aiBubble = addMessageToUI('ai', '<i class="fa-solid fa-circle-notch fa-spin"></i> Retrying...', true);
-                            response = await callCloudFunction(currentModel);
-                        }
-                    }
-                }
-
-                if (response.error) {
-                    if (response.code === 'resource-exhausted') throw new Error("Rate limit reached. Please wait 1 minute.");
-                    else throw new Error(response.message || "Unknown error");
-                }
-
-                let aiText = response.data.choices[0].message.content;
-
-                // --- SEARCH LOOP ---
-                const searchMatch = aiText.match(/<SEARCH>(.*?)<\/SEARCH>/i);
-                if (searchMatch) {
-                    const query = searchMatch[1];
-                    aiBubble.innerHTML = `<i class="fa-solid fa-magnifying-glass fa-spin mr-2"></i> Searching for "${query}"...`;
-                    
-                    const searchResults = await searchWeb(query);
-                    conversationHistory.push({ role: "assistant", content: aiText });
-                    conversationHistory.push({ role: "system", content: `Search Results: ${searchResults}` });
-                    
-                    response = await callCloudFunction(currentModel);
-                    if (response.error) throw new Error(response.message || "Error after search");
-                    aiText = response.data.choices[0].message.content;
-                }
-
-                const parsedContent = parseAIResponse(aiText);
-                aiBubble.innerHTML = parsedContent;
-                renderUnifiedCharts(aiBubble);
-                renderKaTeX(aiBubble);
-                conversationHistory.push({ role: "assistant", content: aiText });
-
-            } catch (error) {
-                aiBubble.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-triangle-exclamation mr-2"></i> ${error.message}</span>`;
-            } finally {
-                sendBtn.disabled = false;
-                scrollToBottom();
-            }
-        }
-
-        async function callCloudFunction(model) {
-            try {
-                const result = await window.chatWithGroq({
-                    messages: conversationHistory,
-                    model: model
-                });
-                return { data: result.data };
-            } catch (e) {
-                return { error: true, code: e.code, message: e.message };
-            }
-        }
-
-        function updateHeaderUI(modelId) {
-            currentModelName = MODEL_NAMES[modelId];
-            let icon = 'fa-brain';
-            if(modelId.includes('8b')) icon = 'fa-bolt';
-            if(modelId.includes('gpt-oss')) icon = 'fa-code-branch';
-            
-            const display = document.getElementById('current-model-display');
-            display.innerHTML = `<i class="fa-solid ${icon} mr-2"></i>${currentModelName}`;
-            
-            document.querySelectorAll('.auth-menu-link').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.getAttribute('data-model') === modelId) btn.classList.add('active'); 
-            });
-        }
-
-        function addMessageToUI(role, htmlContent, isLoading = false) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${role}`;
-            
-            const avatar = role === 'ai' ? '<i class="fa-solid fa-v"></i>' : '<i class="fa-solid fa-user"></i>';
-            const content = isLoading ? htmlContent : (role === 'ai' ? htmlContent : marked.parse(htmlContent));
-            
-            msgDiv.innerHTML = `
-                <div class="avatar ${role}">${avatar}</div>
-                <div class="bubble">${content}</div>
-            `;
-            chatContainer.appendChild(msgDiv);
-            scrollToBottom();
-            return msgDiv.querySelector('.bubble');
-        }
-
-        function scrollToBottom() {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        // --- UTILS (Rendering) ---
-        function parseAIResponse(text) {
-            let html = text.replace(/<SEARCH>.*?<\/SEARCH>/gi, '');
-            
-            // 1. EXTRACT CHARTS BEFORE MARKDOWN PARSING
-            // Uses an alphanumeric token (CHARTBLOCK) that Markdown will NOT mess up
-            const charts = [];
-            html = html.replace(/```chart\n([\s\S]*?)```/g, (match, json) => {
-                charts.push(json);
-                return `CHARTBLOCK${charts.length - 1}ENDCHARTBLOCK`;
-            });
-
-            // 2. PARSE MARKDOWN
-            html = marked.parse(html);
-
-            // 3. RESTORE CHARTS
-            // Replaces the generic token with the actual HTML structure
-            html = html.replace(/CHARTBLOCK(\d+)ENDCHARTBLOCK/g, (match, index) => {
-                const json = charts[index];
-                const safeJson = encodeURIComponent(json);
-                return `<div class="chart-block-wrapper">
-                    <div class="unified-chart-placeholder" data-chart-data="${safeJson}">
-                        <canvas class="chart-canvas"></canvas>
+        // UI Functions exposed to window for onclick handlers
+        window.renderSongs = () => {
+            const grid = document.getElementById('song-grid');
+            grid.innerHTML = songs.map(song => `
+                <div class="bg-zinc-900 hover:bg-zinc-800 p-4 rounded-xl group transition-colors cursor-pointer relative">
+                    <div class="relative mb-4 overflow-hidden rounded-lg shadow-lg">
+                        <img src="${song.cover}" class="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500">
+                        <button onclick="playSong(${song.id})" class="absolute bottom-2 right-2 w-10 h-10 bg-purple-500 rounded-full shadow-lg flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                            <i class="fa-solid fa-play text-white ml-1"></i>
+                        </button>
                     </div>
-                </div>`;
-            });
-
-            // Files
-            html = html.replace(/<CREATE_FILE FILENAME="([^"]+)" MIMETYPE="([^"]+)">([\s\S]*?)<\/CREATE_FILE>/g, (m, f, t, c) => {
-                const blob = new Blob([c], {type:t});
-                return `<div class="gemini-file-creation-card">
-                    <div class="file-header">
-                        <div class="file-name">${f}</div>
-                        <a href="${URL.createObjectURL(blob)}" download="${f}" class="file-creation-download-btn"><i class="fa-solid fa-download"></i></a>
-                    </div>
-                </div>`;
-            });
-            
-            return html;
+                    <h3 class="font-bold text-white truncate">${song.title}</h3>
+                    <p class="text-zinc-400 text-sm truncate mb-3">${song.artist}</p>
+                    <button onclick="attemptAddToPlaylist(${song.id})" class="w-full py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium transition-colors">
+                        <i class="fa-solid fa-plus mr-1"></i> Add to Playlist
+                    </button>
+                </div>
+            `).join('');
         }
 
-        function renderKaTeX(c) {
-            if(typeof katex === 'undefined') return;
+        window.playSong = (id) => {
+            const song = songs.find(s => s.id === id);
+            if (!song) return;
+            currentSong = song;
+            
+            // Update Mini Player
+            document.getElementById('mini-title').innerText = song.title;
+            document.getElementById('mini-artist').innerText = song.artist;
+            document.getElementById('mini-cover').src = song.cover;
+            
+            // Update Fullscreen Player
+            document.getElementById('fs-title').innerText = song.title;
+            document.getElementById('fs-artist').innerText = song.artist;
+            document.getElementById('fs-cover').src = song.cover;
+            document.getElementById('fs-bg').style.backgroundImage = `url('${song.cover}')`;
+        }
 
-            const decodeHTML = (html) => {
-                const txt = document.createElement("textarea");
-                txt.innerHTML = html;
-                return txt.value;
+        window.toggleFullscreenPlayer = () => {
+            if(!currentSong) return;
+            const fs = document.getElementById('fullscreen-player');
+            fs.classList.toggle('active');
+        }
+
+        // Playlist Logic
+        window.attemptAddToPlaylist = (songId) => {
+            const song = songs.find(s => s.id === songId);
+            
+            // If no playlists exist, trigger the "Smart Create" flow
+            if (playlists.length === 0) {
+                pendingPlaylistSong = song; // Store the song
+                document.getElementById('pending-song-msg').classList.remove('hidden');
+                document.getElementById('pending-song-msg').innerHTML = `<i class="fa-solid fa-check mr-1"></i> "${song.title}" will be added automatically`;
+                window.openCreatePlaylistModal();
+            } else {
+                // Normal add logic would go here (show playlist selector)
+                alert(`Added ${song.title} to your existing playlist (Mock)`);
+            }
+        }
+
+        window.openCreatePlaylistModal = () => {
+            document.getElementById('create-playlist-modal').classList.remove('hidden');
+        }
+
+        window.closeCreatePlaylistModal = () => {
+            document.getElementById('create-playlist-modal').classList.add('hidden');
+            // Do not clear pending song here in case they reopen, or clear it if you prefer strict reset
+            // pendingPlaylistSong = null; 
+        }
+
+        window.confirmCreatePlaylist = () => {
+            const nameInput = document.getElementById('new-playlist-name');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            const newPlaylist = {
+                id: Date.now(),
+                name: name,
+                songs: []
             };
 
-            c.innerHTML = c.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g, (match, tex) => {
-                try {
-                    const cleanTex = decodeHTML(tex); 
-                    return katex.renderToString(cleanTex, { 
-                        displayMode: true, 
-                        throwOnError: false, 
-                        output: 'html'       
-                    });
-                } catch (e) { return match; }
-            });
+            // Smart Logic: Add the pending song if it exists
+            if (pendingPlaylistSong) {
+                newPlaylist.songs.push(pendingPlaylistSong);
+                console.log(`Automatically added ${pendingPlaylistSong.title} to ${name}`);
+            }
 
-            c.innerHTML = c.innerHTML.replace(/\$([^\$\n<]+)\$/g, (match, tex) => {
-                try {
-                    const cleanTex = decodeHTML(tex);
-                    return katex.renderToString(cleanTex, { displayMode: false, throwOnError: false });
-                } catch (e) { return match; }
-            });
+            playlists.push(newPlaylist);
+            
+            // Render Sidebar Playlist
+            const list = document.getElementById('playlist-list');
+            const item = document.createElement('div');
+            item.className = "px-3 py-2 rounded-md hover:bg-zinc-800 text-zinc-400 text-sm cursor-pointer transition-colors flex justify-between";
+            item.innerHTML = `<span><i class="fa-solid fa-list-music mr-3"></i>${name}</span> <span class="text-xs bg-zinc-800 px-2 rounded text-zinc-500">${newPlaylist.songs.length}</span>`;
+            
+            // If it was the first playlist, clear the "No playlists" text
+            if (playlists.length === 1) list.innerHTML = '';
+            list.appendChild(item);
+
+            // Cleanup
+            nameInput.value = '';
+            pendingPlaylistSong = null;
+            document.getElementById('pending-song-msg').classList.add('hidden');
+            window.closeCreatePlaylistModal();
         }
 
-        // --- UPDATED CHART ENGINE (Robust) ---
-        function renderUnifiedCharts(c) {
-            c.querySelectorAll('.unified-chart-placeholder').forEach(p => {
-                if(p.dataset.chartInitialized) return;
-                
-                const canvas = p.querySelector('canvas');
-                if(!canvas) return;
-
-                try {
-                    // DECODE THE DATA
-                    const rawJson = decodeURIComponent(p.dataset.chartData);
-                    const inputJson = JSON.parse(rawJson);
-                    
-                    // Defaults
-                    const defaults = {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        plugins: {
-                            legend: { labels: { color: '#9ca3af', font: { family: 'Geist' } } },
-                            tooltip: {
-                                backgroundColor: 'rgba(0,0,0,0.9)',
-                                titleColor: '#fff',
-                                bodyColor: '#ccc',
-                                borderColor: '#333',
-                                borderWidth: 1
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: { color: '#333' },
-                                ticks: { color: '#6b7280', font: { family: 'Geist' } }
-                            },
-                            y: {
-                                grid: { color: '#333' },
-                                ticks: { color: '#6b7280', font: { family: 'Geist' } }
-                            }
-                        },
-                        elements: {
-                            line: { borderWidth: 2 },
-                            point: { radius: 3, hitRadius: 10 }
-                        }
-                    };
-
-                    const config = {
-                        type: inputJson.type,
-                        data: inputJson.data,
-                        options: { ...defaults, ...inputJson.options }
-                    };
-
-                    new Chart(canvas, config);
-                    p.dataset.chartInitialized = "true";
-
-                } catch(e) {
-                    console.error("Chart JS Error:", e);
-                    // PRINT ERROR TO UI so we can see what went wrong
-                    p.innerHTML = `<div style="color:#ef4444; padding:20px; font-family:monospace; font-size:0.8rem;">
-                        <strong>Chart Error:</strong><br>${e.message}
-                    </div>`;
-                }
-            });
-        }
     </script>
 </body>
 </html>

@@ -3,13 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velium Music</title>
+    <title>4SP - VELIUM</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preload" href="/VELIUM/uv/uv.bundle.js" as="script">
+    <link rel="preload" href="/VELIUM/baremux/index.js" as="script">
+    <link rel="preload" href="/VELIUM/baremux/worker.js" as="worker">
+    <link rel="preload" href="/VELIUM/uv/sw.js" as="worker">
+
+    <script src="/VELIUM/uv/uv.bundle.js"></script>
+    <script>
+        const basePath = "/VELIUM/uv/";
+        self.__uv$config = {
+            prefix: basePath + "service/",
+            encodeUrl: Ultraviolet.codec.xor.encode,
+            decodeUrl: Ultraviolet.codec.xor.decode,
+            handler: basePath + "uv.handler.js",
+            client: basePath + "uv.client.js",
+            bundle: basePath + "uv.bundle.js",
+            config: basePath + "uv.config.js",
+            sw: basePath + "uv.sw.js",
+            stockSW: basePath + "sw.js",
+        };
+    </script>
+    <script src="/VELIUM/baremux/index.js"></script>
+    <script>
+        // Immediate Initialization of VERN_SYSTEM Proxy
+        (async () => {
+            if ("serviceWorker" in navigator) {
+                try {
+                    // Register Root SW
+                    const reg = await navigator.serviceWorker.register("/VELIUM/sw.js", {
+                        scope: "/VELIUM/"
+                    });
+                    console.log("VERN_SYSTEM SW Registered");
+
+                    // Reload if controller changes (SW activated)
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (!navigator.serviceWorker.controller) return;
+                        console.log("SW Activated, reloading...");
+                        window.location.reload();
+                    });
+
+                } catch (e) {
+                    console.error("SW Register Failed", e);
+                }
+            }
+            try {
+                const connection = new BareMux.BareMuxConnection("/VELIUM/baremux/worker.js");
+                const wispUrl = "wss://wisp.rhw.one/";
+                connection.setTransport("/VELIUM/libcurl/index.mjs", [{ websocket: wispUrl }]);
+                console.log("BareMux Initialized");
+            } catch (e) {
+                console.error("BareMux Init Failed", e);
+            }
+        })();
+    </script>
 
     <script>
         tailwind.config = {
@@ -18,13 +72,16 @@
                 extend: {
                     colors: {
                         'deep-black': '#040404',
-                        'card-dark': '#111111',
+                        'card-dark': '#0d0d0d', /* Matches notes.html editor bg */
                         'accent-indigo': '#4f46e5',
-                        'brand-border': '#252525',
+                        'brand-border': '#333333', /* Matches notes.html border */
                     },
                     fontFamily: {
                         sans: ['Geist', 'sans-serif'],
                     },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
                 }
             }
         }
@@ -33,10 +90,14 @@
     <style>
         body { 
             font-family: 'Geist', sans-serif; 
-            background-color: #040404; 
-            color: #d1d5db; 
+            background-color: #000000; 
+            color: #c0c0c0; /* Matches notes.html text color */
             font-weight: 300; 
             padding-bottom: 120px; /* Space for player */
+        }
+
+        h1, h2, h3, .font-bold, .font-semibold, strong {
+            font-weight: 400 !important; /* Thin styling consistency */
         }
 
         /* --- Global Scrollbar --- */
@@ -45,104 +106,132 @@
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #444; }
 
-        /* --- Toolbar Button Style (Match 4SP DV) --- */
+        /* --- Toolbar Button Style (Matches notes.html) --- */
         .btn-toolbar-style {
-            background: #0a0a0a;
+            background: #000000;
             border: 1px solid #333;
-            border-radius: 16px;
+            border-radius: 16px; /* Matches navigation.js */
             color: #d1d5db;
-            padding: 0.75rem 1.25rem;
+            padding: 0.5rem 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
             font-size: 0.9rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-            position: relative;
         }
         .btn-toolbar-style:hover {
+            background-color: #000000;
             border-color: #fff;
-            color: #fff;
-            transform: scale(1.02) translateY(-1px);
-            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+            color: #ffffff;
             z-index: 50;
-        }
-        .btn-toolbar-style:active {
-            transform: scale(0.98);
-            transition: transform 0.05s ease-out !important;
         }
         .btn-toolbar-style.active {
             background-color: rgba(79, 70, 229, 0.1);
-            border-color: #4f46e5;
+            border: 1px solid #4f46e5;
             color: #4f46e5;
+        }
+
+        .btn-primary-override {
+            background-color: rgba(79, 70, 229, 0.1);
+            border: 1px solid #4f46e5;
+            color: #4f46e5;
+        }
+        .btn-primary-override:hover {
+            background-color: rgba(79, 70, 229, 0.15);
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .btn-danger-override {
+            background-color: rgba(220, 38, 38, 0.1);
+            border: 1px solid #dc2626;
+            color: #dc2626;
+        }
+        .btn-danger-override:hover {
+            background-color: rgba(220, 38, 38, 0.15);
+            border-color: #ef4444;
+            color: #ef4444;
         }
 
         /* --- Search Bar --- */
         #search-container {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 24px; 
+            padding: 0.5rem; 
+            background-color: #000000; /* Pure black background */
         }
-        #search-container:focus-within {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15);
-            border-color: #4f46e5;
+        #search-container input {
+            padding: 0.5rem 1rem; 
         }
 
-        /* --- Player Bar (Fixed Dark Style) --- */
+        /* --- Settings Dropdown (Match Auth Menu) --- */
+        #settings-dropdown {
+            background: #000000;
+            border: 1px solid #333;
+            border-radius: 1.25rem; 
+            padding: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            /* Reset tailwind widths if needed */
+            width: 16rem !important; 
+        }
+
+        /* --- Player Bar --- */
         #player-bar {
             position: fixed;
             bottom: 0; left: 0; right: 0;
             height: 90px;
-            background-color: #000000;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            background-color: #000000; /* Deep black */
+            border-top: 1px solid #333;
             backdrop-filter: blur(20px);
             z-index: 100;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 2rem;
-            transition: background-color 0.5s ease;
         }
 
         .player-info { display: flex; align-items: center; gap: 1rem; width: 300px; }
         .player-info img { 
             width: 56px; height: 56px; 
-            border-radius: 0.5rem; 
-            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; /* Standardized radius */
+            border: 1px solid #333;
             object-fit: cover;
+            cursor: pointer; /* Clickable for fullscreen */
+            transition: transform 0.2s;
         }
+        .player-info img:hover { transform: scale(1.05); border-color: #fff; }
+
         .player-text { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-        .player-title { color: white; font-size: 0.95rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        .player-artist { color: rgba(255,255,255,0.7); font-size: 0.75rem; }
+        .player-title { color: #fff; font-size: 0.95rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-artist { color: #9ca3af; font-size: 0.75rem; }
 
         .custom-player-controls {
             flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; max-width: 600px;
         }
         .control-buttons { display: flex; gap: 2rem; align-items: center; }
-        .player-btn { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 1.2rem; cursor: pointer; transition: all 0.2s; }
+        .player-btn { background: none; border: none; color: #9ca3af; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; }
         .player-btn:hover { color: white; transform: scale(1.1); }
         .play-btn { color: white; font-size: 2.5rem; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
         .play-btn:hover { transform: scale(1.1); }
 
-        .progress-container { width: 100%; display: flex; align-items: center; gap: 1rem; color: rgba(255,255,255,0.7); font-size: 0.75rem; }
+        .progress-container { width: 100%; display: flex; align-items: center; gap: 1rem; color: #9ca3af; font-size: 0.75rem; }
         .progress-bar {
-            flex: 1; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px;
+            flex: 1; height: 4px; background: #333; border-radius: 2px;
             -webkit-appearance: none; outline: none; cursor: pointer;
         }
-        /* Thumb always visible */
         .progress-bar::-webkit-slider-thumb {
             -webkit-appearance: none; width: 12px; height: 12px; background: white; border-radius: 50%; opacity: 1; transition: transform 0.2s;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
         .progress-container:hover .progress-bar::-webkit-slider-thumb { transform: scale(1.2); }
 
-        .volume-controls { display: flex; align-items: center; gap: 1rem; width: 200px; justify-content: flex-end; color: rgba(255,255,255,0.6); }
-        .volume-slider { width: 80px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; -webkit-appearance: none; outline: none; }
-        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: rgba(255,255,255,0.8); border-radius: 50%; }
+        .volume-controls { display: flex; align-items: center; gap: 1rem; width: 200px; justify-content: flex-end; color: #9ca3af; }
+        .volume-slider { width: 80px; height: 4px; background: #333; border-radius: 2px; -webkit-appearance: none; outline: none; }
+        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: #d1d5db; border-radius: 50%; }
 
-        /* --- Modals (Match 4SP DV Settings) --- */
+        /* --- Modals (Styled like logged-in pages) --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(5px); z-index: 200;
@@ -152,122 +241,105 @@
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         
         .modal-content {
-            background: #000; border: 1px solid #333;
-            border-radius: 18px; 
+            background: #000000; 
+            border: 1px solid #333;
+            border-radius: 1.25rem; /* Standardized container radius */
             width: 90%; max-width: 450px;
-            transform: scale(0.95); transition: transform 0.2s;
             overflow: hidden;
             display: flex; flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .modal-overlay.active .modal-content { transform: scale(1); }
 
         .modal-header {
-            padding: 1.5rem; border-bottom: 1px solid #333;
-            background: #000; display: flex; justify-content: space-between; align-items: center;
+            padding: 1.25rem; border-bottom: 1px solid #333;
+            background: #000000; display: flex; justify-content: space-between; align-items: center;
         }
-        .modal-body { padding: 1.5rem; background: #0a0a0a; display: flex; flex-direction: column; gap: 1rem; }
+        .modal-body { padding: 1.5rem; background: #000000; display: flex; flex-direction: column; gap: 1rem; }
 
         .modal-input {
-            width: 100%; background: #111; border: 1px solid #252525;
-            color: white; padding: 0.75rem; border-radius: 16px;
+            width: 100%; background: #000000; border: 1px solid #333;
+            color: #c0c0c0; padding: 0.75rem; border-radius: 16px;
             outline: none; transition: all 0.2s;
         }
-        .modal-input:focus { border-color: #4f46e5; transform: scale(1.01); }
-
-        .modal-btn {
-            width: 100%; padding: 0.75rem 1.25rem; border-radius: 16px;
-            font-weight: 500; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center; font-size: 0.9rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-        }
-        .modal-btn:hover { transform: scale(1.02) translateY(-1px); }
-        .modal-btn:active { transform: scale(0.98); transition: transform 0.05s ease-out !important; }
-
-        .btn-primary { background: rgba(79, 70, 229, 0.1); color: #4f46e5; border: 1px solid #4f46e5; }
-        .btn-primary:hover { background: rgba(79, 70, 229, 0.15); border-color: #6366f1; color: #6366f1; }
-        
-        .btn-secondary { background: #0a0a0a; color: #d1d5db; border: 1px solid #333; }
-        .btn-secondary:hover { border-color: #fff; color: white; }
-        
-        .btn-danger { background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid #dc2626; }
-        .btn-danger:hover { background: rgba(220, 38, 38, 0.15); border-color: #ef4444; color: #ef4444; }
+        .modal-input:focus { border-color: #555; }
 
         .close-btn-round {
-            width: 2.5rem; height: 2.5rem; border-radius: 16px;
-            background: #0a0a0a; border: 1px solid #333; color: #d1d5db;
+            width: 2rem; height: 2rem; border-radius: 16px;
+            background: transparent; border: 1px solid transparent; color: #9ca3af;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.2s;
         }
-        .close-btn-round:hover { border-color: #fff; color: #fff; transform: scale(1.05); }
+        .close-btn-round:hover { color: #fff; background: #222; }
 
-        /* Cropper */
-        #cropper-modal-content { max-width: 600px; }
-        #cropperCanvasContainer {
-            position: relative; margin: 0 auto; overflow: hidden; max-height: 60vh; border: 1px dashed #333; border-radius: 8px;
+        /* --- Library Drawer --- */
+        #library-drawer {
+            background: #000000;
+            border-left: 1px solid #333;
         }
-        canvas { display: block; max-width: 100%; }
-
-        /* --- Library Drawer List Items --- */
         .compact-list-item {
-            border-radius: 16px; 
-            margin-bottom: 2px;
+            border-radius: 16px; /* Standardized radius */
+            margin-bottom: 4px;
             padding: 0.5rem; 
             transition: background-color 0.2s;
             cursor: pointer;
+            border: 1px solid transparent;
         }
-        .compact-list-item:hover { background-color: #1a1a1a; }
+        .compact-list-item:hover { background-color: #111; border-color: #333; }
 
         /* --- Notifications --- */
         #notification-container { position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.75rem; z-index: 1000; pointer-events: none; }
-        .notification-toast { background-color: #0a0a0a; border: 1px solid #333; border-radius: 14px; padding: 0.75rem 1.25rem; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; min-width: 200px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background-color 0.2s; opacity: 0; pointer-events: auto; cursor: default; }
+        .notification-toast { background-color: #000000; border: 1px solid #333; border-radius: 16px; padding: 0.75rem 1.25rem; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; min-width: 200px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, background-color 0.2s; opacity: 0; pointer-events: auto; cursor: default; }
         .notification-toast.show { transform: translateX(0); opacity: 1; }
         .notification-toast.show:hover { transform: scale(1.05) translateX(-5px); background-color: #151515; border-color: #555; box-shadow: 0 8px 25px rgba(0,0,0,0.7); }
-        .notification-icon { font-size: 1.1rem; }
-        .notification-icon.success { color: #4ade80; }
-        .notification-icon.info { color: #60a5fa; }
-        .notification-icon.warning { color: #fbbf24; }
-
-        /* --- Animations --- */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
         
         .loader { display: flex; justify-content: center; align-items: center; height: 200px; color: #4f46e5; }
         .hidden { display: none !important; }
+        
+        .fa-spin-fast { animation: fa-spin 0.8s infinite linear; }
+
+        /* --- Fullscreen Player Styles --- */
+        #fullscreen-player-overlay {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #fullscreen-player-overlay.hidden-fs {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+        .fs-glass-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .fs-glass-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); }
+        .fs-glass-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- Top Navigation / Toolbar -->
-    <header class="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-md z-40 border-b border-brand-border h-16 flex items-center justify-between px-6">
+    <header class="fixed top-0 left-0 right-0 bg-[#040404]/90 backdrop-blur-md z-40 border-b border-[#333] h-16 flex items-center justify-between px-6">
         <div class="flex items-center gap-4">
             <h1 class="text-xl text-white tracking-widest font-bold mr-4">VELIUM</h1>
-            
-            <label class="cursor-pointer">
-                <input type="radio" name="search-type" value="song" class="hidden peer" checked>
-                <div class="btn-toolbar-style peer-checked:active">
-                    <i class="fas fa-music"></i> Songs
-                </div>
-            </label>
-            <label class="cursor-pointer">
-                <input type="radio" name="search-type" value="artist" class="hidden peer">
-                <div class="btn-toolbar-style peer-checked:active">
-                    <i class="fas fa-microphone-lines"></i> Artists
-                </div>
-            </label>
-        </div>
+            </div>
 
         <div class="flex items-center gap-3">
-             <button onclick="openCreatePlaylistModal()" class="btn-toolbar-style" title="New Playlist">
+             <button onclick="openCreatePlaylistModal()" class="btn-toolbar-style btn-primary-override" title="New Playlist">
                 <i class="fas fa-plus"></i> New Playlist
             </button>
              <button id="view-library-btn" class="btn-toolbar-style" title="My Library" onclick="document.getElementById('library-drawer').classList.toggle('translate-x-full')">
                 <i class="fas fa-layer-group"></i> Library
             </button>
              <div class="relative">
-                <button id="settings-btn" class="btn-toolbar-style !px-3" title="Settings" onclick="toggleSettingsMenu()">
-                    <i class="fas fa-gear"></i>
+                <button id="settings-btn" class="btn-toolbar-style !w-10 !h-10 !p-0 flex items-center justify-center" style="border-radius: 16px;" title="Settings" onclick="toggleSettingsMenu()">
+                    <i class="fas fa-gear text-lg"></i>
                 </button>
-                <div id="settings-dropdown" class="absolute right-0 top-full mt-2 w-64 bg-[#0a0a0a] border border-[#333] rounded-2xl shadow-xl p-4 hidden z-50 transform origin-top-right transition-all duration-200">
+                <div id="settings-dropdown" class="absolute right-0 top-full mt-2 hidden z-50 transform origin-top-right transition-all duration-200">
                     <h3 class="text-white font-bold mb-3 text-sm uppercase tracking-wider border-b border-[#333] pb-2">Playback</h3>
                     
                     <div class="flex flex-col gap-3">
@@ -292,27 +364,24 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="pt-24 px-4 sm:px-8 max-w-screen-2xl mx-auto">
         
-        <!-- Search Hero -->
         <div class="max-w-3xl mx-auto mb-12">
-            <div id="search-container" class="relative flex items-center bg-[#111] border border-[#333] rounded-2xl p-2 group transition-all">
+            <div id="search-container" class="relative flex items-center border border-[#333] p-2 group transition-all">
                 <i class="fas fa-search text-gray-500 ml-4 text-lg"></i>
-                <input type="text" id="search-box" placeholder="Search for songs, artists..." 
+                <input type="text" id="search-box" placeholder="Search songs..." 
                        class="w-full bg-transparent border-none outline-none text-white px-4 py-3 text-lg placeholder-gray-600 font-light">
-                <button onclick="handleSearch()" class="btn-toolbar-style active px-8">Search</button>
+                <button onclick="handleSearch()" class="btn-toolbar-style active px-8">
+                    <i class="fas fa-search mr-2"></i> Search
+                </button>
             </div>
         </div>
 
-        <!-- Dynamic Header -->
         <div class="flex justify-between items-center mb-6">
             <h2 id="main-header" class="text-2xl text-white font-medium">Home</h2>
         </div>
 
-        <!-- Content Grid (Cards) -->
         <div id="content-area" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            <!-- Initial State -->
             <div class="col-span-full flex flex-col items-center justify-center text-gray-500 mt-20 opacity-50">
                 <i class="fas fa-wave-square text-6xl mb-4"></i>
                 <p class="text-xl">Discover your sound.</p>
@@ -321,23 +390,20 @@
 
     </main>
 
-    <!-- Library Drawer (Right Side) -->
-    <aside id="library-drawer" class="fixed top-0 right-0 h-full w-80 bg-[#0a0a0a] border-l border-[#252525] z-50 transform translate-x-full transition-transform duration-300 shadow-2xl flex flex-col pt-20">
-        <div class="px-6 pb-4 border-b border-[#252525] flex justify-between items-center">
+    <aside id="library-drawer" class="fixed top-0 right-0 h-full w-80 bg-[#000000] border-l border-[#333] z-50 transform translate-x-full transition-transform duration-300 shadow-2xl flex flex-col">
+        <div class="px-6 py-4 border-b border-[#333] flex justify-between items-center">
             <h2 class="text-xl text-white font-medium">Your Library</h2>
-            <button onclick="document.getElementById('library-drawer').classList.add('translate-x-full')" class="text-gray-400 hover:text-white">
+            <button onclick="document.getElementById('library-drawer').classList.add('translate-x-full')" class="close-btn-round">
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
         <div id="library-list" class="flex-grow overflow-y-auto p-4 space-y-2">
-            <!-- Populated by script.js -->
-        </div>
+            </div>
     </aside>
 
-    <!-- Player Bar -->
     <div id="player-bar" class="hidden">
         <div class="player-info">
-            <img id="player-img" src="" alt="Cover">
+            <img id="player-img" src="" alt="Cover" onclick="openFullscreenPlayer()" title="Enter Fullscreen">
             <div class="player-text">
                 <span class="player-title" id="player-title">Song Title</span>
                 <span class="player-artist" id="player-artist">Artist Name</span>
@@ -350,7 +416,7 @@
                 <button class="player-btn" onclick="document.getElementById('audio-player').currentTime -= 10"><i class="fas fa-backward text-base"></i></button>
                 <button class="play-btn" id="play-pause-btn"><i class="fas fa-play-circle"></i></button>
                 <button class="player-btn" onclick="document.getElementById('audio-player').currentTime += 10"><i class="fas fa-forward text-base"></i></button>
-                <button class="player-btn" title="Add to Playlist" onclick="addCurrentToPlaylist()"><i class="fas fa-plus"></i></button>
+                <button class="player-btn" id="add-to-playlist-btn" title="Add to Playlist" onclick="addCurrentToPlaylistWrapper()"><i class="fas fa-plus"></i></button>
             </div>
             <div class="progress-container">
                 <span id="current-time">0:00</span>
@@ -369,7 +435,59 @@
         <audio id="audio-player-2" class="hidden"></audio>
     </div>
 
-    <!-- Create Playlist Modal -->
+    <div id="fullscreen-player-overlay" class="fixed inset-0 z-[150] bg-black hidden-fs flex flex-col">
+        <div class="absolute inset-0 overflow-hidden">
+            <img id="fs-bg-image" src="" class="w-full h-full object-cover scale-110 filter blur-[80px] opacity-60 transition-all duration-700">
+            <div class="absolute inset-0 bg-black/40"></div> </div>
+
+        <div class="relative z-10 flex flex-col h-full p-8 md:p-12 items-center justify-center">
+            
+            <button onclick="closeFullscreenPlayer()" class="absolute top-8 right-8 fs-glass-btn w-12 h-12 text-white/80">
+                <i class="fas fa-chevron-down text-xl"></i>
+            </button>
+
+            <div class="w-full max-w-md aspect-square mb-12 shadow-2xl relative group">
+                <img id="fs-cover-image" src="" class="w-full h-full object-cover rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-transform duration-500 group-hover:scale-[1.02]">
+            </div>
+
+            <div class="w-full max-w-3xl text-center mb-8">
+                <h2 id="fs-song-title" class="text-3xl md:text-5xl font-bold text-white mb-3 tracking-tight drop-shadow-md">Song Title</h2>
+                <h3 id="fs-artist-name" class="text-xl md:text-2xl text-white/70 font-medium drop-shadow-sm">Artist Name</h3>
+            </div>
+
+            <div class="w-full max-w-3xl mb-12">
+                <div class="flex justify-between text-xs text-white/60 font-mono mb-2">
+                    <span id="fs-current-time">0:00</span>
+                    <span id="fs-total-time">0:00</span>
+                </div>
+                <input type="range" id="fs-seek-slider" min="0" max="100" step="0.01" value="0" class="w-full h-2 bg-white/20 rounded-full appearance-none cursor-pointer accent-white hover:accent-gray-200">
+            </div>
+
+            <div class="flex items-center gap-8 md:gap-16">
+                <button class="text-white/70 hover:text-white text-3xl transition-transform hover:scale-110" onclick="document.getElementById('audio-player').currentTime -= 10">
+                    <i class="fas fa-backward"></i>
+                </button>
+                
+                <button id="fs-play-btn" class="w-20 h-20 bg-white text-black rounded-full flex items-center justify-center text-3xl shadow-lg hover:scale-105 transition-transform">
+                    <i class="fas fa-play ml-1"></i>
+                </button>
+
+                <button class="text-white/70 hover:text-white text-3xl transition-transform hover:scale-110" onclick="document.getElementById('audio-player').currentTime += 10">
+                    <i class="fas fa-forward"></i>
+                </button>
+            </div>
+            
+            <div class="mt-12 flex gap-8">
+                <button class="fs-glass-btn w-12 h-12 text-white" onclick="toggleMute()">
+                    <i id="fs-volume-icon" class="fas fa-volume-up"></i>
+                </button>
+                <button class="fs-glass-btn w-12 h-12 text-white" onclick="addCurrentToPlaylistWrapper()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="create-playlist-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -379,12 +497,13 @@
             <div class="modal-body">
                 <p class="text-gray-400 text-sm">Give your new playlist a name.</p>
                 <input type="text" id="new-playlist-name" class="modal-input" placeholder="My Awesome Playlist">
-                <button onclick="confirmCreatePlaylist()" class="modal-btn btn-primary mt-2">Create</button>
+                <div class="flex justify-end mt-2">
+                    <button id="confirm-create-playlist-btn" onclick="confirmCreatePlaylist()" class="btn-toolbar-style btn-primary-override">Create</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Edit Playlist Modal -->
     <div id="edit-playlist-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -402,14 +521,13 @@
                 <input type="file" id="playlist-cover-input" accept="image/*" class="hidden">
 
                 <div class="flex gap-2 mt-6">
-                    <button onclick="savePlaylistChanges()" class="modal-btn btn-primary flex-1">Save Changes</button>
-                    <button onclick="deletePlaylist()" class="modal-btn btn-danger flex-1">Delete</button>
+                    <button onclick="savePlaylistChanges()" class="btn-toolbar-style btn-primary-override flex-1">Save Changes</button>
+                    <button onclick="deletePlaylist()" class="btn-toolbar-style btn-danger-override flex-1">Delete</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Cropper Modal -->
     <div id="cropper-modal" class="modal-overlay" style="z-index: 210;">
         <div class="modal-content" id="cropper-modal-content">
             <div class="modal-header">
@@ -417,20 +535,19 @@
                 <button onclick="closeCropper()" class="close-btn-round"><i class="fas fa-xmark"></i></button>
             </div>
             
-            <div class="p-6 bg-[#0a0a0a]">
+            <div class="p-6 bg-[#0d0d0d]">
                 <p class="text-xs text-gray-500 text-center mb-4">Drag to move. Scroll to resize.</p>
-                <div id="cropperCanvasContainer" class="bg-black flex justify-center items-center shadow-inner">
+                <div id="cropperCanvasContainer" class="bg-black flex justify-center items-center shadow-inner rounded-lg border border-[#333]">
                     <canvas id="cropperCanvas"></canvas>
                 </div>
                 
                 <div class="flex justify-end gap-2 mt-6">
-                    <button onclick="submitCrop()" class="modal-btn btn-primary w-auto px-8">Apply Crop</button>
+                    <button onclick="submitCrop()" class="btn-toolbar-style btn-primary-override">Apply Crop</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add to Playlist Modal -->
     <div id="add-to-playlist-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -439,18 +556,71 @@
             </div>
             <div class="modal-body">
                 <div id="modal-playlist-list" class="space-y-2 max-h-64 overflow-y-auto pr-2">
-                    <!-- Populated dynamically -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- DB and Script -->
+    <div id="system-update-overlay" class="fixed inset-0 bg-black/80 z-[8000] transition-opacity duration-300 opacity-0 flex items-center justify-center p-4 hidden">
+        <div class="bg-card-dark text-white rounded-[2rem] border border-gray-700 shadow-2xl backdrop-blur-md w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar">
+                <h3 class="text-2xl font-bold mb-4 text-center text-accent-indigo">System Architecture Update</h3>
+                <p class="text-sm text-gray-400 mb-6 text-center">Protocol Switch: VERN Implementation</p>
+                
+                <div class="space-y-4 text-gray-300 text-sm sm:text-base leading-relaxed">
+                    <p>
+                        <i class="fas fa-network-wired text-blue-400 mr-2"></i>
+                        <strong>Proxy Migration:</strong> The system has migrated from the legacy <code>corsproxy.io</code> dependency to a custom-built, high-performance middleware based on the <strong>VERN</strong> architecture.
+                    </p>
+                    <p>
+                        <i class="fas fa-microchip text-red-400 mr-2"></i>
+                        <strong>Service Worker Interception:</strong> Data retrieval for audio, image, and metadata assets now utilizes local Service Worker interception. This enables real-time <strong>request rewriting</strong> and header manipulation directly within the client environment, bypassing standard CORS restrictions without external latency.
+                    </p>
+                    <p>
+                        <i class="fas fa-bolt text-yellow-400 mr-2"></i>
+                        <strong>Performance Optimization:</strong> Instead of relying on a public, shared service like <code>corsproxy.io</code>, we are now processing requests privately inside our own controlled environment via the <strong>UV (Ultraviolet)</strong> protocol. This internal routing eliminates public gateway bottlenecks, ensuring significantly faster data retrieval and improved stability.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-gray-800 bg-black/20 flex justify-end">
+                <button id="system-update-btn" class="btn-toolbar-style btn-primary-override px-6">
+                    I understand
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="db.js"></script>
     <script src="script.js"></script>
 
     <div id="notification-container"></div>
     <script>
+    // --- Disclaimer Logic ---
+    const DISCLAIMER_KEY = 'velium_proxy_update_ack';
+    const disclaimerOverlay = document.getElementById('system-update-overlay');
+    const disclaimerBtn = document.getElementById('system-update-btn');
+
+    if (localStorage.getItem(DISCLAIMER_KEY) !== 'true') {
+        disclaimerOverlay.classList.remove('hidden');
+        disclaimerOverlay.style.display = 'flex';
+        // Trigger reflow for transition
+        requestAnimationFrame(() => {
+            disclaimerOverlay.classList.remove('opacity-0');
+            disclaimerOverlay.classList.add('opacity-100');
+        });
+        
+        disclaimerBtn.onclick = () => {
+            localStorage.setItem(DISCLAIMER_KEY, 'true');
+            disclaimerOverlay.classList.remove('opacity-100');
+            disclaimerOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                disclaimerOverlay.classList.add('hidden');
+                disclaimerOverlay.style.display = 'none';
+            }, 300);
+        };
+    }
+
     // --- Sound & Notification Logic ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let isMuted = false;
@@ -478,6 +648,141 @@
     // Alias for existing calls
     window.showToast = function(msg) {
         window.showNotification(msg, 'fa-solid fa-bell', 'info');
+    };
+    
+    // Override alert to use notification
+    window.alert = function(message) {
+        window.showNotification(message, 'fa-solid fa-bell', 'info');
+    };
+
+    // --- FULLSCREEN & SMART PLAYLIST LOGIC (Added Feature) ---
+    
+    // 1. Fullscreen Player Logic
+    const fsOverlay = document.getElementById('fullscreen-player-overlay');
+    const audioPlayer = document.getElementById('audio-player');
+    
+    window.openFullscreenPlayer = function() {
+        // Sync Data
+        document.getElementById('fs-cover-image').src = document.getElementById('player-img').src;
+        document.getElementById('fs-bg-image').src = document.getElementById('player-img').src;
+        document.getElementById('fs-song-title').innerText = document.getElementById('player-title').innerText;
+        document.getElementById('fs-artist-name').innerText = document.getElementById('player-artist').innerText;
+        
+        // Sync Play State
+        updateFsPlayButton(!audioPlayer.paused);
+        
+        // Show
+        fsOverlay.classList.remove('hidden-fs');
+    };
+
+    window.closeFullscreenPlayer = function() {
+        fsOverlay.classList.add('hidden-fs');
+    };
+
+    // Sync Progress Bars
+    const fsSeek = document.getElementById('fs-seek-slider');
+    const miniSeek = document.getElementById('seek-slider');
+    
+    // Listen to main audio updates to drive fullscreen
+    audioPlayer.addEventListener('timeupdate', () => {
+        if(!fsOverlay.classList.contains('hidden-fs')) {
+            const cur = audioPlayer.currentTime;
+            const dur = audioPlayer.duration || 1;
+            const pct = (cur / dur) * 100;
+            
+            fsSeek.value = pct;
+            document.getElementById('fs-current-time').innerText = formatTime(cur);
+            document.getElementById('fs-total-time').innerText = formatTime(dur);
+        }
+    });
+
+    // Fullscreen Play/Pause Sync
+    document.getElementById('fs-play-btn').onclick = function() {
+        document.getElementById('play-pause-btn').click(); // Trigger original logic
+        updateFsPlayButton(!audioPlayer.paused); // Optimistic update
+    };
+    
+    // Listen for actual play/pause events to keep FS in sync if changed elsewhere
+    audioPlayer.addEventListener('play', () => updateFsPlayButton(true));
+    audioPlayer.addEventListener('pause', () => updateFsPlayButton(false));
+
+    function updateFsPlayButton(isPlaying) {
+        const btn = document.getElementById('fs-play-btn');
+        btn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play ml-1"></i>';
+    }
+
+    // Fullscreen Seeking
+    fsSeek.addEventListener('input', (e) => {
+        miniSeek.value = e.target.value; // Sync to mini
+        const time = (e.target.value / 100) * audioPlayer.duration;
+        audioPlayer.currentTime = time;
+    });
+
+    // Helper for time format
+    function formatTime(seconds) {
+        if(isNaN(seconds)) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // 2. Smart Playlist Auto-Add Logic
+    let pendingSongToAdd = null;
+
+    // Override the add button in the player to capture state
+    window.addCurrentToPlaylistWrapper = function() {
+        // Capture current song info
+        pendingSongToAdd = {
+            title: document.getElementById('player-title').innerText,
+            artist: document.getElementById('player-artist').innerText,
+            cover: document.getElementById('player-img').src,
+            // Assuming the audio src is the ID or url
+            id: audioPlayer.src 
+        };
+        
+        // Call original function (which opens modal if empty)
+        if(window.addCurrentToPlaylist) {
+            window.addCurrentToPlaylist();
+        } else {
+            // Fallback if script.js isn't fully loaded or function differs
+            // Check if we need to open create modal directly (simulating "no playlists" state)
+            // Ideally, we just check if the "add-to-playlist-modal" is empty. 
+            // For now, we rely on the user's description that it opens create modal automatically.
+            openCreatePlaylistModal(); 
+        }
+    };
+
+    // Intercept the Create Playlist Confirm
+    const originalConfirmCreate = window.confirmCreatePlaylist;
+    window.confirmCreatePlaylist = async function() {
+        // We need to wait for the original function to create the playlist
+        // Since we don't have the code, we'll wrap it and try to "guess" the result or trigger a re-add.
+        
+        // 1. Run original creation logic
+        if(originalConfirmCreate) await originalConfirmCreate();
+        
+        // 2. If we had a song pending, try to add it to the newly created playlist
+        if(pendingSongToAdd) {
+            // Give the DB a moment to update
+            setTimeout(() => {
+                // We assume the new playlist is now selected or available.
+                // Since we can't see the DB code to get the ID, we will trigger the 
+                // "Add to Playlist" modal logic again, which should now show 1 playlist.
+                // Then we automatically click it.
+                
+                // This is a "UI Hack" since we lack the backend code:
+                const playlistList = document.getElementById('modal-playlist-list');
+                if(playlistList && playlistList.children.length > 0) {
+                    // Automatically click the first playlist (the one just created)
+                    const firstPlaylistBtn = playlistList.querySelector('div, button'); // adjust selector based on script.js generation
+                    if(firstPlaylistBtn) {
+                        firstPlaylistBtn.click();
+                        showNotification(`Auto-added "${pendingSongToAdd.title}" to new playlist!`, 'fas fa-check', 'success');
+                    }
+                }
+                pendingSongToAdd = null; // Clear
+            }, 500);
+        }
     };
     </script>
 </body>

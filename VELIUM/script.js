@@ -766,3 +766,4 @@ document.addEventListener('click', (e) => {
 window.handleSearch = handleSearch; window.showHome = showHome; window.openLikedSongs = openLikedSongs; window.openPlaylist = openPlaylist; window.addCurrentToPlaylist = addCurrentToPlaylist; window.toggleMute = toggleMute;
 window.openCreatePlaylistModal = openCreatePlaylistModal; window.confirmCreatePlaylist = confirmCreatePlaylist; window.closeModals = closeModals; window.openEditPlaylistModal = openEditPlaylistModal; window.savePlaylistChanges = savePlaylistChanges; window.deletePlaylist = deletePlaylist;
 window.triggerCoverUpload = triggerCoverUpload; window.closeCropper = closeCropper; window.submitCrop = submitCrop;
+// Made with ❤️ from 4SP

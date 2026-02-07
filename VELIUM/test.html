@@ -11,6 +11,61 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- VERN_SYSTEM Proxy Scripts (Local) -->
+    <link rel="preload" href="/VELIUM/uv/uv.bundle.js" as="script">
+    <link rel="preload" href="/VELIUM/baremux/index.js" as="script">
+    <link rel="preload" href="/VELIUM/baremux/worker.js" as="worker">
+    <link rel="preload" href="/VELIUM/uv/sw.js" as="worker">
+
+    <script src="/VELIUM/uv/uv.bundle.js"></script>
+    <script>
+        const basePath = "/VELIUM/uv/";
+        self.__uv$config = {
+            prefix: basePath + "service/",
+            encodeUrl: Ultraviolet.codec.xor.encode,
+            decodeUrl: Ultraviolet.codec.xor.decode,
+            handler: basePath + "uv.handler.js",
+            client: basePath + "uv.client.js",
+            bundle: basePath + "uv.bundle.js",
+            config: basePath + "uv.config.js",
+            sw: basePath + "uv.sw.js",
+            stockSW: basePath + "sw.js",
+        };
+    </script>
+    <script src="/VELIUM/baremux/index.js"></script>
+    <script>
+        // Immediate Initialization of VERN_SYSTEM Proxy
+        (async () => {
+            if ("serviceWorker" in navigator) {
+                try {
+                    // Register Root SW
+                    const reg = await navigator.serviceWorker.register("/VELIUM/sw.js", {
+                        scope: "/VELIUM/"
+                    });
+                    console.log("VERN_SYSTEM SW Registered");
+
+                    // Reload if controller changes (SW activated)
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (!navigator.serviceWorker.controller) return;
+                        console.log("SW Activated, reloading...");
+                        window.location.reload();
+                    });
+
+                } catch (e) {
+                    console.error("SW Register Failed", e);
+                }
+            }
+            try {
+                const connection = new BareMux.BareMuxConnection("/VELIUM/baremux/worker.js");
+                const wispUrl = "wss://wisp.rhw.one/";
+                connection.setTransport("/VELIUM/libcurl/index.mjs", [{ websocket: wispUrl }]);
+                console.log("BareMux Initialized");
+            } catch (e) {
+                console.error("BareMux Init Failed", e);
+            }
+        })();
+    </script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -491,7 +546,7 @@
              <a href="#" id="download-btn" class="player-btn text-sm ml-2" target="_blank" title="Download"><i class="fas fa-download"></i></a>
         </div>
         
-        <audio id="audio-player-main" class="hidden"></audio>
+        <audio id="audio-player" class="hidden"></audio>
         <audio id="audio-player-2" class="hidden"></audio>
     </div>
 
@@ -569,9 +624,6 @@
     <script src="db.js"></script>
     <script src="script.js"></script>
 
-    <script>
-        localStorage.setItem('bare-mux-path', '/VELIUM/baremux/worker.js');
-    </script>
     <script src="uv/uv.bundle.js"></script>
     <script>
     // --- Sound & Notification Logic ---
@@ -635,7 +687,7 @@
     // Wait for DOM
     document.addEventListener('DOMContentLoaded', () => {
         // IMPORTANT: Use local variable 'fsAudio' to avoid clash with 'audioPlayer' in script.js
-        const fsAudio = document.getElementById('audio-player-main');
+        const fsAudio = document.getElementById('audio-player');
         const playBtn = document.getElementById('play-pause-btn');
         const fsPlayBtn = document.getElementById('fs-play-btn');
         const fsSeek = document.getElementById('fs-seek-slider');

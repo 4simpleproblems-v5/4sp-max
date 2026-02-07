@@ -13,5 +13,6 @@
         config: basePath + "uv.config.js",
         sw: basePath + "uv.sw.js",
         stockSW: basePath + "sw.js",
+        bare_mux_path: "/VELIUM/baremux/worker.js",
     };
 })();

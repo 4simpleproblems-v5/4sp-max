@@ -631,7 +631,8 @@
     // --- SYNC LOGIC (Mini Player <-> Fullscreen) ---
     // Wait for DOM
     document.addEventListener('DOMContentLoaded', () => {
-        const audioEl = document.getElementById('audio-player');
+        // IMPORTANT: Use local variable 'fsAudio' to avoid clash with 'audioPlayer' in script.js
+        const fsAudio = document.getElementById('audio-player');
         const playBtn = document.getElementById('play-pause-btn');
         const fsPlayBtn = document.getElementById('fs-play-btn');
         const fsSeek = document.getElementById('fs-seek-slider');
@@ -655,12 +656,12 @@
         }
 
         // 2. Sync Progress & Time
-        if(audioEl) {
-            audioEl.addEventListener('timeupdate', () => {
-                if(!audioEl.duration) return;
+        if(fsAudio) {
+            fsAudio.addEventListener('timeupdate', () => {
+                if(!fsAudio.duration) return;
                 
                 // Calculate percentage
-                const pct = (audioEl.currentTime / audioEl.duration) * 100;
+                const pct = (fsAudio.currentTime / fsAudio.duration) * 100;
                 
                 // Update FS Slider
                 if(fsSeek) {
@@ -669,8 +670,8 @@
                 }
 
                 // Update FS Time Text
-                document.getElementById('fs-current-time').innerText = formatTime(audioEl.currentTime);
-                document.getElementById('fs-duration').innerText = formatTime(audioEl.duration);
+                document.getElementById('fs-current-time').innerText = formatTime(fsAudio.currentTime);
+                document.getElementById('fs-duration').innerText = formatTime(fsAudio.duration);
             });
         }
 
@@ -680,16 +681,16 @@
             volSlider.addEventListener('input', (e) => { fsVol.value = e.target.value; });
             // FS -> Audio & Mini
             fsVol.addEventListener('input', (e) => { 
-                if(audioEl) audioEl.volume = e.target.value; 
+                if(fsAudio) fsAudio.volume = e.target.value; 
                 volSlider.value = e.target.value; 
             });
         }
 
         // 4. FS Slider Seek Functionality
-        if(fsSeek && audioEl) {
+        if(fsSeek && fsAudio) {
             fsSeek.addEventListener('input', (e) => {
-                const time = (audioEl.duration / 100) * e.target.value;
-                audioEl.currentTime = time;
+                const time = (fsAudio.duration / 100) * e.target.value;
+                fsAudio.currentTime = time;
             });
         }
     });

@@ -491,7 +491,7 @@
              <a href="#" id="download-btn" class="player-btn text-sm ml-2" target="_blank" title="Download"><i class="fas fa-download"></i></a>
         </div>
         
-        <audio id="audio-player" class="hidden"></audio>
+        <audio id="audio-player-main" class="hidden"></audio>
         <audio id="audio-player-2" class="hidden"></audio>
     </div>
 
@@ -569,7 +569,13 @@
     <script src="db.js"></script>
     <script src="script.js"></script>
 
-    <div id="notification-container"></div>
+    <script>
+        localStorage.setItem('bare-mux-path', '/VELIUM/baremux/worker.js');
+    </script>
+    <script>
+        localStorage.setItem('bare-mux-path', '/VELIUM/baremux/worker.js');
+    </script>
+    <script src="uv/uv.bundle.js"></script>
     <script>
     // --- Sound & Notification Logic ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -632,7 +638,7 @@
     // Wait for DOM
     document.addEventListener('DOMContentLoaded', () => {
         // IMPORTANT: Use local variable 'fsAudio' to avoid clash with 'audioPlayer' in script.js
-        const fsAudio = document.getElementById('audio-player');
+        const fsAudio = document.getElementById('audio-player-main');
         const playBtn = document.getElementById('play-pause-btn');
         const fsPlayBtn = document.getElementById('fs-play-btn');
         const fsSeek = document.getElementById('fs-seek-slider');
@@ -704,3 +710,5 @@
     </script>
 </body>
 </html>
+
+<!-- Made with ❤️ from 4SP -->

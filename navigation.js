@@ -5,8 +5,7 @@
  * * Update: Navbar elements are unselectable (except Auth text).
  * * Update: Dropdown containers are static (no hover animation).
  * * Update: SMART SCALING - Saves scale to localStorage for instant load.
- * * Update: REMOVED BUFFER - Fixes "extra space" gap on Chromebooks.
- * * Update: SCALE LOCK - Prevents unnecessary micro-shrinking.
+ * * Update: INVERSE PERCENTAGE WIDTH - Fixes "gap" on high-DPI/Chromebook screens.
  * * Security: Redirects to ../index.html if logged out.
  */
 
@@ -132,22 +131,20 @@
         
         if (!container || !content) return;
 
-        // Use clientWidth to capture exact visible viewport width (excludes scrollbar)
+        // Use clientWidth (ignores scrollbar)
         const availableWidth = document.documentElement.clientWidth;
         
         let scale = 1;
-        let neededWidth = availableWidth; 
-
+        
+        // Helper to determine if we need to recalculate or can use storage
         let appliedFromStorage = false;
 
-        // Try to apply from storage on initial load
         if (isInitial) {
             try {
                 const savedSettings = JSON.parse(localStorage.getItem(STORAGE_KEY));
-                // 2px tolerance for rounding errors
+                // Tolerance of 2px
                 if (savedSettings && Math.abs(savedSettings.availableWidth - availableWidth) < 2) {
                     scale = savedSettings.scale;
-                    neededWidth = savedSettings.neededWidth;
                     appliedFromStorage = true;
                 }
             } catch (e) {
@@ -161,7 +158,9 @@
             const currentTransition = content.style.transition;
             const currentPosition = content.style.position;
             const currentWhitespace = content.style.whiteSpace;
+            const currentWidth = content.style.width;
             
+            // Reset to measure "natural" width
             content.style.transition = 'none'; 
             content.style.transform = 'none';
             content.style.position = 'absolute'; 
@@ -169,11 +168,9 @@
             content.style.width = 'auto';
             content.style.minWidth = 'max-content'; 
             
-            // Force layout calculation
-            void content.offsetWidth; 
+            void content.offsetWidth; // Force Browser Calc
             
-            // Measure (+1 pixel safety for sub-pixel rendering)
-            const measuredWidth = content.offsetWidth + 1;
+            const measuredWidth = content.offsetWidth;
             
             // Restore styles
             content.style.position = currentPosition;
@@ -189,23 +186,16 @@
             // Calculate Scale
             if (measuredWidth > availableWidth) {
                 scale = availableWidth / measuredWidth;
-                neededWidth = measuredWidth;
             } else {
                 scale = 1;
-                neededWidth = availableWidth; 
             }
             
-            // SCALE LOCK: If scale is very close to 1 (e.g. 0.99), force it to 1 to prevent micro-shrinking
-            if (scale > 0.99) {
-                scale = 1;
-                neededWidth = availableWidth;
-            }
+            // Micro-optimization: Don't scale if it's practically 1 (0.995+)
+            if (scale > 0.995) scale = 1;
 
-            // Save for next refresh
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 availableWidth: availableWidth,
-                scale: scale,
-                neededWidth: neededWidth
+                scale: scale
             }));
         }
 
@@ -222,7 +212,11 @@
         if (scale < 1) {
             content.style.transformOrigin = 'top left';
             content.style.transform = `scale(${scale})`;
-            content.style.width = `${neededWidth}px`; 
+            
+            // THE FIX: Use Percentage Inverse Width
+            // If scale is 0.5, width becomes 200%. 
+            // 200% * 0.5 = 100% visual width. Perfect fit.
+            content.style.width = `${(1 / scale) * 100}%`; 
             
             const newHeight = 72 * scale;
             container.style.height = `${newHeight}px`;
@@ -594,6 +588,193 @@
                 </a>
             `;
         }).join('');
+
+        // --- Auth Rendering Function (MATCHING 4SP-MAX) ---
+        const renderAuth = (user, userData) => {
+            const authWrapper = document.getElementById('auth-wrapper');
+            if (!authWrapper) return;
+
+            const friendRequestBadge = document.getElementById('friend-request-badge'); 
+            if (friendRequestBadge) authWrapper.appendChild(friendRequestBadge);
+
+            if (!user) {
+                // Logged Out View
+                authWrapper.innerHTML = `
+                    <div id="auth-button-container" class="relative flex-shrink-0 flex items-center">
+                        <button id="auth-toggle" class="logged-out-auth-toggle">
+                            <i class="fa-solid fa-user text-gray-500"></i>
+                        </button>
+                        <div id="auth-menu-container" class="auth-menu-container closed">
+                            <a href="/authentication.html" class="auth-menu-link">
+                                <i class="fa-solid fa-lock w-4"></i>
+                                Authenticate
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Logged In View
+                const username = userData?.username || user.displayName || 'User';
+                const email = user.email || 'No email';
+                const initial = (userData?.letterAvatarText || username.charAt(0)).toUpperCase();
+                let avatarHtml = '';
+                const pfpType = userData?.pfpType || 'google'; 
+
+                // Avatar Logic
+                if (pfpType === 'custom' && userData?.customPfp) {
+                    avatarHtml = `<img src="${userData.customPfp}" class="w-full h-full object-cover" alt="Profile">`;
+                } else if (pfpType === 'mibi' && userData?.mibiConfig) {
+                    const { eyes, mouths, hats, bgColor, rotation, size, offsetX, offsetY } = userData.mibiConfig;
+                    const scale = (size || 100) / 100;
+                    avatarHtml = `
+                        <div class="w-full h-full relative overflow-hidden" style="background-color: ${bgColor || '#3B82F6'};">
+                             <div class="absolute inset-0 w-full h-full" style="transform: translate(${offsetX || 0}%, ${offsetY || 0}%) rotate(${rotation || 0}deg) scale(${scale}); transform-origin: center;">
+                                 <img src="/mibi-avatars/head.png" class="absolute inset-0 w-full h-full object-contain">
+                                 ${eyes ? `<img src="/mibi-avatars/eyes/${eyes}" class="absolute inset-0 w-full h-full object-contain">` : ''}
+                                 ${mouths ? `<img src="/mibi-avatars/mouths/${mouths}" class="absolute inset-0 w-full h-full object-contain">` : ''}
+                                 ${hats ? `<img src="/mibi-avatars/hats/${hats}" class="absolute inset-0 w-full h-full object-contain">` : ''}
+                             </div>
+                        </div>`;
+                } else if (pfpType === 'letter') {
+                    const bg = userData?.pfpLetterBg || 'linear-gradient(135deg, #f97316 0%, #c2410c 100%)';
+                    const textColor = getLetterAvatarTextColor(bg);
+                    const fontSizeClass = initial.length >= 3 ? 'text-xs' : (initial.length === 2 ? 'text-sm' : 'text-base');
+                    avatarHtml = `<div class="w-full h-full flex items-center justify-center font-semibold ${fontSizeClass}" style="background: ${bg}; color: ${textColor};">${initial}</div>`;
+                } else {
+                    const photo = user.photoURL;
+                    if (photo) {
+                        avatarHtml = `<img src="${photo}" class="w-full h-full object-cover" alt="Profile">`;
+                    } else {
+                        const bg = 'linear-gradient(135deg, #f97316 0%, #c2410c 100%)';
+                        avatarHtml = `<div class="w-full h-full flex items-center justify-center font-semibold text-base" style="background: ${bg}; color: white;">${initial}</div>`;
+                    }
+                }
+
+                // Auth Menu HTML
+                authWrapper.innerHTML = `
+                    <div id="auth-button-container" class="relative flex-shrink-0 flex items-center">
+                        <button id="auth-toggle">
+                            ${avatarHtml}
+                        </button>
+                        <div id="auth-menu-container" class="auth-menu-container closed">
+                            <div class="auth-menu-header-container">
+                                <div class="min-w-0 flex-1 overflow-hidden">
+                                    <div class="marquee-container" id="username-marquee">
+                                        <p class="auth-menu-username marquee-content">${username}</p>
+                                    </div>
+                                    <div class="marquee-container" id="email-marquee">
+                                        <p class="auth-menu-email marquee-content">${email}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/logged-in/settings.html" class="auth-menu-link">
+                                <i class="fa-solid fa-gear w-4"></i>
+                                Settings
+                            </a>
+                            <button id="logout-button" class="auth-menu-button">
+                                <i class="fa-solid fa-right-from-bracket w-4"></i>
+                                Log Out
+                            </button>
+                            <button id="more-button" class="auth-menu-button">
+                                <i id="more-button-icon" class="fa-solid fa-chevron-down w-4"></i>
+                                <span id="more-button-text">Show More</span>
+                            </button>
+                            <div id="more-section" class="auth-menu-more-section">
+                                <a href="/documentation.html" class="auth-menu-link">
+                                    <i class="fa-solid fa-book w-4"></i>
+                                    Documentation
+                                </a>
+                                <a href="../legal.html" class="auth-menu-link">
+                                    <i class="fa-solid fa-gavel w-4"></i>
+                                    Terms & Policies
+                                </a>
+                                <a href="https://buymeacoffee.com/4simpleproblems" class="auth-menu-link" target="_blank">
+                                    <i class="fa-solid fa-mug-hot w-4"></i>
+                                    Donate
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Setup Listeners
+            const toggleBtn = document.getElementById('auth-toggle');
+            const menu = document.getElementById('auth-menu-container');
+            const logoutBtn = document.getElementById('logout-button');
+            const moreBtn = document.getElementById('more-button');
+            const moreSection = document.getElementById('more-section');
+            const moreIcon = document.getElementById('more-button-icon');
+            const moreText = document.getElementById('more-button-text');
+
+            if (toggleBtn && menu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMorph('morph-sessions', false);
+                    toggleMorph('morph-messages', false);
+
+                    if (menu.classList.contains('open')) {
+                        menu.classList.remove('open');
+                        menu.classList.add('closing');
+                        menu.addEventListener('animationend', () => {
+                            menu.classList.remove('closing');
+                            menu.classList.add('closed');
+                        }, { once: true });
+                    } else {
+                        menu.classList.remove('closed');
+                        menu.classList.remove('closing');
+                        menu.classList.add('open');
+                        checkMarquees();
+                    }
+                });
+            }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    auth.signOut().catch(err => console.error("Logout failed:", err));
+                });
+            }
+
+            if (moreBtn && moreSection) {
+                moreBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isExpanded = moreSection.classList.contains('expanded');
+                    if (isExpanded) {
+                        moreSection.classList.remove('expanded');
+                        moreText.textContent = 'Show More';
+                        moreIcon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                    } else {
+                        moreSection.classList.add('expanded');
+                        moreText.textContent = 'Show Less';
+                        moreIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                    }
+                });
+            }
+        };
+
+        const checkMarquees = () => {
+            requestAnimationFrame(() => {
+                const containers = document.querySelectorAll('.marquee-container');
+                containers.forEach(container => {
+                    const content = container.querySelector('.marquee-content');
+                    if (!content) return;
+                    container.classList.remove('active');
+                    if (content.nextElementSibling && content.nextElementSibling.classList.contains('marquee-content')) {
+                        content.nextElementSibling.remove();
+                    }
+                    if (content.offsetWidth > container.offsetWidth) {
+                        container.classList.add('active');
+                        const duplicate = content.cloneNode(true);
+                        duplicate.setAttribute('aria-hidden', 'true'); 
+                        content.style.paddingRight = '2rem'; 
+                        duplicate.style.paddingRight = '2rem';
+                        container.appendChild(duplicate);
+                    } else {
+                        content.style.paddingRight = '';
+                    }
+                });
+            });
+        };
 
         // --- Real-time Listeners & Auth Redirect ---
         let currentAuthUser = null;

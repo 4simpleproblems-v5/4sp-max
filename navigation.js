@@ -5,7 +5,7 @@
  * * Update: Navbar elements are unselectable (except Auth text).
  * * Update: Dropdown containers are static (no hover animation).
  * * Update: SMART SCALING - Saves scale to localStorage for instant load.
- * * Update: AUTH LAYOUT RESTRUCTURE - Matches 4sp-max layout (Avatars, Marquee, Show More).
+ * * Update: LAYOUT FIX - Right group now strictly aligns to the right edge.
  * * Security: Redirects to ../index.html if logged out.
  */
 
@@ -112,7 +112,7 @@
             window.requestAnimationFrame(() => adjustNavbarScale(false));
         });
 
-        // 3. RESIZE OBSERVER
+        // 3. RESIZE OBSERVER (The Chromebook Fix):
         const content = document.querySelector('.navbar-content');
         if (content && window.ResizeObserver) {
             const resizeObserver = new ResizeObserver(() => {
@@ -152,6 +152,7 @@
         // --- Logic: Check Local Storage vs Calculation ---
         let appliedFromStorage = false;
 
+        // Try to apply from storage ONLY on initial load
         if (isInitial) {
             try {
                 const savedSettings = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -252,10 +253,10 @@
                 --btn-text-active: #9a3412;
                 --btn-radius: 14px;
                 --morph-width: 240px;
-                /* Auth Layout Defaults (Light Mode) */
+                /* Auth Layout Vars */
                 --menu-bg: #ffffff;
                 --menu-border: #e7e5e4;
-                --menu-divider: #f3f4f6;
+                --menu-divider: #e7e5e4;
                 --menu-text: #57534e;
                 --menu-username-text: #1c1917;
                 --menu-email-text: #78716c;
@@ -270,163 +271,83 @@
                 background: var(--nav-bg) !important;
                 height: 72px !important; 
                 width: 100vw !important;
-                display: flex !important; 
-                align-items: flex-start !important; 
-                justify-content: flex-start !important;
+                display: flex !important; align-items: flex-start !important; justify-content: flex-start !important;
                 border-bottom: 1px solid transparent !important;
                 box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
                 font-family: 'Geist', sans-serif !important;
                 overflow: visible !important; 
-                
-                -webkit-user-select: none !important;
-                -moz-user-select: none !important;
-                -ms-user-select: none !important;
-                user-select: none !important;
+                -webkit-user-select: none !important; user-select: none !important;
             }
 
             .navbar-content {
-                display: flex !important; 
-                align-items: center !important; 
-                justify-content: space-between !important;
-                gap: 1rem !important; 
-                width: 100% !important; 
-                height: 72px !important; 
-                padding: 0 1.5rem !important; 
-                box-sizing: border-box !important;
+                display: flex !important; align-items: center !important; justify-content: space-between !important;
+                gap: 1rem !important; width: 100% !important; height: 72px !important; 
+                padding: 0 1.5rem !important; box-sizing: border-box !important;
                 position: relative !important;
                 transition: transform 0.1s ease-out, width 0.1s ease-out !important;
             }
 
-            /* --- Sections for Grouping --- */
-            .navbar-left, .navbar-right {
-                display: flex !important;
-                align-items: center !important;
-                gap: 1rem !important;
-                flex: 1 !important; 
+            /* --- Sections for Grouping (FIXED ALIGNMENT) --- */
+            .navbar-left {
+                display: flex !important; align-items: center !important; gap: 1rem !important;
+                flex: 1 !important; /* Grow to push center to middle */
+                justify-content: flex-start !important;
                 min-width: 0 !important;
             }
-            .navbar-left { justify-content: flex-start !important; }
-            .navbar-right { justify-content: flex-end !important; flex-shrink: 0 !important; }
             
             .navbar-center {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                flex: 0 0 auto !important; 
+                display: flex !important; align-items: center !important; justify-content: center !important;
+                flex: 0 0 auto !important; /* Do not grow, stay centered */
             }
 
-            .navbar-logo { 
-                height: 40px !important; 
-                width: auto !important; 
-                margin-right: 0.5rem !important; 
-                flex-shrink: 0 !important; 
+            .navbar-right {
+                display: flex !important; align-items: center !important; gap: 1rem !important;
+                flex: 1 !important; /* Grow to push self to edge */
+                justify-content: flex-end !important; /* Force content to right edge */
+                min-width: 0 !important;
+                flex-shrink: 0 !important; /* Protect auth button from crushing first */
             }
+
+            .navbar-logo { height: 40px !important; width: auto !important; margin-right: 0.5rem !important; flex-shrink: 0 !important; }
 
             /* --- Morphing Container --- */
-            .morph-wrapper {
-                position: relative !important;
-                height: 40px !important;
-                width: var(--morph-width) !important;
-                flex-shrink: 0 !important;
-            }
-
+            .morph-wrapper { position: relative !important; height: 40px !important; width: var(--morph-width) !important; flex-shrink: 0 !important; }
             .morph-btn {
-                position: absolute !important;
-                top: 0 !important;
-                height: 40px !important;
-                width: var(--morph-width) !important;
-                background: transparent !important;
-                border: 1px solid var(--nav-border) !important;
-                border-radius: var(--btn-radius) !important;
-                color: var(--text-inactive) !important;
-                display: flex !important; 
-                flex-direction: column !important;
-                overflow: hidden !important;
-                transition: 
-                    height 0.6s cubic-bezier(0.76, 0, 0.24, 1),
-                    background-color 0.4s ease,
-                    border-color 0.4s ease,
-                    box-shadow 0.4s ease !important;
-                z-index: 20 !important;
-                cursor: pointer !important;
+                position: absolute !important; top: 0 !important; height: 40px !important; width: var(--morph-width) !important;
+                background: transparent !important; border: 1px solid var(--nav-border) !important; border-radius: var(--btn-radius) !important;
+                color: var(--text-inactive) !important; display: flex !important; flex-direction: column !important; overflow: hidden !important;
+                transition: height 0.6s cubic-bezier(0.76, 0, 0.24, 1), background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease !important;
+                z-index: 20 !important; cursor: pointer !important;
             }
-
             .morph-btn.left-anchor { left: 0 !important; }
             .morph-btn.right-anchor { right: 0 !important; }
-
-            .morph-btn:not(.expanded):hover {
-                background-color: var(--btn-bg-hover) !important;
-                border-color: var(--btn-border-hover) !important;
-                color: var(--text-active) !important;
-            }
-            
-            .morph-btn:not(.expanded):hover .summary-text,
-            .morph-btn:not(.expanded):hover i {
-                color: var(--text-active) !important;
-            }
-
+            .morph-btn:not(.expanded):hover { background-color: var(--btn-bg-hover) !important; border-color: var(--btn-border-hover) !important; color: var(--text-active) !important; }
+            .morph-btn:not(.expanded):hover .summary-text, .morph-btn:not(.expanded):hover i { color: var(--text-active) !important; }
             .morph-btn.expanded {
-                height: 320px !important; 
-                background-color: #ffffff !important;
-                border-color: var(--btn-border-hover) !important;
-                box-shadow: 0 15px 35px -5px rgba(0,0,0,0.1), 0 8px 15px -7px rgba(0,0,0,0.05) !important;
-                z-index: 10000 !important;
-                cursor: default !important;
-                transform: none !important;
+                height: 320px !important; background-color: #ffffff !important; border-color: var(--btn-border-hover) !important;
+                box-shadow: 0 15px 35px -5px rgba(0,0,0,0.1), 0 8px 15px -7px rgba(0,0,0,0.05) !important; z-index: 10000 !important;
+                cursor: default !important; transform: none !important;
             }
-
             .summary-view {
-                height: 40px !important;
-                width: 100% !important;
-                display: flex !important; 
-                align-items: center !important; 
-                justify-content: center !important; 
-                gap: 0.6rem !important;
-                padding: 0 1rem !important;
-                flex-shrink: 0 !important; 
-                border-bottom: 1px solid transparent !important;
-                transition: border-color 0.4s ease !important;
-                pointer-events: none !important; 
+                height: 40px !important; width: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 0.6rem !important;
+                padding: 0 1rem !important; flex-shrink: 0 !important; border-bottom: 1px solid transparent !important;
+                transition: border-color 0.4s ease !important; pointer-events: none !important; 
             }
-            
-            .morph-btn.expanded .summary-view {
-                border-bottom-color: #f3f4f6 !important; 
-                background-color: #fafaf9 !important; 
-                pointer-events: auto !important; 
-            }
-
+            .morph-btn.expanded .summary-view { border-bottom-color: #f3f4f6 !important; background-color: #fafaf9 !important; pointer-events: auto !important; }
             .summary-text { font-weight: 500 !important; white-space: nowrap !important; transition: color 0.2s ease !important; }
-
             .detail-view {
-                opacity: 0 !important; 
-                pointer-events: none !important;
-                transition: opacity 0.3s ease 0.1s !important;
-                display: flex !important; 
-                flex-direction: column !important; 
-                flex-grow: 1 !important; 
-                width: 100% !important;
-                padding: 0.5rem !important; 
-                box-sizing: border-box !important; 
-                overflow: hidden !important;
+                opacity: 0 !important; pointer-events: none !important; transition: opacity 0.3s ease 0.1s !important;
+                display: flex !important; flex-direction: column !important; flex-grow: 1 !important; width: 100% !important;
+                padding: 0.5rem !important; box-sizing: border-box !important; overflow: hidden !important;
             }
-
             .morph-btn.expanded .detail-view { opacity: 1 !important; pointer-events: auto !important; }
-
             .header-close-btn {
                 position: absolute !important; right: 12px !important; opacity: 0 !important; pointer-events: none !important;
                 transition: opacity 0.2s !important; color: #9ca3af !important; cursor: pointer !important;
             }
             .morph-btn.expanded .header-close-btn { opacity: 1 !important; pointer-events: auto !important; }
             .header-close-btn:hover { color: #ef4444 !important; }
-
-            .scroll-list {
-                flex-grow: 1 !important; 
-                overflow-y: auto !important;
-                display: flex !important; 
-                flex-direction: column !important; 
-                gap: 0.5rem !important; 
-                padding-top: 0.5rem !important;
-            }
+            .scroll-list { flex-grow: 1 !important; overflow-y: auto !important; display: flex !important; flex-direction: column !important; gap: 0.5rem !important; padding-top: 0.5rem !important; }
             .scroll-list::-webkit-scrollbar { width: 4px !important; }
             .scroll-list::-webkit-scrollbar-thumb { background: #e5e7eb !important; border-radius: 4px !important; }
 
@@ -588,7 +509,7 @@
         const container = document.getElementById('navbar-container');
         const logoPath = '../images/viro.png';
 
-        // --- Render Structure (3 Groups) ---
+        // --- Render Structure (3 Groups: Left, Center, Right) ---
         container.innerHTML = `
             <div class="navbar-content">
                 <div class="navbar-left">

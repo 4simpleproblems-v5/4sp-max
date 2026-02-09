@@ -26,7 +26,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 320px;
+            width: 340px;
             background: var(--bim-bg);
             border: 1px solid var(--bim-border);
             border-radius: var(--bim-radius);
@@ -80,7 +80,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-height: 400px;
+            max-height: 500px;
             transition: all 0.3s ease;
         }
         
@@ -94,10 +94,10 @@
             border: 1px solid #222;
             border-radius: 12px;
             padding: 12px;
-            height: 200px;
+            height: 250px;
             overflow-y: auto;
             font-size: 0.85rem;
-            font-family: 'Nunito', sans-serif; /* Kept font consistent */
+            font-family: 'Nunito', sans-serif;
             white-space: pre-wrap;
             color: #ccc;
             scrollbar-width: thin;
@@ -108,21 +108,21 @@
         #bim-log::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
 
         /* Log Items */
-        .log-entry { margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .log-entry { margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 10px; }
         .log-entry:last-child { border-bottom: none; margin-bottom: 0; }
-        .log-label { color: var(--bim-accent); font-weight: bold; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
-        .log-value { color: #fff; line-height: 1.4; }
+        .log-label { color: var(--bim-accent); font-weight: bold; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; }
+        .log-value { color: #fff; line-height: 1.4; font-family: 'Courier New', monospace; background: #111; padding: 4px; border-radius: 4px;}
         .log-error { color: #ef4444; }
 
-        /* Action Button (Matches Navigation.js button style) */
+        /* Action Button */
         #bim-action-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             width: 100%;
-            padding: 10px;
-            font-size: 0.9rem;
+            padding: 12px;
+            font-size: 0.95rem;
             color: var(--bim-text);
             background: var(--bim-accent-bg);
             border: 1px solid var(--bim-accent-bg);
@@ -140,16 +140,6 @@
         }
         
         #bim-action-btn:active { transform: translateY(0); }
-
-        .resize-handle {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 15px;
-            height: 15px;
-            cursor: nwse-resize;
-            z-index: 10;
-        }
     `;
     document.head.appendChild(style);
 
@@ -168,7 +158,7 @@
         </div>
         <div id="bim-body">
             <div id="bim-log">
-                <div class="log-entry" style="color: #666; text-align: center; margin-top: 80px;">
+                <div class="log-entry" style="color: #666; text-align: center; margin-top: 100px;">
                     Answers will appear here...
                 </div>
             </div>
@@ -176,7 +166,6 @@
                 <i class="fa-solid fa-key"></i> Reveal Answers
             </button>
         </div>
-        <div class="resize-handle"></div>
     `;
     document.body.appendChild(container);
 
@@ -189,33 +178,24 @@
     const closeBtn = document.getElementById('bim-close');
     const actionBtn = document.getElementById('bim-action-btn');
 
-    // Logging helper
     function log(title, content, isError = false) {
-        // Clear placeholder on first log
         if (logArea.innerText.includes('Answers will appear here...')) {
             logArea.innerHTML = '';
         }
-        
         const entry = document.createElement('div');
         entry.className = 'log-entry';
-        
         const label = document.createElement('div');
         label.className = 'log-label';
         label.textContent = title;
-        
         const val = document.createElement('div');
         val.className = isError ? 'log-value log-error' : 'log-value';
-        val.innerHTML = content; // Allow HTML for formatting arrays/lines
-
+        val.innerHTML = content; 
         entry.appendChild(label);
         entry.appendChild(val);
         logArea.appendChild(entry);
-        
-        // Auto-scroll to bottom
         logArea.scrollTop = logArea.scrollHeight;
     }
 
-    // Draggable Logic
     let isDragging = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
 
     header.addEventListener("mousedown", dragStart);
@@ -225,16 +205,14 @@
     function dragStart(e) {
         initialX = e.clientX - xOffset;
         initialY = e.clientY - yOffset;
-        if (e.target.closest('.bim-controls')) return; // Don't drag if clicking buttons
+        if (e.target.closest('.bim-controls')) return; 
         isDragging = true;
     }
-
     function dragEnd(e) {
         initialX = currentX;
         initialY = currentY;
         isDragging = false;
     }
-
     function drag(e) {
         if (isDragging) {
             e.preventDefault();
@@ -246,20 +224,13 @@
         }
     }
 
-    // Toggle Minimize
     minimizeBtn.addEventListener('click', () => {
         container.classList.toggle('minimized');
         const icon = minimizeBtn.querySelector('i');
-        if (container.classList.contains('minimized')) {
-             icon.classList.remove('fa-minus');
-             icon.classList.add('fa-plus');
-        } else {
-             icon.classList.remove('fa-plus');
-             icon.classList.add('fa-minus');
-        }
+        icon.classList.toggle('fa-minus');
+        icon.classList.toggle('fa-plus');
     });
 
-    // Close
     closeBtn.addEventListener('click', () => {
         container.style.opacity = '0';
         setTimeout(() => container.remove(), 300);
@@ -267,11 +238,39 @@
     });
 
     // =========================================================================
-    // 4. ANSWER EXTRACTION LOGIC (De-obfuscated & Cleaned)
+    // 4. PARSING LOGIC (Handles nested arrays & objects)
     // =========================================================================
     
+    // Recursive function to dig out the 'value' from complex structures
+    function parseResponseValue(data) {
+        if (data === null || data === undefined) return '';
+        
+        // Base case: string or number
+        if (typeof data === 'string' || typeof data === 'number') return data;
+        
+        // Recursive case: Array (e.g. [[...]])
+        if (Array.isArray(data)) {
+            // Map each item and filter out empty strings
+            const items = data.map(item => parseResponseValue(item)).filter(i => i !== '');
+            // Join with a separator. If it's a 2D array, this flattens it nicely.
+            return items.join(' | ');
+        }
+        
+        // Recursive case: Object
+        if (typeof data === 'object') {
+            // Check for the specific "value" key inside the object (user's request)
+            if (data.value !== undefined) {
+                return parseResponseValue(data.value);
+            }
+            // Fallback: try to stringify if no 'value' key exists
+            return JSON.stringify(data);
+        }
+        
+        return '';
+    }
+
     function extractAnswers() {
-        logArea.innerHTML = ''; // Clear previous logs
+        logArea.innerHTML = ''; 
         
         try {
             if (typeof LearnosityAssess === 'undefined') {
@@ -281,7 +280,7 @@
 
             const currentItem = LearnosityAssess.getCurrentItem();
             if (!currentItem || !currentItem.questions) {
-                log('Error', 'No questions found in current item.', true);
+                log('Error', 'No questions found.', true);
                 return;
             }
 
@@ -297,51 +296,28 @@
 
                 let answerText = '';
 
-                // --- Multiple Choice (MCQ) ---
+                // Handle MCQ specifically to map indices to letters
                 if (type === 'mcq') {
                     const value = validResponse.value;
-                    // Map numeric index to Letter (0=A, 1=B, etc.)
                     const indices = Array.isArray(value) ? value : [value];
                     const answers = indices.map(idx => {
                         const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-                        return letters[idx] || `Index ${idx}`;
+                        return letters[idx] || idx;
                     });
                     answerText = answers.join(', ');
                 }
-                // --- Short Text / Cloze Text ---
-                else if (type === 'shorttext' || type === 'clozetext' || type === 'clozedropdown') {
-                    const value = validResponse.value;
-                    if (Array.isArray(value)) {
-                         // Some types use nested arrays or objects
-                         answerText = value.map(v => (typeof v === 'object') ? v.value || JSON.stringify(v) : v).join(' | ');
-                    } else {
-                        answerText = value;
-                    }
-                }
-                // --- Association / Token Highlight ---
-                else if (type === 'tokenhighlight' || type === 'clozeassociation') {
-                     const value = validResponse.value;
-                     answerText = Array.isArray(value) ? value.join(', ') : value;
-                }
-                // --- Choice Matrix ---
-                else if (type === 'choicematrix') {
-                     const value = validResponse.value;
-                     // Usually an array of integers representing selected indices per row
-                     answerText = Array.isArray(value) ? value.map(v => (v === null ? '-' : v)).join(', ') : value;
-                }
-                // --- Fallback ---
+                // Handle all other types (Math, Cloze, Text) with the smart parser
                 else {
-                    answerText = JSON.stringify(validResponse.value);
+                    answerText = parseResponseValue(validResponse.value);
                 }
 
-                log(`Question ${index + 1} (${type})`, answerText);
+                log(`Q${index + 1} (${type})`, answerText);
                 foundCount++;
             });
 
             if (foundCount === 0) {
-                log('Info', 'No auto-validatable questions found.');
+                log('Info', 'No answers found.');
             } else {
-                // Play notification sound if available from nav.js, or generic
                 if (window.playClickSound) window.playClickSound();
             }
 
@@ -351,10 +327,7 @@
         }
     }
 
-    // Attach click handler
     actionBtn.addEventListener('click', extractAnswers);
-
-    // Initial Message
-    log('Ready', 'BIM Bot 2.0 initialized.<br>Click "Reveal Answers" to start.');
+    log('Ready', 'BIM Bot loaded. Click "Reveal Answers".');
 
 })();

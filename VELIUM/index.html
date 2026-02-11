@@ -57,8 +57,11 @@
             }
             try {
                 const connection = new BareMux.BareMuxConnection("/VELIUM/baremux/worker.js");
-                const wispUrl = "wss://wisp.rhw.one/";
-                connection.setTransport("/VELIUM/libcurl/index.mjs", [{ websocket: wispUrl }]);
+                const wispUrl = "wss://wisp.mercurywork.shop/";
+                connection.setTransport("/VELIUM/libcurl/index.mjs", [
+                    { websocket: wispUrl },
+                    { websocket: "wss://ruby.rubynetwork.xyz/wisp/" }
+                ]);
                 console.log("BareMux Initialized");
             } catch (e) {
                 console.error("BareMux Init Failed", e);

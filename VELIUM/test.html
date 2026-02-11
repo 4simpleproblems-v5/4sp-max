@@ -57,7 +57,7 @@
             }
             try {
                 const connection = new BareMux.BareMuxConnection("/VELIUM/baremux/worker.js");
-                const wispUrl = "wss://wisp.rhw.one/";
+                const wispUrl = "wss://wisp.mercurywork.shop/";
                 connection.setTransport("/VELIUM/libcurl/index.mjs", [{ websocket: wispUrl }]);
                 console.log("BareMux Initialized");
             } catch (e) {
@@ -546,7 +546,7 @@
              <a href="#" id="download-btn" class="player-btn text-sm ml-2" target="_blank" title="Download"><i class="fas fa-download"></i></a>
         </div>
         
-        <audio id="audio-player" class="hidden"></audio>
+        <audio id="velium-audio-player" class="hidden"></audio>
         <audio id="audio-player-2" class="hidden"></audio>
     </div>
 
@@ -687,7 +687,7 @@
     // Wait for DOM
     document.addEventListener('DOMContentLoaded', () => {
         // IMPORTANT: Use local variable 'fsAudio' to avoid clash with 'audioPlayer' in script.js
-        const fsAudio = document.getElementById('audio-player');
+        const fsAudio = document.getElementById('velium-audio-player');
         const playBtn = document.getElementById('play-pause-btn');
         const fsPlayBtn = document.getElementById('fs-play-btn');
         const fsSeek = document.getElementById('fs-seek-slider');

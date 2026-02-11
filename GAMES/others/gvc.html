@@ -36,7 +36,6 @@
                     const connection = new BareMux.BareMuxConnection("/GAMES/baremux/worker.js");
                     await connection.setTransport("/GAMES/libcurl/index.mjs", [
                         { websocket: "wss://wisp.mercurywork.shop/" },
-                        { websocket: "wss://wisp.rhw.one/" },
                         { websocket: "wss://wisp.mercurynate.xyz/" },
                         { websocket: "wss://ruby.rubynetwork.xyz/wisp/" }
                     ]);

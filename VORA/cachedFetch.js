@@ -194,6 +194,6 @@ for (let e = 0; e < localStorage.length; e++) {
       , r = localStorage.getItem(t);
     if (isJsonString(r)) {
         let e = JSON.parse(r);
-        "object" == typeof e && e.hasOwnProperty("ttl") && _hasTTLExpired(e.ttl) && localStorage.removeItem(t)
+        e && "object" == typeof e && e.hasOwnProperty("ttl") && _hasTTLExpired(e.ttl) && localStorage.removeItem(t)
     }
 }

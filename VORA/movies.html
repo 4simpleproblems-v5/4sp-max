@@ -21,16 +21,22 @@
     <script>
         window.checkBare = async () => {
             const connection = new BareMux.BareMuxConnection("/VORA/VERN_SYSTEM/baremux/worker.js");
-            const wispUrl = "wss://wisp.rhw.one/";
+            const wispUrl = "wss://wisp.mercurywork.shop/";
             const transportPath = "/VORA/VERN_SYSTEM/libcurl/index.mjs";
             
             try {
                 const transport = await connection.getTransport();
                 if (!transport || transport.path !== transportPath) {
-                    await connection.setTransport(transportPath, [{ websocket: wispUrl }]);
+                    await connection.setTransport(transportPath, [
+                        { websocket: wispUrl },
+                        { websocket: "wss://ruby.rubynetwork.xyz/wisp/" }
+                    ]);
                 }
             } catch (e) {
-                await connection.setTransport(transportPath, [{ websocket: wispUrl }]);
+                await connection.setTransport(transportPath, [
+                    { websocket: wispUrl },
+                    { websocket: "wss://ruby.rubynetwork.xyz/wisp/" }
+                ]);
             }
         };
 

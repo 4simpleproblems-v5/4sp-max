@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <link rel="icon" type="image/x-icon" href="../favicon.ico" id="faviconLink" />
 
+    <script>
+        // High-priority BareMux port listener
+        (function() {
+            const workerPath = "/logged-in/baremux/worker.js";
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.addEventListener("message", (event) => {
+                    if (event.data && event.data.type === "getPort" && event.data.port) {
+                        const worker = new SharedWorker(workerPath, "bare-mux-worker");
+                        event.data.port.postMessage(worker.port, [worker.port]);
+                    }
+                });
+            }
+        })();
+    </script>
+
     <script src="/logged-in/baremux/index.js"></script>
     <script src="/logged-in/uv/uv.bundle.js"></script>
     <script src="/logged-in/uv/uv.config.js"></script>

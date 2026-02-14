@@ -15,32 +15,31 @@
     <script src="../navigation.js"></script>
     <script src="../ban-enforcer.js"></script>
 
+    <script src="/logged-in/baremux/index.js"></script>
     <script src="/logged-in/uv/uv.bundle.js"></script>
     <script src="/logged-in/uv/uv.config.js"></script>
-    <script src="/logged-in/baremux/index.js"></script>
 
     <script>
         (async () => {
-            if ('serviceWorker' in navigator) {
-                try {
-                    await navigator.serviceWorker.register('/logged-in/uv/sw.js', {
-                        scope: '/logged-in/uv/service/'
-                    });
-                    console.log('UV service worker registered.');
-                } catch (error) {
-                    console.error('UV service worker registration failed:', error);
-                }
-            }
             try {
                 const connection = new BareMux.BareMuxConnection("/logged-in/baremux/worker.js");
-                if (!await connection.getTransport()) {
-                    await connection.setTransport('/logged-in/libcurl/index.mjs', [
-                        { websocket: 'wss://wisp.mercurywork.shop/' }
-                    ]);
-                }
-                console.log("BareMux initialized");
+                await connection.setTransport('/logged-in/libcurl/index.mjs', [
+                    { websocket: 'wss://wisp.mercurywork.shop/' }
+                ]);
+                console.log("BareMux initialized and transport set");
             } catch (error) {
                 console.error("BareMux initialization failed:", error);
+            }
+
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.register('/logged-in/sw.js', {
+                        scope: '/logged-in/'
+                    });
+                    console.log('Service worker registered.');
+                } catch (error) {
+                    console.error('Service worker registration failed:', error);
+                }
             }
         })();
     </script>

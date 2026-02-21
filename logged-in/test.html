@@ -26,14 +26,35 @@
                             window.location.reload();
                         }
                     });
+
+                    // Wait for service worker to be active/ready
+                    if (!navigator.serviceWorker.controller) {
+                        console.log("Waiting for service worker controller...");
+                        await new Promise(resolve => {
+                            const handler = () => {
+                                if (navigator.serviceWorker.controller) {
+                                    navigator.serviceWorker.removeEventListener('controllerchange', handler);
+                                    resolve();
+                                }
+                            };
+                            navigator.serviceWorker.addEventListener('controllerchange', handler);
+                            // Fallback if it takes too long
+                            setTimeout(resolve, 2000);
+                        });
+                    }
                 } catch(e) { console.error("SW Init Error:", e); }
             }
             try {
-                const conn = new BareMux.BareMuxConnection('/logged-in/baremux/worker.js');
-                await conn.setTransport('/logged-in/libcurl/index.mjs', [
-                    { websocket: 'wss://wisp-js.fly.dev/' }
-                ]);
-                console.log("BareMux initialized");
+                // Ensure BareMux is defined (from index.js)
+                if (typeof BareMux !== 'undefined') {
+                    const conn = new BareMux.BareMuxConnection('/logged-in/baremux/worker.js');
+                    await conn.setTransport('/logged-in/libcurl/index.mjs', [
+                        { websocket: 'wss://wisp-js.fly.dev/' }
+                    ]);
+                    console.log("BareMux initialized");
+                } else {
+                    console.error("BareMux library not loaded!");
+                }
             } catch(e) { console.error("BareMux Init Error:", e); }
         })();
     </script>
@@ -943,8 +964,6 @@
             let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
             // Keep original page-based structure for HREFs as those ARE typically separated
             if (game.page > 1) return `${root}GAMES/strongdog${game.page}/`;
-            return `${root}GAMES/`; 
-        }
             return `${root}GAMES/`; 
         }
         

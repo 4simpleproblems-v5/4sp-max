@@ -934,20 +934,20 @@
         // --- URL Helpers (Strongdog) ---
         // Modified to support injected URLs using WORKER_ROOT + directory logic
         function getAdjustedUrls(game) {
-            let root = (game.source === 'dv-service-lfs' || (game.category === 'StrongdogXP' && game.page)) ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
+            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
 
             if (game.page && game.page > 1) {
-                // Numbered pages (strongdog2, 3...) usually exist at the root level of the domain
-                return { adjustedImgSrc: proxyUrl(`${root}strongdog${game.page}/img/${game.imgSrc}`) };
+                // Numbered pages (strongdog2, 3...) are nested under GAMES/strongdogX/
+                return { adjustedImgSrc: proxyUrl(`${root}GAMES/strongdog${game.page}/img/${game.imgSrc}`) };
             }
             // Page 1 / default games are inside the GAMES directory
             return { adjustedImgSrc: proxyUrl(`${root}GAMES/img/${game.imgSrc}`) }; 
         }
         
         function sd_getBaseURLForPage(game) {
-            let root = (game.source === 'dv-service-lfs' || (game.category === 'StrongdogXP' && game.page)) ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
+            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
 
-            if (game.page > 1) return `${root}strongdog${game.page}/`;
+            if (game.page > 1) return `${root}GAMES/strongdog${game.page}/`;
             return `${root}GAMES/`; 
         }
         

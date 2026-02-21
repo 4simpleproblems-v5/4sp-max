@@ -33,7 +33,8 @@
                 await conn.setTransport('/logged-in/libcurl/index.mjs', [
                     { websocket: 'wss://server.illusiontba.xyz/wisp/' },
                     { websocket: 'wss://wisp.corrosion.app/wisp/' },
-                    { websocket: 'wss://ruby.rubynetwork.co/wisp/' }
+                    { websocket: 'wss://ruby.rubynet.co/wisp/' },
+                    { websocket: 'wss://4sp-wisp.fly.dev/' }
                 ]);
                 console.log("BareMux initialized");
             } catch(e) { console.error("BareMux Init Error:", e); }

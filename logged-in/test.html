@@ -938,10 +938,14 @@
 
             if (game.page && game.page > 1) {
                 // Numbered pages (strongdog2, 3...) usually exist at the root level of the domain
-                return { adjustedImgSrc: proxyUrl(`${root}strongdog${game.page}/img/${game.imgSrc}`) };
+                const imgUrl = `${root}strongdog${game.page}/img/${game.imgSrc}`;
+                console.log("getAdjustedUrls (StrongdogXP, page > 1) - Original Image URL:", imgUrl);
+                return { adjustedImgSrc: proxyUrl(imgUrl) };
             }
             // Page 1 / default games are inside the GAMES directory
-            return { adjustedImgSrc: proxyUrl(`${root}GAMES/img/${game.imgSrc}`) }; 
+            const imgUrl = `${root}GAMES/img/${game.imgSrc}`;
+            console.log("getAdjustedUrls (StrongdogXP, page <= 1) - Original Image URL:", imgUrl);
+            return { adjustedImgSrc: proxyUrl(imgUrl) }; 
         }
         
         function sd_getBaseURLForPage(game) {
@@ -952,6 +956,7 @@
         }
         
         async function sd_getEmbedPath(adjustedHref, originalHref, page) {
+            console.log("sd_getEmbedPath - Incoming adjustedHref:", adjustedHref, "originalHref:", originalHref);
             const originalBase = adjustedHref; // non-proxied base for relative resolution
             let cleanHref = adjustedHref.replace(/index\.html$/, "").replace(/base\.html$/, "").replace(/\.html$/, "");
             if (!cleanHref.endsWith("/")) cleanHref += "/";
@@ -973,10 +978,12 @@
             return proxyUrl(adjustedHref);
         }
         async function sd_fileExists(url) {
+            console.log("sd_fileExists - Checking URL:", url);
             try { const response = await fetch(proxyUrl(url), { method: "HEAD" }); return response.ok; } catch { return false; }
         }
 
         function proxyUrl(url) {
+            console.log("proxyUrl - Original URL:", url);
             if (!url) return url;
             const origin = window.location.origin;
             if (url.startsWith(origin)) return url;
@@ -1175,6 +1182,7 @@
                 } else if (isStrongdog) {
                     const baseURL = sd_getBaseURLForPage(game);
                     let adjustedHref = baseURL.endsWith("/") ? baseURL + game.href.replace(/^\.\//, "") : baseURL + "/" + game.href.replace(/^\.\//, "");
+                    console.log("handlePlay (StrongdogXP) - Adjusted Href before embedPath:", adjustedHref);
                     const embedPath = await sd_getEmbedPath(adjustedHref, game.href, game.page);
                     openZone({ name: game.name, url: embedPath, category: game.category, id: game.id });
                 } else {

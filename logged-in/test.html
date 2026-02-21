@@ -18,20 +18,29 @@
     
     <script src="/logged-in/uv/uv.bundle.js"></script>
     <script src="/logged-in/uv/uv.config.js"></script>
-
+    <script src="/logged-in/baremux/index.js"></script>
     <script>
-        // Register UV service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/logged-in/uv/sw.js', {
-                scope: '/logged-in/uv/service/'
-            })
-            .then(() => {
-                console.log('UV service worker registered.');
-            })
-            .catch(error => {
-                console.error('UV service worker registration failed:', error);
-            });
-        }
+        (async () => {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const reg = await navigator.serviceWorker.register('/logged-in/sw.js', { scope: '/logged-in/' });
+                    
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (navigator.serviceWorker.controller) {
+                            console.log("SW active, reloading...");
+                            window.location.reload();
+                        }
+                    });
+                } catch(e) { console.error("SW Init Error:", e); }
+            }
+            try {
+                const conn = new BareMux.BareMuxConnection('/logged-in/baremux/worker.js');
+                await conn.setTransport('/logged-in/libcurl/index.mjs', [
+                    { websocket: 'wss://wisp.mercurywork.shop/' }
+                ]);
+                console.log("BareMux initialized");
+            } catch(e) { console.error("BareMux Init Error:", e); }
+        })();
     </script>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1D4F692C1Q"></script>
@@ -929,7 +938,8 @@
 
             if (game.page && game.page > 1) {
                 // ../strongdog2/img/... -> exists outside GAMES dir
-                return { adjustedImgSrc: proxyUrl(`${root}strongdog${game.page}/img/${game.imgSrc}`) };
+                // Standard structure seems to be root + GAMES/ + strongdog#
+                return { adjustedImgSrc: proxyUrl(`${root}GAMES/strongdog${game.page}/img/${game.imgSrc}`) };
             }
             // ./img -> assumed inside GAMES dir or wherever relative
             return { adjustedImgSrc: proxyUrl(`${root}GAMES/img/${game.imgSrc}`) }; 
@@ -939,7 +949,7 @@
             let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
 
             // Updated to point to WORKER_ROOT for numbered pages, GAMES_BASE_URL for default
-            if (game.page > 1) return `${root}strongdog${game.page}/`;
+            if (game.page > 1) return `${root}GAMES/strongdog${game.page}/`;
             return `${root}GAMES/`; 
         }
         

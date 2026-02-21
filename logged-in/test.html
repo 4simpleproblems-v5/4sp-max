@@ -929,10 +929,10 @@
 
             if (game.page && game.page > 1) {
                 // ../strongdog2/img/... -> exists outside GAMES dir
-                return { adjustedImgSrc: `${root}strongdog${game.page}/img/${game.imgSrc}` };
+                return { adjustedImgSrc: proxyUrl(`${root}strongdog${game.page}/img/${game.imgSrc}`) };
             }
             // ./img -> assumed inside GAMES dir or wherever relative
-            return { adjustedImgSrc: `${root}GAMES/img/${game.imgSrc}` }; 
+            return { adjustedImgSrc: proxyUrl(`${root}GAMES/img/${game.imgSrc}`) }; 
         }
         
         function sd_getBaseURLForPage(game) {
@@ -944,27 +944,28 @@
         }
         
         async function sd_getEmbedPath(adjustedHref, originalHref, page) {
+            const originalBase = adjustedHref; // non-proxied base for relative resolution
             let cleanHref = adjustedHref.replace(/index\.html$/, "").replace(/base\.html$/, "").replace(/\.html$/, "");
             if (!cleanHref.endsWith("/")) cleanHref += "/";
             const pathsToTry = [cleanHref + "game/index.html", cleanHref + "game/base.html", cleanHref + "gamereal/index.html", cleanHref + "gamereal/base.html", cleanHref + "index.html", cleanHref + "base.html", ];
             try {
-                const response = await fetch(adjustedHref);
+                const response = await fetch(proxyUrl(adjustedHref));
                 if (response.ok) {
                     const text = await response.text();
                     const match = text.match(/embedGame\((['"])(.*?)\1,\s*(['"])(.*?)\3\)/);
                     if (match) {
-                        const resolvedPath = new URL(match[2], adjustedHref).href;
-                        if (await sd_fileExists(resolvedPath)) return resolvedPath;
+                        const resolvedPath = new URL(match[2], originalBase).href;
+                        if (await sd_fileExists(resolvedPath)) return proxyUrl(resolvedPath);
                     }
                 }
             } catch (error) {}
             for (const path of pathsToTry) {
-                if (await sd_fileExists(path)) return path;
+                if (await sd_fileExists(path)) return proxyUrl(path);
             }
-            return adjustedHref;
+            return proxyUrl(adjustedHref);
         }
         async function sd_fileExists(url) {
-            try { const response = await fetch(url, { method: "HEAD" }); return response.ok; } catch { return false; }
+            try { const response = await fetch(proxyUrl(url), { method: "HEAD" }); return response.ok; } catch { return false; }
         }
 
         function proxyUrl(url) {
@@ -1791,4 +1792,5 @@
     </script>
 </body>
 </html>
+<!-- Made with ❤️ from 4SP -->
 <!-- Made with ❤️ from 4SP -->

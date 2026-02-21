@@ -11,11 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
-    <script src="https://cdn.tailwindcss.com"></script>
-     <script src="../navigation.js"></script>
-     <script src="../ban-enforcer.js"></script>
-
-    
     <script src="/logged-in/uv/uv.bundle.js"></script>
     <script src="/logged-in/uv/uv.config.js"></script>
     <script src="/logged-in/baremux/index.js"></script>
@@ -43,6 +38,11 @@
         })();
     </script>
 
+    <script src="https://cdn.tailwindcss.com"></script>
+     <script src="../navigation.js"></script>
+     <script src="../ban-enforcer.js"></script>
+
+    
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1D4F692C1Q"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -937,19 +937,17 @@
             let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
 
             if (game.page && game.page > 1) {
-                // ../strongdog2/img/... -> exists outside GAMES dir
-                // Standard structure seems to be root + GAMES/ + strongdog#
-                return { adjustedImgSrc: proxyUrl(`${root}GAMES/strongdog${game.page}/img/${game.imgSrc}`) };
+                // Numbered pages (strongdog2, 3...) usually exist at the root level of the domain
+                return { adjustedImgSrc: proxyUrl(`${root}strongdog${game.page}/img/${game.imgSrc}`) };
             }
-            // ./img -> assumed inside GAMES dir or wherever relative
+            // Page 1 / default games are inside the GAMES directory
             return { adjustedImgSrc: proxyUrl(`${root}GAMES/img/${game.imgSrc}`) }; 
         }
         
         function sd_getBaseURLForPage(game) {
             let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
 
-            // Updated to point to WORKER_ROOT for numbered pages, GAMES_BASE_URL for default
-            if (game.page > 1) return `${root}GAMES/strongdog${game.page}/`;
+            if (game.page > 1) return `${root}strongdog${game.page}/`;
             return `${root}GAMES/`; 
         }
         

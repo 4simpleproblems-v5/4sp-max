@@ -31,7 +31,9 @@
             try {
                 const conn = new BareMux.BareMuxConnection('/logged-in/baremux/worker.js');
                 await conn.setTransport('/logged-in/libcurl/index.mjs', [
-                    { websocket: 'wss://wisp.mercurywork.shop/' }
+                    { websocket: 'wss://server.illusiontba.xyz/wisp/' },
+                    { websocket: 'wss://wisp.corrosion.app/wisp/' },
+                    { websocket: 'wss://ruby.rubynetwork.co/wisp/' }
                 ]);
                 console.log("BareMux initialized");
             } catch(e) { console.error("BareMux Init Error:", e); }

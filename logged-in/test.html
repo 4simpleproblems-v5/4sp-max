@@ -13,7 +13,6 @@
     
     <script src="/logged-in/uv/uv.bundle.js"></script>
     <script src="/logged-in/uv/uv.config.js"></script>
-    <script src="/logged-in/baremux/index.js"></script>
     <script>
         (async () => {
             if ('serviceWorker' in navigator) {
@@ -998,7 +997,7 @@
             
             // Fallback during early boot
             if (window.Ultraviolet && Ultraviolet.codec && Ultraviolet.codec.xor) {
-                return origin + "/GAMES/uv/service/" + Ultraviolet.codec.xor.encode(url);
+                return origin + "/logged-in/uv/service/" + Ultraviolet.codec.xor.encode(url);
             }
             
             return url;
@@ -1800,5 +1799,6 @@
     </script>
 </body>
 </html>
+<!-- Made with ❤️ from 4SP -->
 <!-- Made with ❤️ from 4SP -->
 <!-- Made with ❤️ from 4SP -->

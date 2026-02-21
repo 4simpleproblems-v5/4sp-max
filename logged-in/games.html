@@ -4,7 +4,7 @@
     <title>4SP - GAMES</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" id="faviconLink" />
+    <link rel="icon" type="image/x-icon" href="../favicon.ico" id="faviconLink" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,24 +16,6 @@
      <script src="../ban-enforcer.js"></script>
 
     
-    <script src="/logged-in/uv/uv.bundle.js"></script>
-    <script src="/logged-in/uv/uv.config.js"></script>
-
-    <script>
-        // Register UV service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/logged-in/uv/sw.js', {
-                scope: '/logged-in/uv/service/'
-            })
-            .then(() => {
-                console.log('UV service worker registered.');
-            })
-            .catch(error => {
-                console.error('UV service worker registration failed:', error);
-            });
-        }
-    </script>
-
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1D4F692C1Q"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -575,8 +557,8 @@
         
         <div class="mx-auto my-8 p-4 sm:p-6 w-full max-w-3xl relative">
             <p class="bg-card-dark text-white p-5 rounded-2xl shadow-lg border border-brand-border text-center">
-                <strong class="text-sm sm:text-base">Update: Proxied StrongdogXP Games</strong><br>
-                <span class="text-xs sm:text-sm text-gray-400">Update: GN-Math games are no longer blocked on most school networks, now loading from a widely used file source. For StrongdogXP games, instead of entirely relying on 4SP's sources, we're now proxying games fetched directly from the Strongdog website for a wider and more consistent selection.</span>
+                <strong class="text-sm sm:text-base">Update: Game Collection Fixed</strong><br>
+                <span class="text-xs sm:text-sm text-gray-400">Update: GN-Math games are no longer blocked on most school networks. The games now load from a widely used file source instead of the old one, which many filters like Securly blocked by default, so everything should work normally now. Also, I have fixed a major bug where 895 games were missing from the StrongdogXP category, which have been added back.</span>
             </p>
         </div>
         
@@ -684,17 +666,19 @@
     <script>
         // --- Configuration & Globals ---
         
-        const GN_ZONES_URL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
-        const GN_COVER_URL_BASE = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+        const zonesurls = [
+            "https://cdn.jsdelivr.net/%67%68/%67%6e%2d%6d%61%74%68/%61%73%73%65%74%73@%6d%61%69%6e/%7a%6f%6e%65%73%2e%6a%73%6f%6e",
+            "https://cdn.jsdelivr.net/gh/gn-math/assets@latest/zones.json",
+            "https://cdn.jsdelivr.net/gh/gn-math/assets@master/zones.json",
+            "https://cdn.jsdelivr.net/gh/gn-math/assets/zones.json"
+        ];
+        let zonesURL = zonesurls[Math.floor(Math.random() * zonesurls.length)];
+        const coverURL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+        const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
         
-        // UPDATED: Use cdn.jsdelivr.net for GN-Math and handle content injection
-        const GN_HTML_URL_BASE = "https://cdn.jsdelivr.net/npm/gn-math.github.io-main@latest/html-main";
-        
-        const DV_SERVICE_LFS_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
-        const STRONGDOG_ROOT = "https://strongdog.com/";
-        const GAMES_BASE_URL = `${DV_SERVICE_LFS_ROOT}GAMES/`; // Games served from the DV service
-        const CARDS_DATA_URL = "../GAMES/cards-data.js";
-        const WORKER_ROOT = DV_SERVICE_LFS_ROOT; // Use DV_SERVICE_LFS_ROOT as the base for worker-rooted paths
+        const WORKER_ROOT = "https://dv-service-lfs.4simpleproblems.workers.dev/";
+        const GAMES_BASE_URL = "https://dv-service-lfs.4simpleproblems.workers.dev/GAMES/";
+        const CARDS_DATA_URL = "https://dv-service-lfs.4simpleproblems.workers.dev/GAMES/cards-data.js";
 
         const FAVORITES_KEY = 'gameHubFavorites_v3';
 
@@ -705,6 +689,7 @@
         const categoryColors = {
             'StrongdogXP': 'text-strongdog-orange',
             'GN-Math': 'text-gn-math',
+            'Gameboy Games': 'text-gameboy',
             'Others': 'text-other-grey', 
         };
         
@@ -715,7 +700,7 @@
                     { type: 'github', url: "https://github.com/jman1593/", label: "GitHub" },
                     { type: 'discord', url: "https://discord.com/invite/strongdog", label: "Discord" }
                 ],
-                logo: "images/credits/strongdog_logo.png",
+                logo: "./images/credits/strongdog_logo.png",
                 color: "#FF8C00"
             },
             'GN-Math': { 
@@ -725,13 +710,13 @@
                     { type: 'github', url: "https://github.com/genizy", label: "Genizy" },
                     { type: 'discord', url: "https://discord.com/invite/gn-math", label: "Discord" }
                 ],
-                logo: "images/credits/gn_logo.png",
+                logo: "./images/credits/gn_logo.png",
                 color: "#FD2E59"
             },
             'Others': { 
                 desc: "A tribute to the open-source community. This section features projects like Eaglercraft, JS-DOS, and Doom, developed by talented individuals who believe in accessible software for everyone.",
                 links: [],
-                logo: "images/credits/opensource.png",
+                logo: "./images/credits/opensource.png",
                 color: "#d1d5db"
             }
         };
@@ -924,23 +909,21 @@
 
         // --- URL Helpers (Strongdog) ---
         // Modified to support injected URLs using WORKER_ROOT + directory logic
-        function getAdjustedUrls(game) {
-            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
-
-            if (game.page && game.page > 1) {
+        function getAdjustedUrls(imgSrc, page) {
+            if (page && page > 1) {
                 // ../strongdog2/img/... -> exists outside GAMES dir
-                return { adjustedImgSrc: `${root}strongdog${game.page}/img/${game.imgSrc}` };
+                return { adjustedImgSrc: `${WORKER_ROOT}strongdog${page}/img/${imgSrc}` };
             }
             // ./img -> assumed inside GAMES dir or wherever relative
-            return { adjustedImgSrc: `${root}GAMES/img/${game.imgSrc}` }; 
+            return { adjustedImgSrc: `${GAMES_BASE_URL}img/${imgSrc}` }; 
         }
         
-        function sd_getBaseURLForPage(game) {
-            let root = game.source === 'dv-service-lfs' ? DV_SERVICE_LFS_ROOT : STRONGDOG_ROOT;
-
+        function sd_getBaseURLForPage(page) {
             // Updated to point to WORKER_ROOT for numbered pages, GAMES_BASE_URL for default
-            if (game.page > 1) return `${root}strongdog${game.page}/`;
-            return `${root}GAMES/`; 
+            if (page > 1) return `${WORKER_ROOT}strongdog${page}/`;
+            return `${WORKER_ROOT}GAMES/`; // Assumes default strongdog is at root/STRONGDOG? Or inside GAMES?
+            // Re-reading logic: "stuff like ../DOOM/ will stay in GAMES directory but strongdog# directories exit"
+            // Let's assume default STRONGDOG is adjacent to strongdog2 etc. at root level based on prior naming conventions
         }
         
         async function sd_getEmbedPath(adjustedHref, originalHref, page) {
@@ -967,76 +950,37 @@
             try { const response = await fetch(url, { method: "HEAD" }); return response.ok; } catch { return false; }
         }
 
-        function proxyUrl(url) {
-            if (!url) return url;
-            const origin = window.location.origin;
-            if (url.startsWith(origin)) return url;
-            
-            // PERFORMANCE: Direct loading for safe CORS domains
-            // Workers and jsDelivr support CORS and are usually faster than proxying
-            if ((url.includes('workers.dev') && !url.includes('gvc.html')) || url.includes('cdn.jsdelivr.net')) {
-                return url;
-            }
-
-            // Ensure UV is ready for encoding
-            if (window.Ultraviolet && window.__uv$config) {
-                try {
-                    return origin + window.__uv$config.prefix + window.__uv$config.encodeUrl(url);
-                } catch(e) {
-                    console.error("Encoding failed", e);
-                }
-            }
-            
-            // Fallback during early boot
-            if (window.Ultraviolet && Ultraviolet.codec && Ultraviolet.codec.xor) {
-                return origin + "/GAMES/uv/service/" + Ultraviolet.codec.xor.encode(url);
-            }
-            
-            return url;
-        }
-
+        // --- URL Resolution Helper for "Others" ---
         function resolveGameUrl(relativePath) {
             if (!relativePath) return "";
             
-            // If it's already an absolute URL return it
+            // If it's already an absolute URL, return it as is
             if (relativePath.startsWith('http') || relativePath.startsWith('//')) {
-                return proxyUrl(relativePath);
+                return relativePath;
             }
 
-            // If it's a root-relative path, prepend the origin to make it a full absolute URL
-            if (relativePath.startsWith('/')) {
-                // If it's something like /images/eaglercraft.png, use WORKER_ROOT as base.
-                // Otherwise, use window.location.origin as base for other root-relative paths.
-                if (relativePath.startsWith('/images/')) {
-                    return proxyUrl(`${GAMES_BASE_URL}${relativePath.substring(1)}`); // Remove leading '/' and use WORKER_ROOT
-                }
-                return proxyUrl(window.location.origin + relativePath);
-            }
-
+            // Logic: 
+            // If path starts with ../ -> Go to WORKER_ROOT + path (stripping ../)
+            // If path starts with ../GAMES/ -> It will effectively be WORKER_ROOT/GAMES/ (which matches GAMES_BASE_URL)
+            // This allows us to access root folders like ../GTA-JSDOS/ while keeping ../GAMES/sm64 intact.
+            
             if (relativePath.startsWith('../')) {
                 const pathPart = relativePath.substring(3); // Remove '../'
-                return proxyUrl(`${WORKER_ROOT}${pathPart}`);
-            }
-            
-            // Handle paths starting with "images/" which are relative to the project root.
-            // This is a common pattern for othersGames in our setup.
-            if (relativePath.startsWith('images/')) {
-                return proxyUrl(`${GAMES_BASE_URL}${relativePath}`);
+                return `${WORKER_ROOT}${pathPart}`;
             }
             
             // If it doesn't start with ../, assume it's relative to GAMES base
-            return proxyUrl(`${GAMES_BASE_URL}${relativePath.replace(/^\.\//, '')}`);
+            return `${GAMES_BASE_URL}${relativePath.replace(/^\.\//, '')}`;
         }
 
         // --- Game Data (Others) ---
         // We keep the original relative paths here so the resolver logic above can handle them dynamically
         const othersGames = [
-            { id: "other-eaglercraft", name: "Eaglercraft", imgSrc: "images/eaglercraft.png", description: "The classic survival and building game with authentic block-based physics and multiplayer support, accessible directly in the browser.", category: "Others", versions: [ { name: "1.12.2", url: "../EAGLERCRAFT/eaglercraft-1.12.2.html", favoriteId: "other-eaglercraft_1.12.2" }, { name: "1.12.2 WASM", url: "../EAGLERCRAFT/eaglercraft-1.12.2-wasm.html", favoriteId: "other-eaglercraft_wasm", wasm: true } ] },
-            { id: "other-balatro", name: "Balatro", imgSrc: "../GAMES/others/balatro.png", description: "Balatro is a poker-themed deck-building roguelike video game.", category: "Others", url: "https://drive.google.com/uc?export=download&id=1EiwjvWTq3M9_Q1CPyd1g1zNZITzRa9mA", isDownload: true },
-            { id: "other-gta", name: "Grand Theft Auto", imgSrc: "images/gta.png", description: "The original top-down classic. Cause chaos, complete missions, or just go for a drive in three iconic cities.", category: "Others", versions: [ { name: "Carnage3D", url: "../CARNAGE3D/web/carnage3D.html", favoriteId: "other-gta_carnage3d" }, { name: "Grand Theft Auto (JS-DOS)", url: "../GTA-JSDOS/index.html", favoriteId: "other-gta_jsdos" } ] },
-            { id: "other-simcity", name: "Sim City", imgSrc: "images/simcity2000.png", description: "The original city-building classics. Design, build, and manage the city of your dreams in either the original Sim City or the detailed Sim City 2000.", category: "Others", versions: [ { name: "Sim City", url: "../SIM-CITY/index.html", favoriteId: "other-simcity_1" }, { name: "Sim City 2000", url: "../SIM-CITY-2/index.html", favoriteId: "other-simcity_2000" } ] },
-            { id: "other-doom", name: "DOOM", imgSrc: "images/doom.png", description: "The legendary first-person shooter that pioneered the genre, focusing on blasting through hordes of demons in a timeless, adrenaline-fueled classic.", category: "Others", url: "../DOOM/index.html" },
-            { id: "other-sm64", name: "Super Mario 64", imgSrc: "images/sm64.png", description: "The iconic 3D platformer that revolutionized gaming. Run, jump, and triple-jump your way through vast worlds to collect stars and save the princess.", category: "Others", url: "../GAMES/sm64/index.html" }
+            { id: "other-eaglercraft", name: "Eaglercraft", imgSrc: "./images/eaglercraft.png", description: "The classic survival and building game with authentic block-based physics and multiplayer support, accessible directly in the browser.", category: "Others", versions: [ { name: "Release 1.12.2", url: "../EAGLERCRAFT/eaglercraft-1.12.2.html", favoriteId: "other-eaglercraft_1.12.2" }, { name: "Release 1.12.2 WASM", url: "../EAGLERCRAFT/eaglercraft-1.12.2-wasm.html", favoriteId: "other-eaglercraft_wasm", wasm: true } ] },
+            { id: "other-gta", name: "Grand Theft Auto", imgSrc: "./images/gta.png", description: "The original top-down classic. Cause chaos, complete missions, or just go for a drive in three iconic cities.", category: "Others", versions: [ { name: "Carnage3D", url: "../CARNAGE3D/web/carnage3D.html", favoriteId: "other-gta_carnage3d" }, { name: "Grand Theft Auto (JS-DOS)", url: "../GTA-JSDOS/index.html", favoriteId: "other-gta_jsdos" } ] },
+            { id: "other-simcity", name: "Sim City", imgSrc: "./images/simcity2000.png", description: "The original city-building classics. Design, build, and manage the city of your dreams in either the original Sim City or the detailed Sim City 2000.", category: "Others", versions: [ { name: "Sim City", url: "../SIM-CITY/index.html", favoriteId: "other-simcity_1" }, { name: "Sim City 2000", url: "../SIM-CITY-2/index.html", favoriteId: "other-simcity_2000" } ] },
+            { id: "other-doom", name: "DOOM", imgSrc: "./images/doom.png", description: "The legendary first-person shooter that pioneered the genre, focusing on blasting through hordes of demons in a timeless, adrenaline-fueled classic.", category: "Others", url: "../DOOM/index.html" },
+            { id: "other-sm64", name: "Super Mario 64", imgSrc: "./images/sm64.png", description: "The iconic 3D platformer that revolutionized gaming. Run, jump, and triple-jump your way through vast worlds to collect stars and save the princess.", category: "Others", url: "../GAMES/sm64/index.html" }
         ];
 
         // --- Card Creation ---
@@ -1049,7 +993,7 @@
             card.dataset.gameId = game.id;
 
             // Resolve Image URL
-            const resolvedImgSrc = game.id === 'other-balatro' ? game.imgSrc : resolveGameUrl(game.imgSrc);
+            const resolvedImgSrc = resolveGameUrl(game.imgSrc);
 
             let gameButtonsHtml = '';
             let favoriteButtonHtml = '';
@@ -1068,22 +1012,18 @@
                 }
                 favoriteButtonHtml = `<div class="relative"><button class="btn-card-action fav-action version-favorite-btn ${isAnyFavorite ? 'favorited' : ''}" title="Favorite a version"><i class="fa-solid fa-star fa-solid-star transition-colors"></i><i class="fa-regular fa-star fa-regular-star transition-colors"></i></button><div class="eagler-dropdown">${game.versions.map(v => `<a href="#" class="eagler-dropdown-link favorite-link" data-favorite-id="${v.favoriteId}">${v.name}</a>`).join('')}</div></div>`;
             } else {
-                if (game.isDownload) {
-                    gameButtonsHtml = `<a class="btn-card-action download-action" href="${game.url}" target="_blank" title="Download Game"><i class="fa-solid fa-download transition-colors"></i></a>`;
-                } else {
-                    const gUrl = resolveGameUrl(game.url);
-                    gameButtonsHtml = `<button class="btn-card-action play-action" data-url="${gUrl}" title="Play Game"><i class="fa-solid fa-play transition-colors"></i></button>`;
-                }
+                const gUrl = resolveGameUrl(game.url);
+                gameButtonsHtml = `<button class="btn-card-action play-action" data-url="${gUrl}" title="Play Game"><i class="fa-solid fa-play transition-colors"></i></button>`;
                 favoriteButtonHtml = `<button class="btn-card-action fav-action ${isAnyFavorite ? 'favorited' : ''}" title="${isAnyFavorite ? 'Remove from Favorites' : 'Add to Favorites'}"><i class="fa-solid fa-star fa-solid-star transition-colors"></i><i class="fa-regular fa-star fa-regular-star transition-colors"></i></button>`;
             }
 
             card.innerHTML = `
                 <div class="relative w-full h-full cursor-pointer group" style="min-height: 250px;">
-                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="${resolvedImgSrc}" alt="${game.name}" class="w-full h-full object-cover absolute inset-0 rounded-2xl">
+                    <img data-src="${resolvedImgSrc}" alt="${game.name}" loading="lazy" decoding="async" class="w-full h-full object-cover absolute inset-0 rounded-2xl">
                     <div class="image-overlay absolute inset-0 transition-colors duration-200"></div>
                     <div class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between rounded-2xl">
                         <div class="flex items-start justify-between w-full">
-                            <h3 class="text-4xl font-bold text-white truncate drop-shadow-lg group-hover:max-w-[calc(100%-1rem)] transition-all duration-700 ease-[cubic-bezier(0.45,0,0.55,1)]" title="${game.name}">${game.name}</h3>
+                            <h3 class="text-4xl font-bold text-white truncate drop-shadow-lg" style="max-width: 80%;" title="${game.name}">${game.name}</h3>
                             <div class="flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-2xl p-1.5">
                                 ${gameButtonsHtml}
                                 ${favoriteButtonHtml}
@@ -1095,23 +1035,12 @@
             `;
             
             if (!game.versions) { 
-                if (game.isDownload) {
-                     card.querySelector('.group').addEventListener('click', (e) => { e.preventDefault(); window.open(game.url, '_blank'); });
-                } else {
-                     card.querySelector('.group').addEventListener('click', () => {
-                          const gUrl = resolveGameUrl(game.url);
-                          openZone({...game, url: gUrl}); 
-                     }); 
-                }
+                card.querySelector('.group').addEventListener('click', () => {
+                     const gUrl = resolveGameUrl(game.url);
+                     openZone({...game, url: gUrl}); 
+                }); 
             }
-            card.querySelectorAll('.play-action, .download-action').forEach(btn => btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (btn.classList.contains('download-action')) {
-                    window.open(btn.href, '_blank');
-                } else {
-                    openZone({ ...game, name: btn.dataset.versionName ? `${game.name} - ${btn.dataset.versionName}` : game.name, url: btn.dataset.url });
-                }
-            }));
+            card.querySelectorAll('.play-action').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openZone({ ...game, name: btn.dataset.versionName ? `${game.name} - ${btn.dataset.versionName}` : game.name, url: btn.dataset.url }); }));
             
             const versionBtn = card.querySelector('.version-btn');
             if (versionBtn) { versionBtn.addEventListener('click', (e) => { e.stopPropagation(); document.querySelectorAll('.eagler-dropdown.show').forEach(d => d.classList.remove('show')); versionBtn.nextElementSibling.classList.toggle('show'); }); }
@@ -1135,11 +1064,9 @@
             
             // Resolve Image Src
             let imgSrc = game.imgSrc;
-            if (game.id === 'other-balatro' && forceSmallCard) {
-                imgSrc = "../GAMES/others/balatro-3-2.png";
-            } else if (isStrongdog) {
-                 imgSrc = getAdjustedUrls(game).adjustedImgSrc;
-            } else if (game.category === 'Others') {
+            if (isStrongdog) {
+                 imgSrc = getAdjustedUrls(game.imgSrc, game.page).adjustedImgSrc;
+            } else if (game.category === 'Others' || game.category === 'Gameboy Games') {
                  imgSrc = resolveGameUrl(game.imgSrc);
             }
 
@@ -1150,10 +1077,10 @@
             card.dataset.gameId = game.id;
             card.innerHTML = `
                 <div class="relative w-full cursor-pointer group">
-                    <div class="aspect-w-3 aspect-h-2"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="${imgSrc}" alt="${game.name}" class="w-full h-full object-cover"></div>
-                    <h3 class="absolute top-2 right-2 z-10 max-w-[80%] group-hover:max-w-[calc(100%-1rem)] transition-all duration-700 ease-[cubic-bezier(0.45,0,0.55,1)] bg-black/60 backdrop-blur-md rounded-xl px-3 py-1.5 text-white truncate text-sm font-semibold shadow-lg" title="${game.name}">${game.name}</h3>
+                    <div class="aspect-w-3 aspect-h-2"><img data-src="${imgSrc}" alt="${game.name}" class="w-full h-full object-cover"></div>
+                    <h3 class="absolute top-2 right-2 z-10 max-w-[80%] bg-black/60 backdrop-blur-md rounded-xl px-3 py-1.5 text-white truncate text-sm font-semibold shadow-lg" title="${game.name}">${game.name}</h3>
                     <div class="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-2xl p-1.5 flex items-center gap-1.5 shadow-lg">
-                        ${game.isDownload ? `<a class="btn-card-action download-action" href="${game.url}" target="_blank" title="Download Game"><i class="fa-solid fa-download transition-colors"></i></a>` : `<button class="btn-card-action play-action" title="Play Game"><i class="fa-solid fa-play transition-colors"></i></button>`}
+                        <button class="btn-card-action play-action" title="Play Game"><i class="fa-solid fa-play transition-colors"></i></button>
                         <button class="btn-card-action fav-action ${isFavorite ? 'favorited' : ''}" title="${isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}"><i class="fa-solid fa-star fa-solid-star transition-colors"></i><i class="fa-regular fa-star fa-regular-star transition-colors"></i></button>
                     </div>
                 </div>
@@ -1161,29 +1088,23 @@
             
             const handlePlay = async (e) => {
                 e.stopPropagation();
-                if (game.isDownload) {
-                    window.open(game.url, '_blank');
-                } else if (isStrongdog) {
-                    const baseURL = sd_getBaseURLForPage(game);
+                if (isStrongdog) {
+                    const baseURL = sd_getBaseURLForPage(game.page);
                     let adjustedHref = baseURL.endsWith("/") ? baseURL + game.href.replace(/^\.\//, "") : baseURL + "/" + game.href.replace(/^\.\//, "");
                     const embedPath = await sd_getEmbedPath(adjustedHref, game.href, game.page);
                     openZone({ name: game.name, url: embedPath, category: game.category, id: game.id });
                 } else {
+                    // For GN-Math, url is absolute (handled in init). For Others/Gameboy, we might need to resolve
                     let gUrl = game.url;
-                    if (game.category === 'Others') {
-                        gUrl = resolveGameUrl(gUrl);
+                    if (game.category === 'Others' || game.category === 'Gameboy Games') {
+                        gUrl = resolveGameUrl(game.url);
                     }
                     openZone({ ...game, url: gUrl });
                 }
             };
 
-            if (game.isDownload) {
-                 card.querySelector('.group').addEventListener('click', (e) => { e.preventDefault(); window.open(game.url, '_blank'); });
-                 card.querySelector('.download-action').addEventListener('click', (e) => { e.stopPropagation(); window.open(e.currentTarget.href, '_blank'); });
-            } else {
-                 card.querySelector('.group').addEventListener('click', handlePlay);
-                 card.querySelector('.play-action').addEventListener('click', handlePlay);
-            }
+            card.querySelector('.group').addEventListener('click', handlePlay);
+            card.querySelector('.play-action').addEventListener('click', handlePlay);
             card.querySelector('.fav-action').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(game.id); });
             imageObserver.observe(card.querySelector('img'));
             return card;
@@ -1430,10 +1351,10 @@
                         game.versions.forEach(v => { 
                             if (favoriteIds.includes(String(v.favoriteId))) {
                                 let vUrl = v.url;
-                                if (game.category === 'Others') {
+                                if (game.category === 'Others' || game.category === 'Gameboy Games') {
                                     vUrl = resolveGameUrl(v.url);
                                 }
-                                favoriteGames.push({ ...game, id: v.favoriteId, name: `${game.name} - ${v.name}`, url: vUrl, imgSrc: game.imgSrc, versions: undefined }); 
+                                favoriteGames.push({ ...game, id: v.favoriteId, name: `${game.name} - ${v.name}`, url: vUrl, versions: undefined }); 
                             }
                         }); 
                     }
@@ -1495,9 +1416,9 @@
                 let finalGameData = { ...game }; // clone
 
                 if (isStrongdog) {
-                    const { adjustedImgSrc } = getAdjustedUrls(game);
+                    const { adjustedImgSrc } = getAdjustedUrls(game.imgSrc, game.page);
                     imgSrc = adjustedImgSrc;
-                } else if (game.category === 'Others') {
+                } else if (game.category === 'Others' || game.category === 'Gameboy Games') {
                     imgSrc = resolveGameUrl(game.imgSrc);
                     finalGameData.url = resolveGameUrl(game.url);
                 } else {
@@ -1543,7 +1464,7 @@
                 linkEl.addEventListener('click', async (e) => {
                     e.preventDefault();
                     if (isStrongdog) {
-                        const baseURL = sd_getBaseURLForPage(game);
+                        const baseURL = sd_getBaseURLForPage(game.page);
                         let adjustedHref = baseURL.endsWith("/") ? baseURL + game.href.replace(/^\.\//, "") : baseURL + "/" + game.href.replace(/^\.\//, "");
                         const embedPath = await sd_getEmbedPath(adjustedHref, game.href, game.page);
                         const strongdogGameData = { name: game.name, url: embedPath, category: game.category, id: game.id };
@@ -1605,28 +1526,69 @@
             // Load Game Data Manually
             let gamesData = [];
             try {
-                const module = await import(CARDS_DATA_URL);
-                gamesData = module.default;
+                gamesData = await fetchGameData();
             } catch (e) {
                 console.error("Could not load external games data", e);
             }
             
-            const strongdogGames = gamesData.map(g => {
-                const prefixedId = `sd-${g.id}`;
-                if (g.versions) {
-                    const prefixedVersions = g.versions.map(v => ({
-                        ...v,
-                        favoriteId: `${prefixedId}_${v.name.replace(/\s+/g, '-')}` // Ensure favoriteId is also unique
-                    }));
-                    return { ...g, id: prefixedId, category: 'StrongdogXP', versions: prefixedVersions };
-                }
-                return { ...g, id: prefixedId, category: 'StrongdogXP' };
-            });
+            const strongdogGames = gamesData.map(g => ({ ...g, category: 'StrongdogXP' }));
             
             try {
-                const res = await fetch(GN_ZONES_URL);
-                const gnMathRaw = await res.json();
-                const gnMathGames = gnMathRaw.map(g => ({ id: `gn-${g.id}`, name: g.name, imgSrc: g.cover.replace("{COVER_URL}", GN_COVER_URL_BASE), category: 'GN-Math', url: g.url.replace("{HTML_URL}", GN_HTML_URL_BASE) }));
+                let sharesponse;
+                let shajson;
+                let sha;
+                try {
+                    sharesponse = await fetch("https://api.github.com/repos/gn-math/assets/commits?t="+Date.now());
+                } catch (error) {}
+                if (sharesponse && sharesponse.status === 200) {
+                    try {
+                        shajson = await sharesponse.json();
+                        sha = shajson[0]['sha'];
+                        if (sha) {
+                            zonesURL = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
+                        }
+                    } catch (error) {
+                        try {
+                            let secondarysharesponse = await fetch("https://raw.githubusercontent.com/gn-math/xml/refs/heads/main/sha.txt?t="+Date.now());
+                            if (secondarysharesponse && secondarysharesponse.status === 200) {
+                                sha = (await secondarysharesponse.text()).trim();
+                                if (sha) {
+                                    zonesURL = `https://cdn.jsdelivr.net/gh/gn-math/assets@${sha}/zones.json`;
+                                }
+                            }
+                        } catch(error) {}
+                    }
+                }
+
+                // Fetch data for popularity (not actively used for sort here, but part of the original logic)
+                const popularityData = {};
+                try {
+                    const response = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period=year");
+                    const data = await response.json();
+                    data.forEach(file => {
+                        const idMatch = file.name.match(/\/(\d+)\.html$/);
+                        if (idMatch) {
+                            const id = parseInt(idMatch[1]);
+                            popularityData[id] = file.hits.total;
+                        }
+                    });
+                } catch (error) {
+                    popularityData[0] = 0;
+                }
+
+                const response = await fetch(zonesURL+"?t="+Date.now());
+                const gnMathRaw = await response.json();
+                
+                // Map to local structure using dynamic replacements
+                const gnMathGames = gnMathRaw.map(g => ({ 
+                    id: `gn-${g.id}`, 
+                    name: g.name, 
+                    imgSrc: g.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL), 
+                    category: 'GN-Math', 
+                    url: g.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL),
+                    popularity: popularityData[g.id] || 0
+                }));
+                
                 allGames = [...strongdogGames, ...gnMathGames, ...othersGames];
             } catch (error) { 
                 console.warn("Failed to load GN-Math, falling back to others.", error);
@@ -1654,7 +1616,7 @@
                 }
             });
 
-            categories = ['StrongdogXP', 'GN-Math', 'Others'].filter(cat => allGames.some(g => g.category === cat));
+            categories = ['StrongdogXP', 'GN-Math', 'Gameboy Games', 'Others'].filter(cat => allGames.some(g => g.category === cat));
 
             const { category: urlCat } = parseURL();
             if (urlCat) currentCategoryIndex = Math.max(0, categories.findIndex(c => c.replace(/\s+/g, '-').toLowerCase() === urlCat.toLowerCase()));
@@ -1760,7 +1722,7 @@
                                 ${linksHtml}
                             </div>
                             <div class="credit-img-col">
-                                <img src="${resolveGameUrl(data.logo)}" class="credit-logo" onerror="this.style.display='none'">
+                                <img src="${data.logo}" class="credit-logo" onerror="this.style.display='none'">
                             </div>
                         </div>
                     `;
@@ -1791,4 +1753,3 @@
     </script>
 </body>
 </html>
-<!-- Made with ❤️ from 4SP -->

@@ -1595,7 +1595,7 @@
                 allGames = [...strongdogGames, ...othersGames]; 
             }
 
-            allGames = allGames.filter(g => !['bitlife', 'soundboard'].some(term => g.name.toLowerCase().includes(term)));
+            allGames = allGames.filter(g => !['bitlife', 'soundboard', 'five nights at e'].some(term => g.name.toLowerCase().includes(term)));
             
             searchableGames = [];
             allGames.forEach(game => {

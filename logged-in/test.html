@@ -61,7 +61,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
      <script src="../navigation.js"></script>
-     <script src="../ban-enforcer.js"></script>
+     <script src="../ban-enforcer.js" type="module"></script>
 
     
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1D4F692C1Q"></script>
@@ -1663,7 +1663,7 @@
                 allGames = [...strongdogGames, ...othersGames]; 
             }
 
-            allGames = allGames.filter(g => !['bitlife', 'soundboard'].some(term => g.name.toLowerCase().includes(term)));
+            allGames = allGames.filter(g => !['bitlife', 'soundboard', 'five nights at e'].some(term => g.name.toLowerCase().includes(term)));
             
             searchableGames = [];
             allGames.forEach(game => {

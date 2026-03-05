@@ -291,8 +291,9 @@ let db;
 
         let pages = {};
         await loadCSS("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css");
-        // Load Fireworks JS
+        // Load Fireworks JS and Party JS
         await loadScript("https://cdn.jsdelivr.net/npm/fireworks-js@2.x/dist/index.umd.js");
+        await loadScript("https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js");
         
         try {
             const response = await fetch(window.PAGE_CONFIG_URL);

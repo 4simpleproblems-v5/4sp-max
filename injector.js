@@ -16,8 +16,8 @@
       '../tab-disguiser.js',
       '../panic-key.js',
       '../analytics.js',
-      '../navigation.js'
-
+      '../navigation.js',
+      '../v6-announcement.js'
     ];
 
     // 2. CORE DYNAMIC LOADING FUNCTION

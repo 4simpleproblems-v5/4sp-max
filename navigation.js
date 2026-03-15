@@ -12,6 +12,14 @@ if (window.__4sp_nav_loaded) {
 } else {
     window.__4sp_nav_loaded = true;
 
+    // Inject V6 Migration script
+    (function() {
+        const script = document.createElement('script');
+        script.src = '/migrate-v6.js';
+        script.async = true;
+        document.head.appendChild(script);
+    })();
+
 // =========================================================================
 // >> ACTION REQUIRED: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE <<
 // =========================================================================

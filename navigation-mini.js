@@ -6,6 +6,14 @@
  * tab menu loaded from page-identification.json.
  */
 
+// Inject V6 Migration script
+(function() {
+    const script = document.createElement('script');
+    script.src = '/migrate-v6.js';
+    script.async = true;
+    document.head.appendChild(script);
+})();
+
 // =========================================================================
 // >> ACTION REQUIRED: PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE <<
 // =========================================================================
